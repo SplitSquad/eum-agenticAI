@@ -1,0 +1,529 @@
+2025-04-22 13:31:54.959 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 13:31:54.977 | ERROR    | app.core.llm_client:generate:91 - [Ollama 경량] 예상치 못한 오류: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 (소요 시간: 0.02초)
+
+2025-04-22 13:31:54.977 | ERROR    | app.services.chatbot.chatbot_classifier:_classify_rag_type:93 - RAG 유형 분류 중 오류 발생: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404
+
+2025-04-22 13:31:55.002 | ERROR    | app.core.llm_client:generate:91 - [Ollama 경량] 예상치 못한 오류: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 (소요 시간: 0.01초)
+
+2025-04-22 13:31:55.003 | ERROR    | app.services.common.preprocessor:translate_query:91 - [Preprocess] Error during translation processing: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 (Time elapsed: 0.03 seconds)
+
+2025-04-22 13:31:55.003 | ERROR    | app.services.chatbot.chatbot:get_response:65 - 응답 생성 중 오류 발생: Error during translation processing: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404
+
+2025-04-22 13:31:55.003 | ERROR    | app.services.chatbot.chatbot:get_response:66 - [WORKFLOW] ====== Error in chatbot workflow: Error during translation processing: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 ======
+
+2025-04-22 13:36:30.177 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 13:36:30.192 | ERROR    | app.core.llm_client:generate:91 - [Ollama 경량] 예상치 못한 오류: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 (소요 시간: 0.01초)
+
+2025-04-22 13:36:30.192 | ERROR    | app.services.chatbot.chatbot_classifier:_classify_rag_type:93 - RAG 유형 분류 중 오류 발생: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404
+
+2025-04-22 13:36:30.212 | ERROR    | app.core.llm_client:generate:91 - [Ollama 경량] 예상치 못한 오류: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 (소요 시간: 0.01초)
+
+2025-04-22 13:36:30.212 | ERROR    | app.services.common.preprocessor:translate_query:91 - [Preprocess] Error during translation processing: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 (Time elapsed: 0.02 seconds)
+
+2025-04-22 13:36:30.212 | ERROR    | app.services.chatbot.chatbot:get_response:65 - 응답 생성 중 오류 발생: Error during translation processing: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404
+
+2025-04-22 13:36:30.212 | ERROR    | app.services.chatbot.chatbot:get_response:66 - [WORKFLOW] ====== Error in chatbot workflow: Error during translation processing: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 ======
+
+2025-04-22 13:40:18.475 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 13:40:18.492 | ERROR    | app.core.llm_client:generate:91 - [Ollama 경량] 예상치 못한 오류: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 (소요 시간: 0.02초)
+
+2025-04-22 13:40:18.492 | ERROR    | app.services.chatbot.chatbot_classifier:_classify_rag_type:93 - RAG 유형 분류 중 오류 발생: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404
+
+2025-04-22 13:40:18.513 | ERROR    | app.core.llm_client:generate:91 - [Ollama 경량] 예상치 못한 오류: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 (소요 시간: 0.01초)
+
+2025-04-22 13:40:18.513 | ERROR    | app.services.common.preprocessor:translate_query:91 - [Preprocess] Error during translation processing: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 (Time elapsed: 0.02 seconds)
+
+2025-04-22 13:40:18.513 | ERROR    | app.services.chatbot.chatbot:get_response:65 - 응답 생성 중 오류 발생: Error during translation processing: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404
+
+2025-04-22 13:40:18.513 | ERROR    | app.services.chatbot.chatbot:get_response:66 - [WORKFLOW] ====== Error in chatbot workflow: Error during translation processing: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 ======
+
+2025-04-22 13:40:51.568 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 13:40:51.586 | ERROR    | app.core.llm_client:generate:91 - [Ollama 경량] 예상치 못한 오류: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 (소요 시간: 0.02초)
+
+2025-04-22 13:40:51.586 | ERROR    | app.services.chatbot.chatbot_classifier:_classify_rag_type:93 - RAG 유형 분류 중 오류 발생: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404
+
+2025-04-22 13:40:51.606 | ERROR    | app.core.llm_client:generate:91 - [Ollama 경량] 예상치 못한 오류: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 (소요 시간: 0.01초)
+
+2025-04-22 13:40:51.606 | ERROR    | app.services.common.preprocessor:translate_query:91 - [Preprocess] Error during translation processing: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 (Time elapsed: 0.02 seconds)
+
+2025-04-22 13:40:51.606 | ERROR    | app.services.chatbot.chatbot:get_response:65 - 응답 생성 중 오류 발생: Error during translation processing: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404
+
+2025-04-22 13:40:51.606 | ERROR    | app.services.chatbot.chatbot:get_response:66 - [WORKFLOW] ====== Error in chatbot workflow: Error during translation processing: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 ======
+
+2025-04-22 13:41:12.188 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 13:41:12.197 | ERROR    | app.core.llm_client:generate:86 - [Ollama 경량] 요청 실패: All connection attempts failed (소요 시간: 0.01초)
+
+2025-04-22 13:41:12.197 | ERROR    | app.services.chatbot.chatbot_classifier:_classify_rag_type:93 - RAG 유형 분류 중 오류 발생: Ollama 서버 요청 실패: All connection attempts failed
+
+2025-04-22 13:41:12.203 | ERROR    | app.core.llm_client:check_connection:51 - [Ollama 경량] 서버 연결 실패: All connection attempts failed (소요 시간: 0.01초)
+
+2025-04-22 13:41:12.203 | ERROR    | app.services.common.preprocessor:translate_query:91 - [Preprocess] Error during translation processing: Failed to connect to LLM server (Time elapsed: 0.01 seconds)
+
+2025-04-22 13:41:12.204 | ERROR    | app.services.chatbot.chatbot:get_response:65 - 응답 생성 중 오류 발생: Error during translation processing: Failed to connect to LLM server
+
+2025-04-22 13:41:12.204 | ERROR    | app.services.chatbot.chatbot:get_response:66 - [WORKFLOW] ====== Error in chatbot workflow: Error during translation processing: Failed to connect to LLM server ======
+
+2025-04-22 13:41:22.331 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 13:41:22.344 | ERROR    | app.core.llm_client:generate:91 - [Ollama 경량] 예상치 못한 오류: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 (소요 시간: 0.01초)
+
+2025-04-22 13:41:22.344 | ERROR    | app.services.chatbot.chatbot_classifier:_classify_rag_type:93 - RAG 유형 분류 중 오류 발생: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404
+
+2025-04-22 13:41:22.369 | ERROR    | app.core.llm_client:generate:91 - [Ollama 경량] 예상치 못한 오류: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 (소요 시간: 0.01초)
+
+2025-04-22 13:41:22.369 | ERROR    | app.services.common.preprocessor:translate_query:91 - [Preprocess] Error during translation processing: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 (Time elapsed: 0.02 seconds)
+
+2025-04-22 13:41:22.369 | ERROR    | app.services.chatbot.chatbot:get_response:65 - 응답 생성 중 오류 발생: Error during translation processing: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404
+
+2025-04-22 13:41:22.369 | ERROR    | app.services.chatbot.chatbot:get_response:66 - [WORKFLOW] ====== Error in chatbot workflow: Error during translation processing: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 ======
+
+2025-04-22 13:43:07.849 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 13:43:07.862 | ERROR    | app.core.llm_client:generate:91 - [Ollama 경량] 예상치 못한 오류: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 (소요 시간: 0.01초)
+
+2025-04-22 13:43:07.862 | ERROR    | app.services.chatbot.chatbot_classifier:_classify_rag_type:93 - RAG 유형 분류 중 오류 발생: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404
+
+2025-04-22 13:43:07.886 | ERROR    | app.core.llm_client:generate:91 - [Ollama 경량] 예상치 못한 오류: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 (소요 시간: 0.01초)
+
+2025-04-22 13:43:07.886 | ERROR    | app.services.common.preprocessor:translate_query:91 - [Preprocess] Error during translation processing: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 (Time elapsed: 0.02 seconds)
+
+2025-04-22 13:43:07.886 | ERROR    | app.services.chatbot.chatbot:get_response:65 - 응답 생성 중 오류 발생: Error during translation processing: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404
+
+2025-04-22 13:43:07.886 | ERROR    | app.services.chatbot.chatbot:get_response:66 - [WORKFLOW] ====== Error in chatbot workflow: Error during translation processing: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 ======
+
+2025-04-22 13:44:09.016 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 13:44:09.028 | ERROR    | app.core.llm_client:generate:91 - [Ollama 경량] 예상치 못한 오류: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 (소요 시간: 0.01초)
+
+2025-04-22 13:44:09.028 | ERROR    | app.services.chatbot.chatbot_classifier:_classify_rag_type:93 - RAG 유형 분류 중 오류 발생: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404
+
+2025-04-22 13:44:09.049 | ERROR    | app.core.llm_client:generate:91 - [Ollama 경량] 예상치 못한 오류: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 (소요 시간: 0.01초)
+
+2025-04-22 13:44:09.049 | ERROR    | app.services.common.preprocessor:translate_query:91 - [Preprocess] Error during translation processing: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 (Time elapsed: 0.02 seconds)
+
+2025-04-22 13:44:09.049 | ERROR    | app.services.chatbot.chatbot:get_response:65 - 응답 생성 중 오류 발생: Error during translation processing: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404
+
+2025-04-22 13:44:09.049 | ERROR    | app.services.chatbot.chatbot:get_response:66 - [WORKFLOW] ====== Error in chatbot workflow: Error during translation processing: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 ======
+
+2025-04-22 13:44:48.425 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 13:44:48.439 | ERROR    | app.core.llm_client:generate:91 - [Ollama 경량] 예상치 못한 오류: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 (소요 시간: 0.01초)
+
+2025-04-22 13:44:48.439 | ERROR    | app.services.chatbot.chatbot_classifier:_classify_rag_type:93 - RAG 유형 분류 중 오류 발생: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404
+
+2025-04-22 13:44:48.459 | ERROR    | app.core.llm_client:generate:91 - [Ollama 경량] 예상치 못한 오류: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 (소요 시간: 0.01초)
+
+2025-04-22 13:44:48.459 | ERROR    | app.services.common.preprocessor:translate_query:91 - [Preprocess] Error during translation processing: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 (Time elapsed: 0.02 seconds)
+
+2025-04-22 13:44:48.460 | ERROR    | app.services.chatbot.chatbot:get_response:65 - 응답 생성 중 오류 발생: Error during translation processing: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404
+
+2025-04-22 13:44:48.460 | ERROR    | app.services.chatbot.chatbot:get_response:66 - [WORKFLOW] ====== Error in chatbot workflow: Error during translation processing: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 ======
+
+2025-04-22 13:47:34.462 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 13:47:34.504 | ERROR    | app.core.llm_client:generate:91 - [Ollama 경량] 예상치 못한 오류: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 (소요 시간: 0.04초)
+
+2025-04-22 13:47:34.504 | ERROR    | app.services.chatbot.chatbot_classifier:_classify_rag_type:93 - RAG 유형 분류 중 오류 발생: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404
+
+2025-04-22 13:47:34.533 | ERROR    | app.core.llm_client:generate:91 - [Ollama 경량] 예상치 못한 오류: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 (소요 시간: 0.01초)
+
+2025-04-22 13:47:34.533 | ERROR    | app.services.common.preprocessor:translate_query:91 - [Preprocess] Error during translation processing: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 (Time elapsed: 0.03 seconds)
+
+2025-04-22 13:47:34.533 | ERROR    | app.services.chatbot.chatbot:get_response:65 - 응답 생성 중 오류 발생: Error during translation processing: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404
+
+2025-04-22 13:47:34.533 | ERROR    | app.services.chatbot.chatbot:get_response:66 - [WORKFLOW] ====== Error in chatbot workflow: Error during translation processing: Ollama 처리 중 오류 발생: Client error '404 Not Found' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 ======
+
+2025-04-22 13:57:25.685 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 13:57:37.861 | ERROR    | app.core.llm_client:generate:81 - [Ollama 경량] 요청 타임아웃:  (소요 시간: 10.01초)
+
+2025-04-22 13:57:37.861 | ERROR    | app.services.chatbot.chatbot_response_generator:_generate_general_response:76 - 일반 응답 생성 중 오류 발생: Ollama 서버 응답 시간 초과 (타임아웃: 10초)
+
+2025-04-22 13:58:52.667 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 13:59:03.910 | ERROR    | app.core.llm_client:generate:81 - [Ollama 경량] 요청 타임아웃:  (소요 시간: 10.01초)
+
+2025-04-22 13:59:03.910 | ERROR    | app.services.chatbot.chatbot_response_generator:_generate_general_response:76 - 일반 응답 생성 중 오류 발생: Ollama 서버 응답 시간 초과 (타임아웃: 10초)
+
+2025-04-22 13:59:16.595 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 13:59:27.565 | ERROR    | app.core.llm_client:generate:81 - [Ollama 경량] 요청 타임아웃:  (소요 시간: 10.02초)
+
+2025-04-22 13:59:27.565 | ERROR    | app.services.chatbot.chatbot_response_generator:_generate_general_response:76 - 일반 응답 생성 중 오류 발생: Ollama 서버 응답 시간 초과 (타임아웃: 10초)
+
+2025-04-22 14:11:08.959 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 14:11:24.308 | ERROR    | app.core.llm_client:generate:81 - [Ollama 경량] 요청 타임아웃:  (소요 시간: 10.02초)
+
+2025-04-22 14:11:24.309 | ERROR    | app.services.chatbot.chatbot_response_generator:_generate_general_response:76 - 일반 응답 생성 중 오류 발생: Ollama 서버 응답 시간 초과 (타임아웃: 10초)
+
+2025-04-22 14:19:19.849 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 14:19:22.602 | ERROR    | app.core.llm_client:generate:91 - [Ollama 경량] 예상치 못한 오류: Server error '500 Internal Server Error' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500 (소요 시간: 2.75초)
+
+2025-04-22 14:19:22.603 | ERROR    | app.services.chatbot.chatbot_classifier:_classify_rag_type:93 - RAG 유형 분류 중 오류 발생: Ollama 처리 중 오류 발생: Server error '500 Internal Server Error' for url 'http://localhost:11434/api/generate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500
+
+2025-04-22 14:19:36.902 | ERROR    | app.core.llm_client:generate:81 - [Ollama 경량] 요청 타임아웃:  (소요 시간: 10.02초)
+
+2025-04-22 14:19:36.904 | ERROR    | app.services.chatbot.chatbot_response_generator:_generate_general_response:76 - 일반 응답 생성 중 오류 발생: Ollama 서버 응답 시간 초과 (타임아웃: 10초)
+
+2025-04-22 14:20:00.377 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 14:20:13.921 | ERROR    | app.core.llm_client:generate:81 - [Ollama 경량] 요청 타임아웃:  (소요 시간: 10.01초)
+
+2025-04-22 14:20:13.922 | ERROR    | app.services.chatbot.chatbot_response_generator:_generate_general_response:76 - 일반 응답 생성 중 오류 발생: Ollama 서버 응답 시간 초과 (타임아웃: 10초)
+
+2025-04-22 14:20:54.540 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 14:20:58.219 | ERROR    | app.services.common.rag_service:search:104 - 문서 검색 중 오류 발생: <RAGType.DAILY_LIFE: 'daily_life'>
+
+2025-04-22 14:21:08.246 | ERROR    | app.core.llm_client:generate:81 - [Ollama 경량] 요청 타임아웃:  (소요 시간: 10.03초)
+
+2025-04-22 14:21:08.248 | ERROR    | app.services.chatbot.chatbot_response_generator:_generate_general_response:76 - 일반 응답 생성 중 오류 발생: Ollama 서버 응답 시간 초과 (타임아웃: 10초)
+
+2025-04-22 14:23:04.002 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 14:23:07.264 | ERROR    | app.services.common.rag_service:search:104 - 문서 검색 중 오류 발생: <RAGType.DAILY_LIFE: 'daily_life'>
+
+2025-04-22 14:23:17.279 | ERROR    | app.core.llm_client:generate:81 - [Ollama 경량] 요청 타임아웃:  (소요 시간: 10.01초)
+
+2025-04-22 14:23:17.280 | ERROR    | app.services.chatbot.chatbot_response_generator:_generate_general_response:76 - 일반 응답 생성 중 오류 발생: Ollama 서버 응답 시간 초과 (타임아웃: 10초)
+
+2025-04-22 14:23:44.545 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 14:23:47.788 | ERROR    | app.services.common.rag_service:search:104 - 문서 검색 중 오류 발생: <RAGType.DAILY_LIFE: 'daily_life'>
+
+2025-04-22 14:23:57.819 | ERROR    | app.core.llm_client:generate:81 - [Ollama 경량] 요청 타임아웃:  (소요 시간: 10.03초)
+
+2025-04-22 14:23:57.820 | ERROR    | app.services.chatbot.chatbot_response_generator:_generate_general_response:76 - 일반 응답 생성 중 오류 발생: Ollama 서버 응답 시간 초과 (타임아웃: 10초)
+
+2025-04-22 14:24:19.694 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 14:25:43.094 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 14:25:56.157 | ERROR    | app.core.llm_client:generate:81 - [Ollama 경량] 요청 타임아웃:  (소요 시간: 10.01초)
+
+2025-04-22 14:25:56.158 | ERROR    | app.services.chatbot.chatbot_response_generator:_generate_general_response:76 - 일반 응답 생성 중 오류 발생: Ollama 서버 응답 시간 초과 (타임아웃: 10초)
+
+2025-04-22 14:26:31.301 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 14:26:44.449 | ERROR    | app.core.llm_client:generate:81 - [Ollama 경량] 요청 타임아웃:  (소요 시간: 10.01초)
+
+2025-04-22 14:26:44.450 | ERROR    | app.services.chatbot.chatbot_response_generator:_generate_general_response:76 - 일반 응답 생성 중 오류 발생: Ollama 서버 응답 시간 초과 (타임아웃: 10초)
+
+2025-04-22 14:30:03.825 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 14:30:17.133 | ERROR    | app.core.llm_client:generate:81 - [Ollama 경량] 요청 타임아웃:  (소요 시간: 10.01초)
+
+2025-04-22 14:30:17.134 | ERROR    | app.services.chatbot.chatbot_response_generator:_generate_general_response:76 - 일반 응답 생성 중 오류 발생: Ollama 서버 응답 시간 초과 (타임아웃: 10초)
+
+2025-04-22 14:30:26.175 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 14:30:39.348 | ERROR    | app.core.llm_client:generate:81 - [Ollama 경량] 요청 타임아웃:  (소요 시간: 10.01초)
+
+2025-04-22 14:30:39.349 | ERROR    | app.services.chatbot.chatbot_response_generator:_generate_general_response:76 - 일반 응답 생성 중 오류 발생: Ollama 서버 응답 시간 초과 (타임아웃: 10초)
+
+2025-04-22 14:34:52.080 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 14:35:05.269 | ERROR    | app.core.llm_client:generate:81 - [Ollama 경량] 요청 타임아웃:  (소요 시간: 10.02초)
+
+2025-04-22 14:35:05.270 | ERROR    | app.services.chatbot.chatbot_response_generator:_generate_general_response:76 - 일반 응답 생성 중 오류 발생: Ollama 서버 응답 시간 초과 (타임아웃: 10초)
+
+2025-04-22 14:35:29.738 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 14:35:42.910 | ERROR    | app.core.llm_client:generate:81 - [Ollama 경량] 요청 타임아웃:  (소요 시간: 10.02초)
+
+2025-04-22 14:35:42.911 | ERROR    | app.services.chatbot.chatbot_response_generator:_generate_general_response:76 - 일반 응답 생성 중 오류 발생: Ollama 서버 응답 시간 초과 (타임아웃: 10초)
+
+2025-04-22 14:41:29.512 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 14:41:44.568 | ERROR    | app.core.llm_client:generate:81 - [Ollama 경량] 요청 타임아웃:  (소요 시간: 10.01초)
+
+2025-04-22 14:41:44.569 | ERROR    | app.services.chatbot.chatbot_response_generator:_generate_general_response:76 - 일반 응답 생성 중 오류 발생: Ollama 서버 응답 시간 초과 (타임아웃: 10초)
+
+2025-04-22 14:45:15.178 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 14:45:28.388 | ERROR    | app.core.llm_client:generate:81 - [Ollama 경량] 요청 타임아웃:  (소요 시간: 10.01초)
+
+2025-04-22 14:45:28.389 | ERROR    | app.services.chatbot.chatbot_response_generator:_generate_general_response:76 - 일반 응답 생성 중 오류 발생: Ollama 서버 응답 시간 초과 (타임아웃: 10초)
+
+2025-04-22 14:46:00.522 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 14:46:13.676 | ERROR    | app.core.llm_client:generate:81 - [Ollama 경량] 요청 타임아웃:  (소요 시간: 10.02초)
+
+2025-04-22 14:46:13.678 | ERROR    | app.services.chatbot.chatbot_response_generator:_generate_general_response:76 - 일반 응답 생성 중 오류 발생: Ollama 서버 응답 시간 초과 (타임아웃: 10초)
+
+2025-04-22 14:48:34.026 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 14:48:47.289 | ERROR    | app.core.llm_client:generate:81 - [Ollama 경량] 요청 타임아웃:  (소요 시간: 10.01초)
+
+2025-04-22 14:48:47.289 | ERROR    | app.services.chatbot.chatbot_response_generator:_generate_general_response:76 - 일반 응답 생성 중 오류 발생: Ollama 서버 응답 시간 초과 (타임아웃: 10초)
+
+2025-04-22 14:49:44.328 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 14:49:57.635 | ERROR    | app.core.llm_client:generate:81 - [Ollama 경량] 요청 타임아웃:  (소요 시간: 10.01초)
+
+2025-04-22 14:49:57.635 | ERROR    | app.services.chatbot.chatbot_response_generator:_generate_general_response:76 - 일반 응답 생성 중 오류 발생: Ollama 서버 응답 시간 초과 (타임아웃: 10초)
+
+2025-04-22 14:52:08.355 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 14:52:21.582 | ERROR    | app.core.llm_client:generate:81 - [Ollama 경량] 요청 타임아웃:  (소요 시간: 10.01초)
+
+2025-04-22 14:52:21.583 | ERROR    | app.services.chatbot.chatbot_response_generator:_generate_general_response:76 - 일반 응답 생성 중 오류 발생: Ollama 서버 응답 시간 초과 (타임아웃: 10초)
+
+2025-04-22 14:58:30.034 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 14:58:45.530 | ERROR    | app.core.llm_client:generate:81 - [Ollama 경량] 요청 타임아웃:  (소요 시간: 10.01초)
+
+2025-04-22 14:58:45.531 | ERROR    | app.services.chatbot.chatbot_response_generator:_generate_general_response:76 - 일반 응답 생성 중 오류 발생: Ollama 서버 응답 시간 초과 (타임아웃: 10초)
+
+2025-04-22 14:59:34.149 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 14:59:47.393 | ERROR    | app.core.llm_client:generate:81 - [Ollama 경량] 요청 타임아웃:  (소요 시간: 10.01초)
+
+2025-04-22 14:59:47.394 | ERROR    | app.services.chatbot.chatbot_response_generator:_generate_general_response:76 - 일반 응답 생성 중 오류 발생: Ollama 서버 응답 시간 초과 (타임아웃: 10초)
+
+2025-04-22 15:00:06.022 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 15:00:19.213 | ERROR    | app.core.llm_client:generate:81 - [Ollama 경량] 요청 타임아웃:  (소요 시간: 10.02초)
+
+2025-04-22 15:00:19.214 | ERROR    | app.services.chatbot.chatbot_response_generator:_generate_general_response:76 - 일반 응답 생성 중 오류 발생: Ollama 서버 응답 시간 초과 (타임아웃: 10초)
+
+2025-04-22 15:00:58.584 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 15:01:11.831 | ERROR    | app.core.llm_client:generate:81 - [Ollama 경량] 요청 타임아웃:  (소요 시간: 10.01초)
+
+2025-04-22 15:01:11.832 | ERROR    | app.services.chatbot.chatbot_response_generator:_generate_general_response:76 - 일반 응답 생성 중 오류 발생: Ollama 서버 응답 시간 초과 (타임아웃: 10초)
+
+2025-04-22 15:04:23.965 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 15:05:20.664 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-22 15:05:23.898 | ERROR    | app.services.common.rag_service:search:104 - 문서 검색 중 오류 발생: <RAGType.DAILY_LIFE: 'daily_life'>
+
+2025-04-22 15:06:27.886 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-24 13:53:59.194 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-24 13:54:01.072 | ERROR    | app.services.common.preprocessor:translate_query:86 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-24 13:54:01.073 | ERROR    | app.services.common.preprocessor:translate_query:87 - [Preprocess] Original response: The language of the query is Spanish.
+
+Translated query in English:
+"I want to study abroad in Korea. Please tell me what grades and qualifications I need."
+
+Here is the JSON response in English:
+
+```json
+{
+  "translated_query": "I want to study abroad in Korea. Please tell me what grades and qualifications I need.",
+  "lang_code": "en"
+}
+```
+
+2025-04-24 13:54:01.073 | ERROR    | app.services.chatbot.chatbot:get_response:65 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Spanish.
+
+Translated query in English:
+"I want to study abroad in Korea. Please tell me what grades and qualifications I need."
+
+Here is the JSON response in English:
+
+```json
+{
+  "translated_query": "I want to study abroad in Korea. Please tell me what grades and qualifications I need.",
+  "lang_code": "en"
+}
+```
+
+2025-04-24 13:54:01.073 | ERROR    | app.services.chatbot.chatbot:get_response:66 - [WORKFLOW] ====== Error in chatbot workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Spanish.
+
+Translated query in English:
+"I want to study abroad in Korea. Please tell me what grades and qualifications I need."
+
+Here is the JSON response in English:
+
+```json
+{
+  "translated_query": "I want to study abroad in Korea. Please tell me what grades and qualifications I need.",
+  "lang_code": "en"
+}
+``` ======
+
+2025-04-24 14:19:33.207 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-24 14:19:35.035 | ERROR    | app.services.common.preprocessor:translate_query:86 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-24 14:19:35.035 | ERROR    | app.services.common.preprocessor:translate_query:87 - [Preprocess] Original response: The language of the query is Spanish.
+
+Translated query in English:
+"I want to study abroad in Korea. Please, tell me what grades and qualifications I need."
+
+Result in the specified JSON format:
+
+```json
+{
+  "translated_query": "I want to study abroad in Korea. Please, tell me what grades and qualifications I need.",
+  "lang_code": "es"
+}
+```
+
+(Note: es is the ISO 639-1 code for Spanish.)
+
+2025-04-24 14:19:35.037 | ERROR    | app.services.chatbot.chatbot:get_response:65 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Spanish.
+
+Translated query in English:
+"I want to study abroad in Korea. Please, tell me what grades and qualifications I need."
+
+Result in the specified JSON format:
+
+```json
+{
+  "translated_query": "I want to study abroad in Korea. Please, tell me what grades and qualifications I need.",
+  "lang_code": "es"
+}
+```
+
+(Note: es is the ISO 639-1 code for Spanish.)
+
+2025-04-24 14:19:35.037 | ERROR    | app.services.chatbot.chatbot:get_response:66 - [WORKFLOW] ====== Error in chatbot workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Spanish.
+
+Translated query in English:
+"I want to study abroad in Korea. Please, tell me what grades and qualifications I need."
+
+Result in the specified JSON format:
+
+```json
+{
+  "translated_query": "I want to study abroad in Korea. Please, tell me what grades and qualifications I need.",
+  "lang_code": "es"
+}
+```
+
+(Note: es is the ISO 639-1 code for Spanish.) ======
+
+2025-04-24 14:24:52.880 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-24 14:24:55.864 | ERROR    | app.services.common.preprocessor:translate_query:86 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-24 14:24:55.864 | ERROR    | app.services.common.preprocessor:translate_query:87 - [Preprocess] Original response: The language of the query is Spanish.
+
+Translated query in English:
+
+"I want to study abroad in Korea. Please tell me what qualifications and degrees I need."
+
+In JSON format:
+
+```json
+{
+  "translated_query": "I want to study abroad in Korea. Please tell me what qualifications and degrees I need.",
+  "lang_code": "es"
+}
+```
+
+2025-04-24 14:24:55.864 | ERROR    | app.services.chatbot.chatbot:get_response:65 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Spanish.
+
+Translated query in English:
+
+"I want to study abroad in Korea. Please tell me what qualifications and degrees I need."
+
+In JSON format:
+
+```json
+{
+  "translated_query": "I want to study abroad in Korea. Please tell me what qualifications and degrees I need.",
+  "lang_code": "es"
+}
+```
+
+2025-04-24 14:24:55.864 | ERROR    | app.services.chatbot.chatbot:get_response:66 - [WORKFLOW] ====== Error in chatbot workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Spanish.
+
+Translated query in English:
+
+"I want to study abroad in Korea. Please tell me what qualifications and degrees I need."
+
+In JSON format:
+
+```json
+{
+  "translated_query": "I want to study abroad in Korea. Please tell me what qualifications and degrees I need.",
+  "lang_code": "es"
+}
+``` ======
+
+2025-04-24 14:27:34.091 | ERROR    | app.services.common.rag_service:__init__:38 - [RAG] daily_life 도메인 초기화 중 오류 발생: no such column: collections.topic
+
+2025-04-24 14:27:36.168 | ERROR    | app.services.common.rag_service:search:104 - 문서 검색 중 오류 발생: <RAGType.DAILY_LIFE: 'daily_life'>
+
+2025-04-25 09:17:56.780 | ERROR    | app.api.v1.chatbot:chatbot_handler:60 - 챗봇 처리 중 오류 발생: module 'torch' has no attribute 'get_default_device'
+
+2025-04-25 09:24:06.971 | ERROR    | app.api.v1.chatbot:chatbot_handler:60 - 챗봇 처리 중 오류 발생: module 'torch' has no attribute 'get_default_device'
+
+2025-04-25 09:25:59.146 | ERROR    | app.api.v1.chatbot:chatbot_handler:60 - 챗봇 처리 중 오류 발생: module 'torch' has no attribute 'get_default_device'
+
