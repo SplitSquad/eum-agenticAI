@@ -527,3 +527,322 @@ In JSON format:
 
 2025-04-25 09:25:59.146 | ERROR    | app.api.v1.chatbot:chatbot_handler:60 - 챗봇 처리 중 오류 발생: module 'torch' has no attribute 'get_default_device'
 
+2025-04-25 13:26:10.781 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:212 - 기능 유형 분류 중 오류 발생: Invalid json output: calendar
+For troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/errors/OUTPUT_PARSING_FAILURE 
+
+2025-04-25 13:28:36.343 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:212 - 기능 유형 분류 중 오류 발생: Invalid json output: Based on your input, "Please manage my schedule", the output category would be: 
+
+calendar
+For troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/errors/OUTPUT_PARSING_FAILURE 
+
+2025-04-25 13:30:52.665 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:212 - 기능 유형 분류 중 오류 발생: cannot reassign member 'GENERAL'
+
+2025-04-25 14:38:00.109 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:216 - 기능 유형 분류 중 오류 발생: 'output'
+
+2025-04-25 14:39:22.202 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:216 - 기능 유형 분류 중 오류 발생: 'output'
+
+2025-04-25 14:41:49.769 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:90 - 캘린더 관리 응답 생성 중 오류 발생: AgenticCalendar.Calendar_function() takes 1 positional argument but 2 were given
+
+2025-04-25 14:43:49.493 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: AgenticCalendar.Calendar_function() takes 1 positional argument but 2 were given
+
+2025-04-25 14:48:55.060 | ERROR    | app.services.common.preprocessor:translate_query:137 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-25 14:48:55.060 | ERROR    | app.services.common.preprocessor:translate_query:138 - [Preprocess] Original response: The language of the query is Korean.
+
+The translation of the query in English is:
+
+"Query: I have a lunch appointment tomorrow."
+
+However, a more accurate translation would be:
+
+"Query: I have a lunch appointment scheduled for tomorrow."
+
+Here's why:
+
+- "내일" means "tomorrow"
+- "점심" means "lunch" but also implies a meal or a time of day
+- "약속" means "appointment" or "schedule"
+- "생겼어" is a colloquial way of saying "is made" or "has been scheduled"
+
+So, the translation is a bit more nuanced, but the general idea is that the speaker has a lunch appointment scheduled for the next day.
+
+2025-04-25 14:48:55.061 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+The translation of the query in English is:
+
+"Query: I have a lunch appointment tomorrow."
+
+However, a more accurate translation would be:
+
+"Query: I have a lunch appointment scheduled for tomorrow."
+
+Here's why:
+
+- "내일" means "tomorrow"
+- "점심" means "lunch" but also implies a meal or a time of day
+- "약속" means "appointment" or "schedule"
+- "생겼어" is a colloquial way of saying "is made" or "has been scheduled"
+
+So, the translation is a bit more nuanced, but the general idea is that the speaker has a lunch appointment scheduled for the next day.
+
+2025-04-25 14:48:55.062 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+The translation of the query in English is:
+
+"Query: I have a lunch appointment tomorrow."
+
+However, a more accurate translation would be:
+
+"Query: I have a lunch appointment scheduled for tomorrow."
+
+Here's why:
+
+- "내일" means "tomorrow"
+- "점심" means "lunch" but also implies a meal or a time of day
+- "약속" means "appointment" or "schedule"
+- "생겼어" is a colloquial way of saying "is made" or "has been scheduled"
+
+So, the translation is a bit more nuanced, but the general idea is that the speaker has a lunch appointment scheduled for the next day. ======
+
+2025-04-25 14:55:30.739 | ERROR    | app.services.agentic.agentic_response_generator:generate_response:36 - 응답 생성 중 오류 발생: unsupported format string passed to tuple.__format__
+
+2025-04-25 14:57:51.407 | ERROR    | app.services.agentic.agentic_response_generator:generate_response:36 - 응답 생성 중 오류 발생: unsupported format string passed to tuple.__format__
+
+2025-04-25 15:40:23.955 | ERROR    | app.services.agentic.agentic_response_generator:generate_response:36 - 응답 생성 중 오류 발생: unsupported format string passed to tuple.__format__
+
+2025-04-25 15:46:23.810 | ERROR    | app.services.common.preprocessor:translate_query:137 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-25 15:46:23.811 | ERROR    | app.services.common.preprocessor:translate_query:138 - [Preprocess] Original response: The language of the query appears to be Korean.
+
+Here's a translation of the query in English:
+
+* "내일 점심약속 생겼어" translates to "I have a lunch appointment tomorrow."
+
+So, the translated query in English is: "I have a lunch appointment tomorrow."
+
+2025-04-25 15:46:23.811 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query appears to be Korean.
+
+Here's a translation of the query in English:
+
+* "내일 점심약속 생겼어" translates to "I have a lunch appointment tomorrow."
+
+So, the translated query in English is: "I have a lunch appointment tomorrow."
+
+2025-04-25 15:46:23.812 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query appears to be Korean.
+
+Here's a translation of the query in English:
+
+* "내일 점심약속 생겼어" translates to "I have a lunch appointment tomorrow."
+
+So, the translated query in English is: "I have a lunch appointment tomorrow." ======
+
+2025-04-25 15:46:34.442 | ERROR    | app.services.agentic.agentic_response_generator:generate_response:36 - 응답 생성 중 오류 발생: AgenticResponseGenerator._generate_calendar_response() missing 1 required positional argument: 'uid'
+
+2025-04-25 15:47:35.802 | ERROR    | app.services.agentic.agentic_response_generator:generate_response:37 - 응답 생성 중 오류 발생: AgenticResponseGenerator._generate_calendar_response() missing 1 required positional argument: 'uid'
+
+2025-04-25 15:49:13.904 | ERROR    | app.services.agentic.agentic_response_generator:generate_response:37 - 응답 생성 중 오류 발생: unsupported format string passed to tuple.__format__
+
+2025-04-25 15:49:51.045 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:216 - 기능 유형 분류 중 오류 발생: 'output'
+
+2025-04-25 15:50:14.630 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: object NoneType can't be used in 'await' expression
+
+2025-04-25 15:53:01.627 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: object NoneType can't be used in 'await' expression
+
+2025-04-25 15:58:56.767 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:216 - 기능 유형 분류 중 오류 발생: 'output'
+
+2025-04-25 15:59:31.071 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: object NoneType can't be used in 'await' expression
+
+2025-04-25 16:01:35.176 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: object NoneType can't be used in 'await' expression
+
+2025-04-25 16:05:11.039 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: object NoneType can't be used in 'await' expression
+
+2025-04-25 16:09:37.084 | ERROR    | app.services.common.preprocessor:translate_query:137 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-25 16:09:37.085 | ERROR    | app.services.common.preprocessor:translate_query:138 - [Preprocess] Original response: The language of the query is Korean. 
+
+Here's the translation of the query to English:
+
+Query: "내일 점심약속 생겼어."
+
+Translation: "I have a lunch appointment tomorrow."
+
+Breaking down the query:
+
+- "내일" means "tomorrow"
+- "점심" means "lunch"
+- "약속" means "appointment"
+- "생겼어" is a polite way of saying "I have" or "I got" in Korean.
+
+2025-04-25 16:09:37.087 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean. 
+
+Here's the translation of the query to English:
+
+Query: "내일 점심약속 생겼어."
+
+Translation: "I have a lunch appointment tomorrow."
+
+Breaking down the query:
+
+- "내일" means "tomorrow"
+- "점심" means "lunch"
+- "약속" means "appointment"
+- "생겼어" is a polite way of saying "I have" or "I got" in Korean.
+
+2025-04-25 16:09:37.088 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean. 
+
+Here's the translation of the query to English:
+
+Query: "내일 점심약속 생겼어."
+
+Translation: "I have a lunch appointment tomorrow."
+
+Breaking down the query:
+
+- "내일" means "tomorrow"
+- "점심" means "lunch"
+- "약속" means "appointment"
+- "생겼어" is a polite way of saying "I have" or "I got" in Korean. ======
+
+2025-04-25 16:10:04.617 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: object NoneType can't be used in 'await' expression
+
+2025-04-25 16:10:37.850 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: object NoneType can't be used in 'await' expression
+
+2025-04-25 16:13:01.050 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: object NoneType can't be used in 'await' expression
+
+2025-04-25 16:14:28.655 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: object NoneType can't be used in 'await' expression
+
+2025-04-25 16:17:52.671 | ERROR    | app.services.common.preprocessor:translate_query:137 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-25 16:17:52.671 | ERROR    | app.services.common.preprocessor:translate_query:138 - [Preprocess] Original response: The language of the query is Korean.
+
+Translated Query in English: "I have a lunch appointment tomorrow."
+
+Breaking down the query:
+
+- "내일" means "tomorrow"
+- "점심" means "lunch"
+- "약속" means "appointment"
+- "생겼어" is a polite way of saying "has happened" or "has been made" (in this context, it means "I have been made an appointment")
+
+2025-04-25 16:17:52.672 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Translated Query in English: "I have a lunch appointment tomorrow."
+
+Breaking down the query:
+
+- "내일" means "tomorrow"
+- "점심" means "lunch"
+- "약속" means "appointment"
+- "생겼어" is a polite way of saying "has happened" or "has been made" (in this context, it means "I have been made an appointment")
+
+2025-04-25 16:17:52.673 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Translated Query in English: "I have a lunch appointment tomorrow."
+
+Breaking down the query:
+
+- "내일" means "tomorrow"
+- "점심" means "lunch"
+- "약속" means "appointment"
+- "생겼어" is a polite way of saying "has happened" or "has been made" (in this context, it means "I have been made an appointment") ======
+
+2025-04-25 16:18:12.861 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:91 - 캘린더 관리 응답 생성 중 오류 발생: object NoneType can't be used in 'await' expression
+
+2025-04-25 16:20:53.394 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: object NoneType can't be used in 'await' expression
+
+2025-04-25 16:22:12.990 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: object str can't be used in 'await' expression
+
+2025-04-25 16:25:55.617 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: object dict can't be used in 'await' expression
+
+2025-04-25 16:27:22.557 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: object dict can't be used in 'await' expression
+
+2025-04-25 16:29:45.467 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: object dict can't be used in 'await' expression
+
+2025-04-25 16:33:51.516 | ERROR    | app.services.common.preprocessor:translate_query:137 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-25 16:33:51.516 | ERROR    | app.services.common.preprocessor:translate_query:138 - [Preprocess] Original response: The language of the query is Korean.
+
+Translated query: "I have a lunch appointment tomorrow."
+
+Breakdown:
+- "내일" means "tomorrow"
+- "점심" means "lunch"
+- "약속" means "appointment"
+- "생겼어" is a casual way of saying "I have gotten" or "I have made"
+
+Note: In Korean, the verb conjugation changes depending on the level of formality and the relationship with the listener. The verb ending "-어" is a casual polite form, which is commonly used in informal conversations with friends or family.
+
+2025-04-25 16:33:51.517 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Translated query: "I have a lunch appointment tomorrow."
+
+Breakdown:
+- "내일" means "tomorrow"
+- "점심" means "lunch"
+- "약속" means "appointment"
+- "생겼어" is a casual way of saying "I have gotten" or "I have made"
+
+Note: In Korean, the verb conjugation changes depending on the level of formality and the relationship with the listener. The verb ending "-어" is a casual polite form, which is commonly used in informal conversations with friends or family.
+
+2025-04-25 16:33:51.517 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Translated query: "I have a lunch appointment tomorrow."
+
+Breakdown:
+- "내일" means "tomorrow"
+- "점심" means "lunch"
+- "약속" means "appointment"
+- "생겼어" is a casual way of saying "I have gotten" or "I have made"
+
+Note: In Korean, the verb conjugation changes depending on the level of formality and the relationship with the listener. The verb ending "-어" is a casual polite form, which is commonly used in informal conversations with friends or family. ======
+
+2025-04-25 16:37:11.662 | ERROR    | app.services.common.preprocessor:translate_query:137 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-25 16:37:11.663 | ERROR    | app.services.common.preprocessor:translate_query:138 - [Preprocess] Original response: The language of the query is Korean.
+
+Translated query to English:
+"Cancel my lunch appointment for tomorrow, please."
+
+Breakdown:
+
+* "내일" means "tomorrow"
+* "점심" means "lunch"
+* "약속" means "appointment"
+* "취소해줘" is a polite request to "cancel" something, with the verb conjugated to second person informal plural (but used as a polite singular form in this context)
+
+2025-04-25 16:37:11.664 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Translated query to English:
+"Cancel my lunch appointment for tomorrow, please."
+
+Breakdown:
+
+* "내일" means "tomorrow"
+* "점심" means "lunch"
+* "약속" means "appointment"
+* "취소해줘" is a polite request to "cancel" something, with the verb conjugated to second person informal plural (but used as a polite singular form in this context)
+
+2025-04-25 16:37:11.665 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Translated query to English:
+"Cancel my lunch appointment for tomorrow, please."
+
+Breakdown:
+
+* "내일" means "tomorrow"
+* "점심" means "lunch"
+* "약속" means "appointment"
+* "취소해줘" is a polite request to "cancel" something, with the verb conjugated to second person informal plural (but used as a polite singular form in this context) ======
+
