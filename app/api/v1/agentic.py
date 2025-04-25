@@ -62,3 +62,17 @@ async def agentic_handler(request: AgenticRequest) -> AgenticResponse:
             status_code=500,
             detail=f"에이전틱 처리 중 오류가 발생했습니다: {str(e)}"
         )
+@router.post(
+    "/resume",
+    response_model=ResumeResponse,
+    summary="이력서 생성",
+    description="사용자 정보를 바탕으로 이력서를 생성하고 PDF로 저장합니다."
+)
+async def generate_resume_handler(payload: ResumeInput) -> ResumeResponse:
+    try:
+        resume_text = await generate_resume_text(payload.dict())
+        pdf_path = await save_resume_pdf(payload.dict(), resume_text)
+        return ResumeResponse(pdf_path=pdf_path)
+    except Exception as e:
+        logger.error(f"[Resume] 이력서 생성 중 오류 발생: {str(e)}")
+        raise HTTPException(status_code=500, detail="이력서 생성 실패")
