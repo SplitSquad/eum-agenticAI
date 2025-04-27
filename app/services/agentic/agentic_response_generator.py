@@ -19,17 +19,11 @@ class AgenticResponseGenerator:
         try:
             if agentic_type == AgenticType.GENERAL:
                 return await self._generate_general_response(query)
-            elif agentic_type == AgenticType.SCHEDULE:
-                return await self._generate_schedule_response(query)
-            elif agentic_type == AgenticType.TODO:
-                return await self._generate_todo_response(query)
-            elif agentic_type == AgenticType.MEMO:
-                return await self._generate_memo_response(query)
             elif agentic_type == AgenticType.CALENDAR:
                 logger.info(f"[CALENDAR 응답] 1 : CALENDAR")
                 return await self._generate_calendar_response(query,uid)
-            elif agentic_type == AgenticType.REMINDER:
-                return await self._generate_reminder_response(query)
+            elif agentic_type == AgenticType.RESUME:
+                return await "이력서 기능은 개발중입니다."
             else:
                 return await self._generate_general_response(query)
                 

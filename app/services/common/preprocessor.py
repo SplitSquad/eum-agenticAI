@@ -127,10 +127,15 @@ def translate_query(query) :
     4. example 
     {translation}
 
+
+    ⚠️ certainly print it out as shown in the example.
+    lang_code : <>
+    translated_query : <>
+    
     ⚠️ Do NOT include any explanation or message. ONLY return a valid JSON object. No natural language.
     """
 
-    print("system_prompt_template\n",system_prompt_template)
+    print("[TRANSTRATE SYSTEM PROMPT] ",system_prompt_template)
 
     prompt = ChatPromptTemplate.from_messages([
         ("system", system_prompt_template ),
@@ -141,13 +146,12 @@ def translate_query(query) :
 
     def parse_product(description: str) -> dict:
         result = chain.invoke({"input": description})
-        print(json.dumps(result, indent=2))
         return result
 
     description = query
 
     response = parse_product(description)
-    print("[translate_query] : response",response)
+    print("[TRANSTRATE OUTPUT] ",response)
 
     return response
 

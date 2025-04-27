@@ -35,6 +35,7 @@ class AgenticType(str, Enum):
     MEMO = "memo"  # 메모 관리
     CALENDAR = "calendar"  # 캘린더 관리
     REMINDER = "reminder"  # 알림 관리
+    RESUME = "resume" # 이력서 기능
 
 class AgentClassifier:
     """에이전트 분류기"""

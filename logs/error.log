@@ -1608,3 +1608,19 @@ For troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/er
 
 2025-04-27 22:48:30.739 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:216 - 기능 유형 분류 중 오류 발생: 'output'
 
+2025-04-27 23:02:59.458 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: 'lang_code'
+
+2025-04-27 23:02:59.459 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: 'lang_code' ======
+
+2025-04-27 23:03:27.433 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: 'lang_code'
+
+2025-04-27 23:03:27.433 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: 'lang_code' ======
+
+2025-04-27 23:09:50.266 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: 'lang_code'
+
+2025-04-27 23:09:50.267 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: 'lang_code' ======
+
+2025-04-27 23:12:33.629 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jp1zfkx2eg2stps9072842xw` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 98809, Requested 1390. Please try again in 2m51.38s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+
+2025-04-27 23:12:33.629 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jp1zfkx2eg2stps9072842xw` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 98809, Requested 1390. Please try again in 2m51.38s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}} ======
+
