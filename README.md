@@ -100,6 +100,7 @@ PYTHONPATH=$PYTHONPATH:. uvicorn app.main:app --reload
 
 
 ✅ 요청 예시
+
 {
     "query":"건강보험 자격 취득은 어떻게 하나요?",
     "uid":"user_id"
@@ -107,6 +108,7 @@ PYTHONPATH=$PYTHONPATH:. uvicorn app.main:app --reload
 
 
 ✅ 응답 예시
+
 {
     "response": "건강보험 자격 취득은 사업장 가입자는 입사일 기준으로 자동 등록됩니다.",
     "metadata": {
