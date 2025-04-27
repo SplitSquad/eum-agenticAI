@@ -23,7 +23,7 @@ class Agentic:
             
             # 1. 전처리 (언어 감지 및 번역)
             logger.info(f"[WORKFLOW] Step 1: Preprocessing (language detection and translation)")
-            translation_result = await translate_query(query)
+            translation_result = translate_query(query)
             source_lang = translation_result["lang_code"]
             english_query = translation_result["translated_query"]
             logger.info(f"[에이전트] 언어 감지 완료 - 소스 언어: {source_lang}, 영어 번역: {english_query}")

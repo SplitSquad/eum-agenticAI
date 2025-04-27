@@ -16,6 +16,13 @@ from langchain_core.prompts import ChatPromptTemplate
 from typing import Dict, Any
 
 ################################################ 캘린더 일정 리스트로 반환
+# 결과 출력 (선택)
+def Output_organization(formatted_events) -> str:
+    outputs = []
+    for formatted in formatted_events:
+        outputs.append("------\n" + formatted)
+    return "\n".join(outputs)
+
 def Calendar_list():
     creds = get_credentials()
     service = build('calendar', 'v3', credentials=creds)
@@ -64,10 +71,7 @@ def Calendar_list():
     # 포맷된 문자열을 저장할 리스트
     formatted_events = [format_event_pretty(event) for event in simplified_events]
 
-    # 결과 출력 (선택)
-    for formatted in formatted_events:
-        print("------")
-        print(formatted)
+    
 
     return formatted_events
 
@@ -80,7 +84,7 @@ SCOPES = ['https://www.googleapis.com/auth/calendar']
 # 사용자 인증 + access_token 관리
 def get_credentials():
     creds = None
-    print("[ADD 3] : get_credentials ")
+    print("[사용자 인증 + access_token 관리] : get_credentials ")
     if os.path.exists('token.pickle'):
         with open('token.pickle','rb') as token : 
             creds = pickle.load(token)
@@ -173,16 +177,14 @@ def Input_analysis(user_input):
 
     def parse_product(description: str) -> dict:
         result = chain.invoke({"input": description})
-        print(json.dumps(result, indent=2))
 
         return json.dumps(result, indent=2)
         
     description = user_input
     response = parse_product(description)
-    print("response\n",response)
-
     response = json.loads(response)  # 문자열 → 딕셔너리
-    print("response output\n",response["output"])
+
+    print("[Input_analysis] :  ",response["output"])
 
     return response["output"]
 
@@ -223,94 +225,33 @@ def MakeSchedule(user_input):
         }
     })
     system_prompt = f"""
-    0. Always remember the date : now
-    1. Please write as in the Examples:
-    {{{{  
-    "summary": "회의",
-    "location": "강남 사무실",
-    "description": "내일 오전 팀 회의",
-    "start": {{{{  
+    0. Always remember the date : {now}
+    1. This is an example of a one-shot. 
+    
+    "summary": "f< requested by user >",
+    "location": "< Places mentioned by users >",
+    "description": "< What users saidr >",
+    "start": 
         "dateTime": "2025-04-18T10:00:00+09:00",
         "timeZone": "Asia/Seoul"
-    }}}},
-    "end": {{{{
+    ,
+    "end": 
         "dateTime": "2025-04-18T11:00:00+09:00",
         "timeZone": "Asia/Seoul"
-    }}}},
-    "reminders": {{{{
+    ,
+    "reminders": 
         "useDefault": false,
         "overrides": [
-        {{{{ "method": "popup", "minutes": 10 }}}}
+         "method": "popup", "minutes": 10 
         ]
-    }}}}
-    }}}},
-
-    {{{{  
-    "summary": "저녁 약속",
-    "location": "홍대 맛집",
-    "description": "주말 친구와 저녁 식사",
-    "start": {{{{  
-        "dateTime": "2025-04-20T18:30:00+09:00",
-        "timeZone": "Asia/Seoul"
-    }}}},
-    "end": {{{{
-        "dateTime": "2025-04-20T20:00:00+09:00",
-        "timeZone": "Asia/Seoul"
-    }}}},
-    "reminders": {{{{
-        "useDefault": false,
-        "overrides": [
-        {{{{ "method": "popup", "minutes": 10 }}}}
-        ]
-    }}}}
-    }}}},
-
-    {{{{  
-    "summary": "운동",
-    "location": "피트니스 센터",
-    "description": "저녁 헬스장 운동",
-    "start": {{{{  
-        "dateTime": "2025-04-18T19:00:00+09:00",
-        "timeZone": "Asia/Seoul"
-    }}}},
-    "end": {{{{
-        "dateTime": "2025-04-18T20:00:00+09:00",
-        "timeZone": "Asia/Seoul"
-    }}}},
-    "reminders": {{{{
-        "useDefault": false,
-        "overrides": [
-        {{{{ "method": "popup", "minutes": 10 }}}}
-        ]
-    }}}}
-    }}}},
-
-    {{{{  
-    "summary": "회의 준비",
-    "location": "재택",
-    "description": "프로젝트 발표 자료 준비",
-    "start": {{{{  
-        "dateTime": "2025-04-19T09:00:00+09:00",
-        "timeZone": "Asia/Seoul"
-    }}}},
-    "end": {{{{
-        "dateTime": "2025-04-19T11:00:00+09:00",
-        "timeZone": "Asia/Seoul"
-    }}}},
-    "reminders": {{{{
-        "useDefault": false,
-        "overrides": [
-        {{{{ "method": "popup", "minutes": 10 }}}}
-        ]
-    }}}}
-    }}}}
+    
     ...
     ⚠️ Do NOT include any explanation or message. ONLY return a valid JSON object. No natural language.
 
     """
 
     prompt=system_prompt
-    print("prompt\n",prompt)
+    print("[ADD_CALENDAR_system_prompt] ",prompt)
 
     prompt = ChatPromptTemplate.from_messages([
         ("system", prompt),
@@ -321,14 +262,14 @@ def MakeSchedule(user_input):
 
     def parse_product(description: str) -> dict:
         result = chain.invoke({"input": description})
-        print("description\n",description)
+        print("[USER INPUT] : ",description)
         print(json.dumps(result, indent=2, ensure_ascii=False))
         return result
 
     description = user_input
 
     response = parse_product(description)
-    print("response\n",response)
+    print("[ADD_CALENDAR_output] :",response)
 
     return response
 
@@ -336,8 +277,7 @@ def MakeSchedule(user_input):
 # 위에서 얻은 인증 정보로 API를 사용할 수 있는 service 객체 생성
 def add_event(make_event):
     try:
-        print("[ADD 2] : make_event ",make_event)
-
+        
         creds = get_credentials()
         service = build('calendar', 'v3', credentials=creds)
         event = make_event
@@ -404,11 +344,6 @@ def delete_event(user_input):
 
     formatted_events=Calendar_list()
 
-    # 결과 출력 (선택)
-    for formatted in formatted_events:
-        print("------")
-        print(formatted)
-
     llm = ChatGroq(
         model_name="llama-3.3-70b-versatile",
         temperature=0.7
@@ -424,24 +359,23 @@ def delete_event(user_input):
         }
     })
 
-    example_output = '{{"id": "########", "summary": "점심약속", "start": "2025-04-22T12:30:00+09:00", "end": "2025-04-22T14:00:00+09:00"}}'
-
+    
     # 프롬프트 문자열 구성
     system_prompt_template = f"""
-    1. Please find the schedule you want to cancel
-    2. It's a schedule: {formatted_events}
+    1. I would like to ask you to delete the schedule.
+    2. It's a schedule: {Output_organization(formatted_events)}
     3. This is an example output
 
-    "output": 
-    "id": "########", 
-    "summary": "점심약속", 
-    "start": "2025-04-22T12:30:00+09:00", 
-    "end": "2025-04-22T14:00:00+09:00"
-    
+    "output": <What the user entered>
+    "id": "<choose in schedule>",
+    "summary": "<What the user entered>",
+    "start": "<Time changed by user_input>",
+    "end": "<Time changed by user_input>"
+
     ⚠️ Do NOT include any explanation or message. ONLY return a valid JSON object. No natural language.
     """
     
-    print("system_prompt_template\n",system_prompt_template)
+    print("[DELETE_CALENDAR_system_prompt] ",system_prompt_template)
 
     prompt = ChatPromptTemplate.from_messages([
         ("system", system_prompt_template ),
@@ -452,16 +386,15 @@ def delete_event(user_input):
 
     def parse_product(description: str) -> dict:
         result = chain.invoke({"input": description})
-        print(json.dumps(result, indent=2))
+        
         return json.dumps(result, indent=2)
 
     description = user_input
 
     response = parse_product(description)
-    print("response\n",response)
+    print("[DELETE_CALENDAR_output] :",response)
 
     response_dict = json.loads(response)
-    print("response['id']\n",response_dict['id'])
     delete_event_by_id(response_dict['id'])
    
 
@@ -501,19 +434,19 @@ def edit_event(user_input):
     # 프롬프트 문자열 구성
     system_prompt_template = f"""
     1. I would like to ask you to change the schedule.
-    2. It's a schedule: {formatted_events}
+    2. It's a schedule: {Output_organization(formatted_events)}
     3. This is an example output
 
-    "output": 
-    "id": "########",
-    "summary": "점심약속",
-    "start": "2025-04-22T12:30:00+09:00",
-    "end": "2025-04-22T14:00:00+09:00"
+    "output": <What the user entered>
+    "id": "<choose in schedule>",
+    "summary": "<What the user entered>",
+    "start": "<Time changed by user_input>",
+    "end": "<Time changed by user_input>"
 
     ⚠️ Do NOT include any explanation or message. ONLY return a valid JSON object. No natural language.
     """
     
-    print("system_prompt_template\n",system_prompt_template)
+    print("[EDIT_CALENDAR_system_prompt] ",system_prompt_template)
 
     prompt = ChatPromptTemplate.from_messages([
         ("system", system_prompt_template ),
@@ -524,16 +457,16 @@ def edit_event(user_input):
 
     def parse_product(description: str) -> dict:
         result = chain.invoke({"input": description})
-        print(json.dumps(result, indent=2, ensure_ascii=False))
+
         return json.dumps(result, indent=2, ensure_ascii=False)
 
     description = user_input
 
     response = parse_product(description)
-    print("response\n",response)
 
+    print("[EDIT_CALENDAR_output] :",response)
+   
     response_dict = json.loads(response)
-    print("response_dict",response_dict)
 
     event_id = response_dict["id"]
     updated_fields = {
@@ -591,13 +524,13 @@ class AgenticCalendar:
         if classification == "add" :
             print("일정 추가")        
             make_event = MakeSchedule(query) ## 이벤트 생성
-            print("[ADD 1] : make_event ",make_event)
+            print("[MAKED_EVENT] ",make_event)
             add_event( make_event ) ## 이벤트 추가
             return {
                 "response": "일정이 추가되었습니다.",
                 "metadata": {
-                    "query": "",
-                    "agentic_type": "",
+                    "query": "{query}",
+                    "agentic_type": "calendar",
                     "error": ""
                 }
             }
@@ -607,22 +540,22 @@ class AgenticCalendar:
             return {
                 "response": "일정이 수정되었습니다.",
                 "metadata": {
-                    "query": "",
-                    "agentic_type": "",
+                    "query": "{query}",
+                    "agentic_type": "calendar",
                     "error": ""
                 }
-            }   
+            }
         elif classification == "delete" : 
             print("일정 삭제")
             delete_event(query)
-            return {
-                "response": "일정이 삭제되었습니다..",
+            return  {
+                "response": "일정이 삭제되었습니다.",
                 "metadata": {
-                    "query": "",
-                    "agentic_type": "",
+                    "query": "{query}",
+                    "agentic_type": "calendar",
                     "error": ""
                 }
-            }   
+            } 
         else : 
             print('알 수 없는 명령입니다.')
 
