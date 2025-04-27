@@ -126,6 +126,7 @@ def Input_analysis(user_input):
     - Add (new schedule)
     - Delete (remove schedule)
     - Edit (modify schedule)
+    - Check (Check schedule)
 
     Return the result as JSON like:
     {{
@@ -169,6 +170,18 @@ def Input_analysis(user_input):
     {{"input": "오늘 일정 제목 바꿔줘", "output": "edit"}},
     {{"input": "내일 약속 위치 바뀜", "output": "edit"}},
     {{"input": "저녁 약속 시간 변경해줘", "output": "edit"}}
+     
+    # ✅ CHECK
+    {{"input": "이번 주 내 일정 알려줘", "output": "check"}},
+    {{"input": "내일 일정 확인해줘", "output": "check"}},
+    {{"input": "5월 3일에 무슨 일정 있었지?", "output": "check"}},
+    {{"input": "다음주 금요일 스케줄 알려줘", "output": "check"}},
+    {{"input": "내가 이번 달에 뭐 있지?", "output": "check"}},
+    {{"input": "오늘 약속 뭐 있나?", "output": "check"}},
+    {{"input": "이번 주말에 일정 있어?", "output": "check"}},
+    {{"input": "다음주 일정 좀 볼 수 있을까?", "output": "check"}},
+    {{"input": "지금 예정된 일정이 뭐야?", "output": "check"}},
+    {{"input": "남은 이번 달 스케줄 보여줘", "output": "check"}}
     """),
         ("user", "{input}")
     ])
@@ -362,6 +375,7 @@ def delete_event(user_input):
     
     # 프롬프트 문자열 구성
     system_prompt_template = f"""
+    0. Always remember the date : {now}
     1. I would like to ask you to delete the schedule.
     2. It's a schedule: {Output_organization(formatted_events)}
     3. This is an example output
@@ -433,6 +447,7 @@ def edit_event(user_input):
 
     # 프롬프트 문자열 구성
     system_prompt_template = f"""
+    0. Always remember the date : {now}
     1. I would like to ask you to change the schedule.
     2. It's a schedule: {Output_organization(formatted_events)}
     3. This is an example output
@@ -510,7 +525,66 @@ def update_event_by_id(event_id, updated_fields: dict):
 
 
 ################################################ 일정 수정
+################################################ 일정 확인
+def check_event(user_input):
+    formatted_events=Calendar_list()
 
+    llm = ChatGroq(
+        model_name="llama-3.3-70b-versatile",
+        temperature=0.7
+    )
+
+    parser = JsonOutputParser(pydantic_object={
+        "type": "object",
+        "properties": {
+            "input": {"type": "string"},
+            "output": {"type": "string"},
+        }
+    })
+
+    
+    # 프롬프트 문자열 구성
+    system_prompt_template = f"""
+    0. Always remember the date : {now}
+    1. I would like to ask you to check the schedule.
+    2. It's a schedule: {Output_organization(formatted_events)}
+
+    3. This is an example output
+    "output": 
+    <schedule>
+    -------------
+    <schedule> 
+    -------------
+    <schedule> 
+    -------------
+    ...
+    -------------
+
+    ⚠️ Do NOT include any explanation or message. ONLY return a valid JSON object. No natural language.
+    """
+    
+    print("[CHECK_CALENDAR_system_prompt] ",system_prompt_template)
+
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", system_prompt_template ),
+        ("user", "{input}")
+    ])
+
+    chain = prompt | llm | parser
+
+    def parse_product(description: str) -> dict:
+        result = chain.invoke({"input": description})
+        
+        return json.dumps(result, indent=2, ensure_ascii=False)
+
+    description = user_input
+
+    response = parse_product(description)
+    print("[CHECK_CALENDAR_output] :",response)
+
+
+    return response
+################################################ 일정 확인
 # 실행 진입전
 class AgenticCalendar:
     def __init__(self):
@@ -550,6 +624,17 @@ class AgenticCalendar:
             delete_event(query)
             return  {
                 "response": "일정이 삭제되었습니다.",
+                "metadata": {
+                    "query": "{query}",
+                    "agentic_type": "calendar",
+                    "error": ""
+                }
+            } 
+        elif classification == "check" : 
+            print("일정 확인")
+            check_output = check_event(query)
+            return  {
+                "response": f"{check_output}",
                 "metadata": {
                     "query": "{query}",
                     "agentic_type": "calendar",

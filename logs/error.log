@@ -1602,3 +1602,9 @@ For troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/er
 
 2025-04-27 22:13:22.653 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: cannot access local variable 'prompt' where it is not associated with a value
 
+2025-04-27 22:42:43.805 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:216 - 기능 유형 분류 중 오류 발생: 'output'
+
+2025-04-27 22:45:42.714 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: "Input to ChatPromptTemplate is missing variables {'<schedule>,<schedule>,<schedule>,...'}.  Expected: ['<schedule>,<schedule>,<schedule>,...', 'input'] Received: ['input']\nNote: if you intended {<schedule>,<schedule>,<schedule>,...} to be part of the string and not a variable, please escape it with double curly braces like: '{{<schedule>,<schedule>,<schedule>,...}}'.\nFor troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/errors/INVALID_PROMPT_INPUT "
+
+2025-04-27 22:48:30.739 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:216 - 기능 유형 분류 중 오류 발생: 'output'
+
