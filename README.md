@@ -92,29 +92,32 @@ PYTHONPATH=$PYTHONPATH:. uvicorn app.main:app --reload
 
 ## API 엔드포인트
 
-### 챗봇 API
 
-```
-POST /api/v1/chatbot
-Content-Type: application/json
+✅ api 명세서
+| 엔드포인트           | 메서드 | 설명             | 요청 파라미터                         | 응답 데이터 (예상)                      |
+|---------------------|--------|------------------|---------------------------------------|----------------------------------------|
+| `/api/v1/agentic`    | POST   | 에이전트 응답 생성 | `{ "query": "string", "uid": "string" }` | `{ "response": "string", "metadata": { ... } }` |
 
-{
-    "query": "건강보험 자격 취득은 어떻게 하나요?",
-    "uid": "user_id"
-}
-```
 
-### 에이전트 API
-
-```
-POST /api/v1/agentic
-Content-Type: application/json
+✅ 요청 예시
 
 {
-    "query": "건강보험 자격 취득은 어떻게 하나요?",
-    "uid": "user_id"
+    "query":"건강보험 자격 취득은 어떻게 하나요?",
+    "uid":"user_id"
 }
-```
+
+
+✅ 응답 예시
+
+{
+    "response": "건강보험 자격 취득은 사업장 가입자는 입사일 기준으로 자동 등록됩니다.",
+    "metadata": {
+        "query": "건강보험 자격 취득은 어떻게 하나요?",
+        "state": "general",
+        "uid": "user_id",
+        "error": ""
+    }
+}
 
 ## 코드 컨벤션
 
@@ -157,6 +160,9 @@ pytest tests/
 ```bash
 # 백그라운드 실행
 nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload > logs/uvicorn.log 2>&1 &
+
+# 윈도우( 개발모드 )
+uvicorn app.main:app --reload
 
 # 서버 종료
 ps aux | grep uvicorn      # 실행 중인 프로세스 확인

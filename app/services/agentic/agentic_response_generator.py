@@ -19,16 +19,11 @@ class AgenticResponseGenerator:
         try:
             if agentic_type == AgenticType.GENERAL:
                 return await self._generate_general_response(query)
-            elif agentic_type == AgenticType.SCHEDULE:
-                return await self._generate_schedule_response(query)
-            elif agentic_type == AgenticType.TODO:
-                return await self._generate_todo_response(query)
-            elif agentic_type == AgenticType.MEMO:
-                return await self._generate_memo_response(query)
             elif agentic_type == AgenticType.CALENDAR:
-                return await self._generate_calendar_response(query, uid)
-            elif agentic_type == AgenticType.REMINDER:
-                return await self._generate_reminder_response(query)
+                logger.info(f"[CALENDAR 응답] 1 : CALENDAR")
+                return await self._generate_calendar_response(query,uid)
+            elif agentic_type == AgenticType.RESUME:
+                return await "이력서 기능은 개발중입니다."
             else:
                 return await self._generate_general_response(query)
                 
@@ -83,8 +78,10 @@ class AgenticResponseGenerator:
     async def _generate_calendar_response(self, query: str, uid: str) -> Dict[str, Any]:
         """캘린더 관리 응답을 생성합니다."""
         try:
-            # AgenticCalendar를 통해 일정 관리 기능 처리
-            return await self.calendar_agent.process_query(query, uid, self.user_states)
+            logger.info(f"[CALENDAR 응답] 2 : CALENDAR")
+            response = self.calendar_agent.Calendar_function(query)
+            print(f"[CALENDAR 응답] 4.response : { response }")
+            return response
         except Exception as e:
             logger.error(f"캘린더 관리 응답 생성 중 오류 발생: {str(e)}")
             return {

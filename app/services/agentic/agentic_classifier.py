@@ -4,6 +4,20 @@ from loguru import logger
 from app.core.llm_client import get_llm_client
 from app.models.agentic_response import AgentType, ActionType
 
+from langchain_groq import ChatGroq
+from langchain_core.output_parsers import JsonOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+
+from dotenv import load_dotenv
+load_dotenv()  # .env 파일 자동 로딩
+import os
+# ✅ .env 파일의 절대 경로 지정
+dotenv_path = os.path.join(os.path.dirname(__file__), '../../../.env')
+load_dotenv(dotenv_path)
+# ✅ 환경변수 읽기
+groq_api_key = os.getenv("GROQ_API_KEY")
+import json
+
 class RAGType(str, Enum):
     """RAG 도메인 유형"""
     VISA_LAW = "visa_law"  # 비자/법률
@@ -21,6 +35,7 @@ class AgenticType(str, Enum):
     MEMO = "memo"  # 메모 관리
     CALENDAR = "calendar"  # 캘린더 관리
     REMINDER = "reminder"  # 알림 관리
+    RESUME = "resume" # 이력서 기능
 
 class AgentClassifier:
     """에이전트 분류기"""
@@ -190,7 +205,90 @@ class AgenticClassifier:
         try:
             # TODO: LLM을 활용한 기능 유형 분류 구현
             # 임시로 모든 질의를 일반 대화로 분류
-            return AgenticType.GENERAL
+            # LLM을 통해 카테고리 분류
+            category_json = Category_Classification(query)
+            category_dict = json.loads(category_json)  # JSON 문자열을 dict로 변환
+            category = category_dict["output"]  # output 필드 추출
+            
+            logger.info(f"[에이전틱 분류] 기능 유형: {category}")
+
+            return AgenticType(category)
         except Exception as e:
             logger.error(f"기능 유형 분류 중 오류 발생: {str(e)}")
             return AgenticType.GENERAL 
+
+################################################### LLM을 활용한 기능 유형 분류 구현     
+def Category_Classification(query):
+    llm = ChatGroq(
+        model_name="llama-3.3-70b-versatile",
+        temperature=0.7
+        )
+    parser = JsonOutputParser(pydantic_object={
+            "type": "object",
+            "properties": {
+                "input": {"type": "string"},
+                "output": {"type": "string"},
+            }
+    })
+    prompt = ChatPromptTemplate.from_messages([
+    ("system", """
+    1. Please divide the categories based on the user's input.
+    2. Here is a few-shot example.
+    input : 일정 추가해줘  
+    output : calendar
+
+    input : 내일 약속 생겼어  
+    output : calendar
+
+    input : 오후 3시에 회의 잡아줘  
+    output : calendar
+
+    input : 스케줄 등록해줄래?  
+    output : calendar
+
+    input : 약속 변경하고 싶어  
+    output : calendar
+     
+    input : 내일 점심약속 생겼어  
+    output : calendar
+    -----------------------
+    input : 이력서 작성 부탁해  
+    output : resume
+
+    input : 경력사항입니다  
+    output : resume
+
+    input : 자기소개는 이렇게 작성했어요  
+    output : resume
+
+    input : 학력 정보 추가해줘  
+    output : resume
+
+    input : 아래 내용 기반으로 이력서 만들어줘  
+    output : resume
+    -----------------
+    input : all Other query
+    output : general
+    
+     
+
+
+
+    default.Respond only in JSON format
+    
+    """),
+        ("user", "{input}")
+    ])
+
+    def parse_product(description: str) -> dict:
+            result = chain.invoke({"input": description})
+            print("json.dumps\n",json.dumps(result, indent=2,ensure_ascii=False))
+            return json.dumps(result, indent=2,ensure_ascii=False)
+    
+    
+
+    chain = prompt | llm | parser
+    Category = parse_product(query)
+
+    return Category
+################################################### LLM을 활용한 기능 유형 분류 구현
