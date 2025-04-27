@@ -47,3 +47,7 @@ credentials.json
 *.pem
 *.cert
 *.crt 
+
+# google cloud
+client_secret.json
+token.pickle

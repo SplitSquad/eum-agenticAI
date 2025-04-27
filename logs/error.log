@@ -527,3 +527,1084 @@ In JSON format:
 
 2025-04-25 09:25:59.146 | ERROR    | app.api.v1.chatbot:chatbot_handler:60 - 챗봇 처리 중 오류 발생: module 'torch' has no attribute 'get_default_device'
 
+2025-04-25 13:26:10.781 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:212 - 기능 유형 분류 중 오류 발생: Invalid json output: calendar
+For troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/errors/OUTPUT_PARSING_FAILURE 
+
+2025-04-25 13:28:36.343 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:212 - 기능 유형 분류 중 오류 발생: Invalid json output: Based on your input, "Please manage my schedule", the output category would be: 
+
+calendar
+For troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/errors/OUTPUT_PARSING_FAILURE 
+
+2025-04-25 13:30:52.665 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:212 - 기능 유형 분류 중 오류 발생: cannot reassign member 'GENERAL'
+
+2025-04-25 14:38:00.109 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:216 - 기능 유형 분류 중 오류 발생: 'output'
+
+2025-04-25 14:39:22.202 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:216 - 기능 유형 분류 중 오류 발생: 'output'
+
+2025-04-25 14:41:49.769 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:90 - 캘린더 관리 응답 생성 중 오류 발생: AgenticCalendar.Calendar_function() takes 1 positional argument but 2 were given
+
+2025-04-25 14:43:49.493 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: AgenticCalendar.Calendar_function() takes 1 positional argument but 2 were given
+
+2025-04-25 14:48:55.060 | ERROR    | app.services.common.preprocessor:translate_query:137 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-25 14:48:55.060 | ERROR    | app.services.common.preprocessor:translate_query:138 - [Preprocess] Original response: The language of the query is Korean.
+
+The translation of the query in English is:
+
+"Query: I have a lunch appointment tomorrow."
+
+However, a more accurate translation would be:
+
+"Query: I have a lunch appointment scheduled for tomorrow."
+
+Here's why:
+
+- "내일" means "tomorrow"
+- "점심" means "lunch" but also implies a meal or a time of day
+- "약속" means "appointment" or "schedule"
+- "생겼어" is a colloquial way of saying "is made" or "has been scheduled"
+
+So, the translation is a bit more nuanced, but the general idea is that the speaker has a lunch appointment scheduled for the next day.
+
+2025-04-25 14:48:55.061 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+The translation of the query in English is:
+
+"Query: I have a lunch appointment tomorrow."
+
+However, a more accurate translation would be:
+
+"Query: I have a lunch appointment scheduled for tomorrow."
+
+Here's why:
+
+- "내일" means "tomorrow"
+- "점심" means "lunch" but also implies a meal or a time of day
+- "약속" means "appointment" or "schedule"
+- "생겼어" is a colloquial way of saying "is made" or "has been scheduled"
+
+So, the translation is a bit more nuanced, but the general idea is that the speaker has a lunch appointment scheduled for the next day.
+
+2025-04-25 14:48:55.062 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+The translation of the query in English is:
+
+"Query: I have a lunch appointment tomorrow."
+
+However, a more accurate translation would be:
+
+"Query: I have a lunch appointment scheduled for tomorrow."
+
+Here's why:
+
+- "내일" means "tomorrow"
+- "점심" means "lunch" but also implies a meal or a time of day
+- "약속" means "appointment" or "schedule"
+- "생겼어" is a colloquial way of saying "is made" or "has been scheduled"
+
+So, the translation is a bit more nuanced, but the general idea is that the speaker has a lunch appointment scheduled for the next day. ======
+
+2025-04-25 14:55:30.739 | ERROR    | app.services.agentic.agentic_response_generator:generate_response:36 - 응답 생성 중 오류 발생: unsupported format string passed to tuple.__format__
+
+2025-04-25 14:57:51.407 | ERROR    | app.services.agentic.agentic_response_generator:generate_response:36 - 응답 생성 중 오류 발생: unsupported format string passed to tuple.__format__
+
+2025-04-25 15:40:23.955 | ERROR    | app.services.agentic.agentic_response_generator:generate_response:36 - 응답 생성 중 오류 발생: unsupported format string passed to tuple.__format__
+
+2025-04-25 15:46:23.810 | ERROR    | app.services.common.preprocessor:translate_query:137 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-25 15:46:23.811 | ERROR    | app.services.common.preprocessor:translate_query:138 - [Preprocess] Original response: The language of the query appears to be Korean.
+
+Here's a translation of the query in English:
+
+* "내일 점심약속 생겼어" translates to "I have a lunch appointment tomorrow."
+
+So, the translated query in English is: "I have a lunch appointment tomorrow."
+
+2025-04-25 15:46:23.811 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query appears to be Korean.
+
+Here's a translation of the query in English:
+
+* "내일 점심약속 생겼어" translates to "I have a lunch appointment tomorrow."
+
+So, the translated query in English is: "I have a lunch appointment tomorrow."
+
+2025-04-25 15:46:23.812 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query appears to be Korean.
+
+Here's a translation of the query in English:
+
+* "내일 점심약속 생겼어" translates to "I have a lunch appointment tomorrow."
+
+So, the translated query in English is: "I have a lunch appointment tomorrow." ======
+
+2025-04-25 15:46:34.442 | ERROR    | app.services.agentic.agentic_response_generator:generate_response:36 - 응답 생성 중 오류 발생: AgenticResponseGenerator._generate_calendar_response() missing 1 required positional argument: 'uid'
+
+2025-04-25 15:47:35.802 | ERROR    | app.services.agentic.agentic_response_generator:generate_response:37 - 응답 생성 중 오류 발생: AgenticResponseGenerator._generate_calendar_response() missing 1 required positional argument: 'uid'
+
+2025-04-25 15:49:13.904 | ERROR    | app.services.agentic.agentic_response_generator:generate_response:37 - 응답 생성 중 오류 발생: unsupported format string passed to tuple.__format__
+
+2025-04-25 15:49:51.045 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:216 - 기능 유형 분류 중 오류 발생: 'output'
+
+2025-04-25 15:50:14.630 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: object NoneType can't be used in 'await' expression
+
+2025-04-25 15:53:01.627 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: object NoneType can't be used in 'await' expression
+
+2025-04-25 15:58:56.767 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:216 - 기능 유형 분류 중 오류 발생: 'output'
+
+2025-04-25 15:59:31.071 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: object NoneType can't be used in 'await' expression
+
+2025-04-25 16:01:35.176 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: object NoneType can't be used in 'await' expression
+
+2025-04-25 16:05:11.039 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: object NoneType can't be used in 'await' expression
+
+2025-04-25 16:09:37.084 | ERROR    | app.services.common.preprocessor:translate_query:137 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-25 16:09:37.085 | ERROR    | app.services.common.preprocessor:translate_query:138 - [Preprocess] Original response: The language of the query is Korean. 
+
+Here's the translation of the query to English:
+
+Query: "내일 점심약속 생겼어."
+
+Translation: "I have a lunch appointment tomorrow."
+
+Breaking down the query:
+
+- "내일" means "tomorrow"
+- "점심" means "lunch"
+- "약속" means "appointment"
+- "생겼어" is a polite way of saying "I have" or "I got" in Korean.
+
+2025-04-25 16:09:37.087 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean. 
+
+Here's the translation of the query to English:
+
+Query: "내일 점심약속 생겼어."
+
+Translation: "I have a lunch appointment tomorrow."
+
+Breaking down the query:
+
+- "내일" means "tomorrow"
+- "점심" means "lunch"
+- "약속" means "appointment"
+- "생겼어" is a polite way of saying "I have" or "I got" in Korean.
+
+2025-04-25 16:09:37.088 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean. 
+
+Here's the translation of the query to English:
+
+Query: "내일 점심약속 생겼어."
+
+Translation: "I have a lunch appointment tomorrow."
+
+Breaking down the query:
+
+- "내일" means "tomorrow"
+- "점심" means "lunch"
+- "약속" means "appointment"
+- "생겼어" is a polite way of saying "I have" or "I got" in Korean. ======
+
+2025-04-25 16:10:04.617 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: object NoneType can't be used in 'await' expression
+
+2025-04-25 16:10:37.850 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: object NoneType can't be used in 'await' expression
+
+2025-04-25 16:13:01.050 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: object NoneType can't be used in 'await' expression
+
+2025-04-25 16:14:28.655 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: object NoneType can't be used in 'await' expression
+
+2025-04-25 16:17:52.671 | ERROR    | app.services.common.preprocessor:translate_query:137 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-25 16:17:52.671 | ERROR    | app.services.common.preprocessor:translate_query:138 - [Preprocess] Original response: The language of the query is Korean.
+
+Translated Query in English: "I have a lunch appointment tomorrow."
+
+Breaking down the query:
+
+- "내일" means "tomorrow"
+- "점심" means "lunch"
+- "약속" means "appointment"
+- "생겼어" is a polite way of saying "has happened" or "has been made" (in this context, it means "I have been made an appointment")
+
+2025-04-25 16:17:52.672 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Translated Query in English: "I have a lunch appointment tomorrow."
+
+Breaking down the query:
+
+- "내일" means "tomorrow"
+- "점심" means "lunch"
+- "약속" means "appointment"
+- "생겼어" is a polite way of saying "has happened" or "has been made" (in this context, it means "I have been made an appointment")
+
+2025-04-25 16:17:52.673 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Translated Query in English: "I have a lunch appointment tomorrow."
+
+Breaking down the query:
+
+- "내일" means "tomorrow"
+- "점심" means "lunch"
+- "약속" means "appointment"
+- "생겼어" is a polite way of saying "has happened" or "has been made" (in this context, it means "I have been made an appointment") ======
+
+2025-04-25 16:18:12.861 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:91 - 캘린더 관리 응답 생성 중 오류 발생: object NoneType can't be used in 'await' expression
+
+2025-04-25 16:20:53.394 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: object NoneType can't be used in 'await' expression
+
+2025-04-25 16:22:12.990 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: object str can't be used in 'await' expression
+
+2025-04-25 16:25:55.617 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: object dict can't be used in 'await' expression
+
+2025-04-25 16:27:22.557 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: object dict can't be used in 'await' expression
+
+2025-04-25 16:29:45.467 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: object dict can't be used in 'await' expression
+
+2025-04-25 16:33:51.516 | ERROR    | app.services.common.preprocessor:translate_query:137 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-25 16:33:51.516 | ERROR    | app.services.common.preprocessor:translate_query:138 - [Preprocess] Original response: The language of the query is Korean.
+
+Translated query: "I have a lunch appointment tomorrow."
+
+Breakdown:
+- "내일" means "tomorrow"
+- "점심" means "lunch"
+- "약속" means "appointment"
+- "생겼어" is a casual way of saying "I have gotten" or "I have made"
+
+Note: In Korean, the verb conjugation changes depending on the level of formality and the relationship with the listener. The verb ending "-어" is a casual polite form, which is commonly used in informal conversations with friends or family.
+
+2025-04-25 16:33:51.517 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Translated query: "I have a lunch appointment tomorrow."
+
+Breakdown:
+- "내일" means "tomorrow"
+- "점심" means "lunch"
+- "약속" means "appointment"
+- "생겼어" is a casual way of saying "I have gotten" or "I have made"
+
+Note: In Korean, the verb conjugation changes depending on the level of formality and the relationship with the listener. The verb ending "-어" is a casual polite form, which is commonly used in informal conversations with friends or family.
+
+2025-04-25 16:33:51.517 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Translated query: "I have a lunch appointment tomorrow."
+
+Breakdown:
+- "내일" means "tomorrow"
+- "점심" means "lunch"
+- "약속" means "appointment"
+- "생겼어" is a casual way of saying "I have gotten" or "I have made"
+
+Note: In Korean, the verb conjugation changes depending on the level of formality and the relationship with the listener. The verb ending "-어" is a casual polite form, which is commonly used in informal conversations with friends or family. ======
+
+2025-04-25 16:37:11.662 | ERROR    | app.services.common.preprocessor:translate_query:137 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-25 16:37:11.663 | ERROR    | app.services.common.preprocessor:translate_query:138 - [Preprocess] Original response: The language of the query is Korean.
+
+Translated query to English:
+"Cancel my lunch appointment for tomorrow, please."
+
+Breakdown:
+
+* "내일" means "tomorrow"
+* "점심" means "lunch"
+* "약속" means "appointment"
+* "취소해줘" is a polite request to "cancel" something, with the verb conjugated to second person informal plural (but used as a polite singular form in this context)
+
+2025-04-25 16:37:11.664 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Translated query to English:
+"Cancel my lunch appointment for tomorrow, please."
+
+Breakdown:
+
+* "내일" means "tomorrow"
+* "점심" means "lunch"
+* "약속" means "appointment"
+* "취소해줘" is a polite request to "cancel" something, with the verb conjugated to second person informal plural (but used as a polite singular form in this context)
+
+2025-04-25 16:37:11.665 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Translated query to English:
+"Cancel my lunch appointment for tomorrow, please."
+
+Breakdown:
+
+* "내일" means "tomorrow"
+* "점심" means "lunch"
+* "약속" means "appointment"
+* "취소해줘" is a polite request to "cancel" something, with the verb conjugated to second person informal plural (but used as a polite singular form in this context) ======
+
+2025-04-25 17:06:52.241 | ERROR    | app.services.common.preprocessor:translate_query:137 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-25 17:06:52.242 | ERROR    | app.services.common.preprocessor:translate_query:138 - [Preprocess] Original response: The language of the given query is Korean.
+
+Here's a translation of the query to English:
+
+"Cancel my lunch appointment tomorrow, please."
+
+Breakdown:
+
+- "내일" means "tomorrow"
+- "점심약속" means "lunch appointment"
+- "취소해줘" means "cancel it for me" or "please cancel"
+
+2025-04-25 17:06:52.243 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the given query is Korean.
+
+Here's a translation of the query to English:
+
+"Cancel my lunch appointment tomorrow, please."
+
+Breakdown:
+
+- "내일" means "tomorrow"
+- "점심약속" means "lunch appointment"
+- "취소해줘" means "cancel it for me" or "please cancel"
+
+2025-04-25 17:06:52.245 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the given query is Korean.
+
+Here's a translation of the query to English:
+
+"Cancel my lunch appointment tomorrow, please."
+
+Breakdown:
+
+- "내일" means "tomorrow"
+- "점심약속" means "lunch appointment"
+- "취소해줘" means "cancel it for me" or "please cancel" ======
+
+2025-04-25 17:27:35.557 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:216 - 기능 유형 분류 중 오류 발생: 'output'
+
+2025-04-25 17:29:36.795 | ERROR    | app.services.common.preprocessor:translate_query:137 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-25 17:29:36.795 | ERROR    | app.services.common.preprocessor:translate_query:138 - [Preprocess] Original response: The language of the query is Korean.
+
+Here's the translation of the query to English:
+
+Query: "내일 약속생겼어"
+
+Translated Query: "I have a commitment (or appointment) tomorrow."
+
+Breakdown:
+
+- "내일" means "tomorrow"
+- "약속" means "commitment" or "appointment"
+- "생겼어" is a polite way of saying "has been made" or "has been arranged" (the verb "생기다" means "to become" or "to be arranged", and the polite ending "-었어" is added to the verb)
+
+So the overall meaning is that the speaker has an appointment or commitment scheduled for tomorrow.
+
+2025-04-25 17:29:36.796 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Here's the translation of the query to English:
+
+Query: "내일 약속생겼어"
+
+Translated Query: "I have a commitment (or appointment) tomorrow."
+
+Breakdown:
+
+- "내일" means "tomorrow"
+- "약속" means "commitment" or "appointment"
+- "생겼어" is a polite way of saying "has been made" or "has been arranged" (the verb "생기다" means "to become" or "to be arranged", and the polite ending "-었어" is added to the verb)
+
+So the overall meaning is that the speaker has an appointment or commitment scheduled for tomorrow.
+
+2025-04-25 17:29:36.811 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Here's the translation of the query to English:
+
+Query: "내일 약속생겼어"
+
+Translated Query: "I have a commitment (or appointment) tomorrow."
+
+Breakdown:
+
+- "내일" means "tomorrow"
+- "약속" means "commitment" or "appointment"
+- "생겼어" is a polite way of saying "has been made" or "has been arranged" (the verb "생기다" means "to become" or "to be arranged", and the polite ending "-었어" is added to the verb)
+
+So the overall meaning is that the speaker has an appointment or commitment scheduled for tomorrow. ======
+
+2025-04-25 17:29:54.000 | ERROR    | app.services.common.preprocessor:translate_query:137 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-25 17:29:54.001 | ERROR    | app.services.common.preprocessor:translate_query:138 - [Preprocess] Original response: The language of the query is Korean.
+
+Here's the translation of the query to English:
+
+Query: "내일 약속생겼어"
+
+Translated Query: "I have a meeting tomorrow"
+
+Breakdown:
+
+- "내일" means "tomorrow"
+- "약속" means "meeting"
+- "생겼어" is a casual way to say "I have" or "I got" in Korean. The verb conjugation is in the polite form, but the suffix "-어" is used to indicate a casual tone.
+
+2025-04-25 17:29:54.002 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Here's the translation of the query to English:
+
+Query: "내일 약속생겼어"
+
+Translated Query: "I have a meeting tomorrow"
+
+Breakdown:
+
+- "내일" means "tomorrow"
+- "약속" means "meeting"
+- "생겼어" is a casual way to say "I have" or "I got" in Korean. The verb conjugation is in the polite form, but the suffix "-어" is used to indicate a casual tone.
+
+2025-04-25 17:29:54.004 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Here's the translation of the query to English:
+
+Query: "내일 약속생겼어"
+
+Translated Query: "I have a meeting tomorrow"
+
+Breakdown:
+
+- "내일" means "tomorrow"
+- "약속" means "meeting"
+- "생겼어" is a casual way to say "I have" or "I got" in Korean. The verb conjugation is in the polite form, but the suffix "-어" is used to indicate a casual tone. ======
+
+2025-04-26 13:25:38.444 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:216 - 기능 유형 분류 중 오류 발생: 'output'
+
+2025-04-26 13:40:44.560 | ERROR    | app.services.common.preprocessor:translate_query:137 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-26 13:40:44.561 | ERROR    | app.services.common.preprocessor:translate_query:138 - [Preprocess] Original response: The language of the query is Korean.
+
+The translation of the query to English is:
+
+"5.10 I have a dinner appointment."
+
+Breaking down the translation:
+
+- "5.10" refers to the date "May 10th".
+- "저녁약속" means "dinner appointment".
+- "생겼어" is the informal polite way of saying "have" or "got" in Korean, which is used to indicate that the speaker has received or gained something (in this case, a dinner appointment).
+
+2025-04-26 13:40:44.564 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+The translation of the query to English is:
+
+"5.10 I have a dinner appointment."
+
+Breaking down the translation:
+
+- "5.10" refers to the date "May 10th".
+- "저녁약속" means "dinner appointment".
+- "생겼어" is the informal polite way of saying "have" or "got" in Korean, which is used to indicate that the speaker has received or gained something (in this case, a dinner appointment).
+
+2025-04-26 13:40:44.566 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+The translation of the query to English is:
+
+"5.10 I have a dinner appointment."
+
+Breaking down the translation:
+
+- "5.10" refers to the date "May 10th".
+- "저녁약속" means "dinner appointment".
+- "생겼어" is the informal polite way of saying "have" or "got" in Korean, which is used to indicate that the speaker has received or gained something (in this case, a dinner appointment). ======
+
+2025-04-26 13:42:13.755 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: string indices must be integers, not 'str'
+
+2025-04-26 13:42:44.103 | ERROR    | app.services.common.preprocessor:translate_query:137 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-26 13:42:44.104 | ERROR    | app.services.common.preprocessor:translate_query:138 - [Preprocess] Original response: The language of the query is Korean.
+
+Here's the translation of the query in English:
+
+Query: "5.10 저녁약속이 점심약속으로 바뀌었어."
+
+Translation: "My dinner appointment is changed to lunch on 5.10."
+
+Note: The query is a simple sentence asking about a change in appointment, and the date "5.10" is likely referring to May 10th, given the format.
+
+2025-04-26 13:42:44.106 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Here's the translation of the query in English:
+
+Query: "5.10 저녁약속이 점심약속으로 바뀌었어."
+
+Translation: "My dinner appointment is changed to lunch on 5.10."
+
+Note: The query is a simple sentence asking about a change in appointment, and the date "5.10" is likely referring to May 10th, given the format.
+
+2025-04-26 13:42:44.107 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Here's the translation of the query in English:
+
+Query: "5.10 저녁약속이 점심약속으로 바뀌었어."
+
+Translation: "My dinner appointment is changed to lunch on 5.10."
+
+Note: The query is a simple sentence asking about a change in appointment, and the date "5.10" is likely referring to May 10th, given the format. ======
+
+2025-04-26 13:42:52.319 | ERROR    | app.services.common.preprocessor:translate_query:137 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-26 13:42:52.320 | ERROR    | app.services.common.preprocessor:translate_query:138 - [Preprocess] Original response: The language of the query appears to be Korean.
+
+Here's a translation of the query into English:
+
+"5.10 has been changed from a dinner appointment to a lunch appointment."
+
+Here's a breakdown of the translation:
+
+- "5.10" is likely a date (May 10th).
+- "저녁약속" means "dinner appointment" in Korean.
+- "점심약속" means "lunch appointment" in Korean.
+- "바뀌었어" means "has been changed" in Korean, with the "어" at the end indicating the speaker is a female.
+
+So, the translated query is asking about a change in a scheduled appointment from dinner to lunch on May 10th.
+
+2025-04-26 13:42:52.321 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query appears to be Korean.
+
+Here's a translation of the query into English:
+
+"5.10 has been changed from a dinner appointment to a lunch appointment."
+
+Here's a breakdown of the translation:
+
+- "5.10" is likely a date (May 10th).
+- "저녁약속" means "dinner appointment" in Korean.
+- "점심약속" means "lunch appointment" in Korean.
+- "바뀌었어" means "has been changed" in Korean, with the "어" at the end indicating the speaker is a female.
+
+So, the translated query is asking about a change in a scheduled appointment from dinner to lunch on May 10th.
+
+2025-04-26 13:42:52.322 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query appears to be Korean.
+
+Here's a translation of the query into English:
+
+"5.10 has been changed from a dinner appointment to a lunch appointment."
+
+Here's a breakdown of the translation:
+
+- "5.10" is likely a date (May 10th).
+- "저녁약속" means "dinner appointment" in Korean.
+- "점심약속" means "lunch appointment" in Korean.
+- "바뀌었어" means "has been changed" in Korean, with the "어" at the end indicating the speaker is a female.
+
+So, the translated query is asking about a change in a scheduled appointment from dinner to lunch on May 10th. ======
+
+2025-04-26 13:56:00.008 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:216 - 기능 유형 분류 중 오류 발생: 'output'
+
+2025-04-26 13:58:37.167 | ERROR    | app.services.common.preprocessor:translate_query:137 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-26 13:58:37.169 | ERROR    | app.services.common.preprocessor:translate_query:138 - [Preprocess] Original response: The language of the query is Korean.
+
+Here's the translation of the query to English:
+
+"Query: '다음주 목요일날 점심에 축구약속이 생겼어.'"
+
+Translated to English:
+
+"Next week on Thursday, I have a lunch appointment for soccer."
+
+Breakdown:
+
+- "다음주" means "next week"
+- "목요일날" means "on Thursday"
+- "점심" means "lunch"
+- "축구약속" means "soccer appointment"
+- "이" is a topic marker and is often omitted in translation.
+- " 생겼어" is a colloquial way to say "was arranged" or "happened"
+
+So, the complete translation of the query is: "Next week on Thursday, I have a lunch appointment for soccer."
+
+2025-04-26 13:58:37.172 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Here's the translation of the query to English:
+
+"Query: '다음주 목요일날 점심에 축구약속이 생겼어.'"
+
+Translated to English:
+
+"Next week on Thursday, I have a lunch appointment for soccer."
+
+Breakdown:
+
+- "다음주" means "next week"
+- "목요일날" means "on Thursday"
+- "점심" means "lunch"
+- "축구약속" means "soccer appointment"
+- "이" is a topic marker and is often omitted in translation.
+- " 생겼어" is a colloquial way to say "was arranged" or "happened"
+
+So, the complete translation of the query is: "Next week on Thursday, I have a lunch appointment for soccer."
+
+2025-04-26 13:58:37.174 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Here's the translation of the query to English:
+
+"Query: '다음주 목요일날 점심에 축구약속이 생겼어.'"
+
+Translated to English:
+
+"Next week on Thursday, I have a lunch appointment for soccer."
+
+Breakdown:
+
+- "다음주" means "next week"
+- "목요일날" means "on Thursday"
+- "점심" means "lunch"
+- "축구약속" means "soccer appointment"
+- "이" is a topic marker and is often omitted in translation.
+- " 생겼어" is a colloquial way to say "was arranged" or "happened"
+
+So, the complete translation of the query is: "Next week on Thursday, I have a lunch appointment for soccer." ======
+
+2025-04-26 13:58:47.654 | ERROR    | app.services.common.preprocessor:translate_query:137 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-26 13:58:47.655 | ERROR    | app.services.common.preprocessor:translate_query:138 - [Preprocess] Original response: The language of the query is Korean.
+
+Translated query to English:
+"Next week on Thursday, I have a scheduled lunch appointment of playing soccer."
+
+Breakdown of the original query:
+- "다음주" means "next week"
+- "목요일" means "Thursday"
+- "날" is a possessive particle meaning "on"
+- "점심" means "lunch"
+- "에" is a conjunction meaning "on"
+- "축구약속" means "soccer appointment" or "soccer schedule"
+- "이" is a possessive particle meaning "my"
+- "생겼어" is a verb ending meaning "has been scheduled" or "has been arranged"
+
+2025-04-26 13:58:47.656 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Translated query to English:
+"Next week on Thursday, I have a scheduled lunch appointment of playing soccer."
+
+Breakdown of the original query:
+- "다음주" means "next week"
+- "목요일" means "Thursday"
+- "날" is a possessive particle meaning "on"
+- "점심" means "lunch"
+- "에" is a conjunction meaning "on"
+- "축구약속" means "soccer appointment" or "soccer schedule"
+- "이" is a possessive particle meaning "my"
+- "생겼어" is a verb ending meaning "has been scheduled" or "has been arranged"
+
+2025-04-26 13:58:47.657 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Translated query to English:
+"Next week on Thursday, I have a scheduled lunch appointment of playing soccer."
+
+Breakdown of the original query:
+- "다음주" means "next week"
+- "목요일" means "Thursday"
+- "날" is a possessive particle meaning "on"
+- "점심" means "lunch"
+- "에" is a conjunction meaning "on"
+- "축구약속" means "soccer appointment" or "soccer schedule"
+- "이" is a possessive particle meaning "my"
+- "생겼어" is a verb ending meaning "has been scheduled" or "has been arranged" ======
+
+2025-04-26 14:01:40.442 | ERROR    | app.services.common.preprocessor:translate_query:137 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-26 14:01:40.442 | ERROR    | app.services.common.preprocessor:translate_query:138 - [Preprocess] Original response: The language of the query appears to be Korean.
+
+Here's the translation:
+
+"다음주 금요일날 점심에 축구약속이 생겼어."
+
+Translated to English: "I have a soccer appointment on Friday next week for lunch."
+
+So, the translated query in English is: "I have a soccer appointment on Friday next week for lunch."
+
+2025-04-26 14:01:40.444 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query appears to be Korean.
+
+Here's the translation:
+
+"다음주 금요일날 점심에 축구약속이 생겼어."
+
+Translated to English: "I have a soccer appointment on Friday next week for lunch."
+
+So, the translated query in English is: "I have a soccer appointment on Friday next week for lunch."
+
+2025-04-26 14:01:40.447 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query appears to be Korean.
+
+Here's the translation:
+
+"다음주 금요일날 점심에 축구약속이 생겼어."
+
+Translated to English: "I have a soccer appointment on Friday next week for lunch."
+
+So, the translated query in English is: "I have a soccer appointment on Friday next week for lunch." ======
+
+2025-04-26 14:03:46.705 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:216 - 기능 유형 분류 중 오류 발생: 'output'
+
+2025-04-26 14:04:03.698 | ERROR    | app.services.common.preprocessor:translate_query:137 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-26 14:04:03.698 | ERROR    | app.services.common.preprocessor:translate_query:138 - [Preprocess] Original response: The language of the query appears to be Korean.
+
+Here's the translation to English:
+
+"2주뒤 수요일날 친구랑 떡볶이먹기로했어."
+
+Translated to English:
+"Two weeks later, I'm going to eat tteokbokki with my friends on Wednesday."
+
+Breakdown:
+
+- "2주뒤" means "two weeks later"
+- "수요일날" means "on Wednesday"
+- "친구랑" means "with my friends"
+- "떡볶이먹기" means "to eat tteokbokki" (tteokbokki is a popular Korean dish)
+- "로" is a particle that means "for" or "in order to"
+- "했어" is a casual way of saying "I did" or "I've decided to"
+
+Note: The translation is based on a casual, informal tone, as the original sentence is written in a way that suggests a conversation or a personal message.
+
+2025-04-26 14:04:03.699 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query appears to be Korean.
+
+Here's the translation to English:
+
+"2주뒤 수요일날 친구랑 떡볶이먹기로했어."
+
+Translated to English:
+"Two weeks later, I'm going to eat tteokbokki with my friends on Wednesday."
+
+Breakdown:
+
+- "2주뒤" means "two weeks later"
+- "수요일날" means "on Wednesday"
+- "친구랑" means "with my friends"
+- "떡볶이먹기" means "to eat tteokbokki" (tteokbokki is a popular Korean dish)
+- "로" is a particle that means "for" or "in order to"
+- "했어" is a casual way of saying "I did" or "I've decided to"
+
+Note: The translation is based on a casual, informal tone, as the original sentence is written in a way that suggests a conversation or a personal message.
+
+2025-04-26 14:04:03.700 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query appears to be Korean.
+
+Here's the translation to English:
+
+"2주뒤 수요일날 친구랑 떡볶이먹기로했어."
+
+Translated to English:
+"Two weeks later, I'm going to eat tteokbokki with my friends on Wednesday."
+
+Breakdown:
+
+- "2주뒤" means "two weeks later"
+- "수요일날" means "on Wednesday"
+- "친구랑" means "with my friends"
+- "떡볶이먹기" means "to eat tteokbokki" (tteokbokki is a popular Korean dish)
+- "로" is a particle that means "for" or "in order to"
+- "했어" is a casual way of saying "I did" or "I've decided to"
+
+Note: The translation is based on a casual, informal tone, as the original sentence is written in a way that suggests a conversation or a personal message. ======
+
+2025-04-26 14:10:30.292 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:216 - 기능 유형 분류 중 오류 발생: 'output'
+
+2025-04-26 14:10:47.116 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:216 - 기능 유형 분류 중 오류 발생: 'output'
+
+2025-04-26 14:10:56.983 | ERROR    | app.services.common.preprocessor:translate_query:137 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-26 14:10:56.984 | ERROR    | app.services.common.preprocessor:translate_query:138 - [Preprocess] Original response: The language of the query is Korean.
+
+Here's the translation to English:
+
+"Add a lunch appointment at Songshin-dang next Friday with my friend."
+
+Breakdown:
+
+* "다음주" means "next week"
+* "금요일날" means "on Friday"
+* "성심당" is a Korean restaurant called "Songshin-dang"
+* "친구랑" means "with my friend"
+* "점심약속" means "lunch appointment"
+* "추가해줘" is a polite way of saying "add it" or "add it for me"
+
+2025-04-26 14:10:56.985 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Here's the translation to English:
+
+"Add a lunch appointment at Songshin-dang next Friday with my friend."
+
+Breakdown:
+
+* "다음주" means "next week"
+* "금요일날" means "on Friday"
+* "성심당" is a Korean restaurant called "Songshin-dang"
+* "친구랑" means "with my friend"
+* "점심약속" means "lunch appointment"
+* "추가해줘" is a polite way of saying "add it" or "add it for me"
+
+2025-04-26 14:10:56.988 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Here's the translation to English:
+
+"Add a lunch appointment at Songshin-dang next Friday with my friend."
+
+Breakdown:
+
+* "다음주" means "next week"
+* "금요일날" means "on Friday"
+* "성심당" is a Korean restaurant called "Songshin-dang"
+* "친구랑" means "with my friend"
+* "점심약속" means "lunch appointment"
+* "추가해줘" is a polite way of saying "add it" or "add it for me" ======
+
+2025-04-26 14:11:04.447 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:216 - 기능 유형 분류 중 오류 발생: 'output'
+
+2025-04-26 14:11:11.278 | ERROR    | app.services.common.preprocessor:translate_query:137 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-26 14:11:11.279 | ERROR    | app.services.common.preprocessor:translate_query:138 - [Preprocess] Original response: The language of the query is Korean.
+
+Translated to English: 
+
+"Add a lunch appointment at Seong-sim-dang next Friday for me and my friend."
+
+2025-04-26 14:11:11.280 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Translated to English: 
+
+"Add a lunch appointment at Seong-sim-dang next Friday for me and my friend."
+
+2025-04-26 14:11:11.282 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Translated to English: 
+
+"Add a lunch appointment at Seong-sim-dang next Friday for me and my friend." ======
+
+2025-04-26 14:11:16.956 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:216 - 기능 유형 분류 중 오류 발생: 'output'
+
+2025-04-26 14:36:15.598 | ERROR    | app.services.common.preprocessor:translate_query:137 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-26 14:36:15.601 | ERROR    | app.services.common.preprocessor:translate_query:138 - [Preprocess] Original response: The language of the query is Korean.
+
+Here's the translation to English:
+
+"Next Wednesday, can you delete lunch for me?"
+
+Or more formally:
+"Next Wednesday, would you mind deleting lunch for me?"
+
+Note: The query is asking a person to delete lunch for the speaker on the following Wednesday, likely in a context where someone else is arranging food or meals.
+
+2025-04-26 14:36:15.606 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Here's the translation to English:
+
+"Next Wednesday, can you delete lunch for me?"
+
+Or more formally:
+"Next Wednesday, would you mind deleting lunch for me?"
+
+Note: The query is asking a person to delete lunch for the speaker on the following Wednesday, likely in a context where someone else is arranging food or meals.
+
+2025-04-26 14:36:15.610 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Here's the translation to English:
+
+"Next Wednesday, can you delete lunch for me?"
+
+Or more formally:
+"Next Wednesday, would you mind deleting lunch for me?"
+
+Note: The query is asking a person to delete lunch for the speaker on the following Wednesday, likely in a context where someone else is arranging food or meals. ======
+
+2025-04-26 14:36:25.703 | ERROR    | app.services.common.preprocessor:translate_query:137 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-26 14:36:25.705 | ERROR    | app.services.common.preprocessor:translate_query:138 - [Preprocess] Original response: The language of the query is Korean.
+
+Here's the translation of the query to English:
+
+"Can you delete lunch next Wednesday?"
+
+2025-04-26 14:36:25.707 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Here's the translation of the query to English:
+
+"Can you delete lunch next Wednesday?"
+
+2025-04-26 14:36:25.710 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+Here's the translation of the query to English:
+
+"Can you delete lunch next Wednesday?" ======
+
+2025-04-26 15:35:12.279 | ERROR    | app.services.common.preprocessor:translate_query:137 - [Preprocess] Failed to parse translation response JSON: Expecting value: line 1 column 1 (char 0)
+
+2025-04-26 15:35:12.280 | ERROR    | app.services.common.preprocessor:translate_query:138 - [Preprocess] Original response: The language of the query is Korean.
+
+The translation of the query to English is:
+
+"Will you delete dinner for next Wednesday?"
+
+Here's a breakdown of the translation:
+
+- "다음주" means "next week"
+- "수요일" means "Wednesday"
+- "점심" means "dinner"
+- "삭제해줄래?" is a polite way of asking "Will you delete it?" or "Will you do it for me?"
+
+2025-04-26 15:35:12.284 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+The translation of the query to English is:
+
+"Will you delete dinner for next Wednesday?"
+
+Here's a breakdown of the translation:
+
+- "다음주" means "next week"
+- "수요일" means "Wednesday"
+- "점심" means "dinner"
+- "삭제해줄래?" is a polite way of asking "Will you delete it?" or "Will you do it for me?"
+
+2025-04-26 15:35:12.286 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Translation response parsing error: Expecting value: line 1 column 1 (char 0)
+Original response: The language of the query is Korean.
+
+The translation of the query to English is:
+
+"Will you delete dinner for next Wednesday?"
+
+Here's a breakdown of the translation:
+
+- "다음주" means "next week"
+- "수요일" means "Wednesday"
+- "점심" means "dinner"
+- "삭제해줄래?" is a polite way of asking "Will you delete it?" or "Will you do it for me?" ======
+
+2025-04-26 16:10:45.090 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: name 'json' is not defined
+
+2025-04-26 16:10:45.091 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: name 'json' is not defined ======
+
+2025-04-26 16:12:06.118 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: 'function' object has no attribute 'translate_query'
+
+2025-04-26 16:12:06.120 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: 'function' object has no attribute 'translate_query' ======
+
+2025-04-26 16:12:11.508 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: 'function' object has no attribute 'translate_query'
+
+2025-04-26 16:12:11.509 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: 'function' object has no attribute 'translate_query' ======
+
+2025-04-26 16:15:15.552 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: string indices must be integers, not 'str'
+
+2025-04-26 16:15:15.554 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: string indices must be integers, not 'str' ======
+
+2025-04-26 16:41:32.306 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jqt290hbfms9qqr1ma71216d` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 100115, Requested 539. Please try again in 9m25.398s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+
+2025-04-26 16:41:49.013 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jqt290hbfms9qqr1ma71216d` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 100095, Requested 1368. Please try again in 21m4.332999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+
+2025-04-26 16:41:49.015 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jqt290hbfms9qqr1ma71216d` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 100095, Requested 1368. Please try again in 21m4.332999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}} ======
+
+2025-04-26 16:43:21.273 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jqt290hbfms9qqr1ma71216d` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99989, Requested 1368. Please try again in 19m31.923s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+
+2025-04-26 16:43:21.275 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jqt290hbfms9qqr1ma71216d` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99989, Requested 1368. Please try again in 19m31.923s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}} ======
+
+2025-04-26 16:43:40.625 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jqt290hbfms9qqr1ma71216d` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99967, Requested 1368. Please try again in 19m12.617s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+
+2025-04-26 16:43:40.627 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jqt290hbfms9qqr1ma71216d` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99967, Requested 1368. Please try again in 19m12.617s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}} ======
+
+2025-04-26 16:59:47.316 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jqt290hbfms9qqr1ma71216d` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 98848, Requested 1368. Please try again in 3m5.966999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+
+2025-04-26 16:59:47.318 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jqt290hbfms9qqr1ma71216d` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 98848, Requested 1368. Please try again in 3m5.966999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}} ======
+
+2025-04-26 17:00:04.493 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jqt290hbfms9qqr1ma71216d` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 98828, Requested 1368. Please try again in 2m48.695s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+
+2025-04-26 17:00:04.497 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jqt290hbfms9qqr1ma71216d` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 98828, Requested 1368. Please try again in 2m48.695s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}} ======
+
+2025-04-26 17:02:57.652 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jqt290hbfms9qqr1ma71216d` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99940, Requested 654. Please try again in 8m32.89s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+
+2025-04-26 17:02:59.086 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jqt290hbfms9qqr1ma71216d` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99939, Requested 1368. Please try again in 18m48.402999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+
+2025-04-26 17:02:59.088 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jqt290hbfms9qqr1ma71216d` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99939, Requested 1368. Please try again in 18m48.402999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}} ======
+
+2025-04-26 17:04:12.622 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jqt290hbfms9qqr1ma71216d` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99853, Requested 1368. Please try again in 17m34.902s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+
+2025-04-26 17:04:12.624 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jqt290hbfms9qqr1ma71216d` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99853, Requested 1368. Please try again in 17m34.902s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}} ======
+
+2025-04-26 17:04:30.380 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jqt290hbfms9qqr1ma71216d` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99833, Requested 1368. Please try again in 17m17.052s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+
+2025-04-26 17:04:30.382 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jqt290hbfms9qqr1ma71216d` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99833, Requested 1368. Please try again in 17m17.052s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}} ======
+
+2025-04-26 17:09:43.759 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jqt290hbfms9qqr1ma71216d` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99470, Requested 1368. Please try again in 12m3.732s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+
+2025-04-26 17:09:43.762 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jqt290hbfms9qqr1ma71216d` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99470, Requested 1368. Please try again in 12m3.732s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}} ======
+
+2025-04-26 17:21:53.154 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jqt290hbfms9qqr1ma71216d` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99919, Requested 654. Please try again in 8m14.941s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+
+2025-04-26 17:24:21.319 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jqt290hbfms9qqr1ma71216d` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99748, Requested 1368. Please try again in 16m3.593999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+
+2025-04-26 17:24:21.322 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jqt290hbfms9qqr1ma71216d` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99748, Requested 1368. Please try again in 16m3.593999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}} ======
+
+2025-04-26 17:29:26.895 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jqt290hbfms9qqr1ma71216d` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99394, Requested 1368. Please try again in 10m57.989s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+
+2025-04-26 17:29:26.896 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jqt290hbfms9qqr1ma71216d` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99394, Requested 1368. Please try again in 10m57.989s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}} ======
+
+2025-04-26 17:29:50.739 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jqt290hbfms9qqr1ma71216d` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99366, Requested 1368. Please try again in 10m34.15s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+
+2025-04-26 17:29:50.740 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jqt290hbfms9qqr1ma71216d` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99366, Requested 1368. Please try again in 10m34.15s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}} ======
+
+2025-04-27 21:51:37.734 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Invalid json output: {"input": "\uc624\ub298\uc8fc \uc88c\uc5ec\uad8c\uacc4\uae4\ud14c \uc88c\uc2dc\ub098\uc2e0 \ubc1c\ubcf5\ub2e4", "lang_code": "ko", "translated_query": "Next week's dinner plans have been changed to lunch."}
+For troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/errors/OUTPUT_PARSING_FAILURE 
+
+2025-04-27 21:51:37.743 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Invalid json output: {"input": "\uc624\ub298\uc8fc \uc88c\uc5ec\uad8c\uacc4\uae4\ud14c \uc88c\uc2dc\ub098\uc2e0 \ubc1c\ubcf5\ub2e4", "lang_code": "ko", "translated_query": "Next week's dinner plans have been changed to lunch."}
+For troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/errors/OUTPUT_PARSING_FAILURE  ======
+
+2025-04-27 21:52:00.022 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: cannot access local variable 'prompt' where it is not associated with a value
+
+2025-04-27 21:53:49.958 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: cannot access local variable 'prompt' where it is not associated with a value
+
+2025-04-27 21:59:32.795 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: cannot access local variable 'prompt' where it is not associated with a value
+
+2025-04-27 22:00:09.534 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: the JSON object must be str, bytes or bytearray, not dict
+
+2025-04-27 22:04:30.754 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: the JSON object must be str, bytes or bytearray, not dict
+
+2025-04-27 22:08:12.107 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: cannot access local variable 'prompt' where it is not associated with a value
+
+2025-04-27 22:13:22.653 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: cannot access local variable 'prompt' where it is not associated with a value
+
+2025-04-27 22:42:43.805 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:216 - 기능 유형 분류 중 오류 발생: 'output'
+
+2025-04-27 22:45:42.714 | ERROR    | app.services.agentic.agentic_response_generator:_generate_calendar_response:92 - 캘린더 관리 응답 생성 중 오류 발생: "Input to ChatPromptTemplate is missing variables {'<schedule>,<schedule>,<schedule>,...'}.  Expected: ['<schedule>,<schedule>,<schedule>,...', 'input'] Received: ['input']\nNote: if you intended {<schedule>,<schedule>,<schedule>,...} to be part of the string and not a variable, please escape it with double curly braces like: '{{<schedule>,<schedule>,<schedule>,...}}'.\nFor troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/errors/INVALID_PROMPT_INPUT "
+
+2025-04-27 22:48:30.739 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:216 - 기능 유형 분류 중 오류 발생: 'output'
+

@@ -158,6 +158,9 @@ pytest tests/
 # 백그라운드 실행
 nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload > logs/uvicorn.log 2>&1 &
 
+# 윈도우( 개발모드 )
+uvicorn app.main:app --reload
+
 # 서버 종료
 ps aux | grep uvicorn      # 실행 중인 프로세스 확인
 kill -9 [PID]              # 프로세스 종료
