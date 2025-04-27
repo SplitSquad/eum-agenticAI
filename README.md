@@ -108,10 +108,7 @@ PYTHONPATH=$PYTHONPATH:. uvicorn app.main:app --reload
 ✅ 응답 예시
 | 항목       | 예시 |
 |------------|----------------------------------------------------------------|
-| 응답 예시  | 
-`{ "response": "건강보험 자격 취득은 사업장 가입자는 입사일 기준으로 자동 등록됩니다.", 
-"metadata": 
-  { "query": "건강보험 자격 취득은 어떻게 하나요?", "agentic_type": "general", "error": "" } }` |
+| 응답 예시  | `{ "response": "건강보험 자격 취득은 사업장 가입자는 입사일 기준으로 자동 등록됩니다.",                         "metadata": { "query": "건강보험 자격 취득은 어떻게 하나요?", "agentic_type": "general", "error": "" } }` |
 
 
 ## 코드 컨벤션
