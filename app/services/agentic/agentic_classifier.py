@@ -232,8 +232,9 @@ def Category_Classification(query):
     })
     prompt = ChatPromptTemplate.from_messages([
     ("system", """
-    1. Please divide the categories based on the user's input.
+    1. Its role is to inform the category.
     2. Here is a few-shot example.
+    ----------------------- 
     input : 일정 추가해줘  
     output : calendar
 
@@ -269,8 +270,9 @@ def Category_Classification(query):
     -----------------
     input : all Other query
     output : general
-    
+    -----------------
      
+    3. Please output it like output
 
 
 
@@ -282,13 +284,13 @@ def Category_Classification(query):
 
     def parse_product(description: str) -> dict:
             result = chain.invoke({"input": description})
-            print("json.dumps\n",json.dumps(result, indent=2,ensure_ascii=False))
+            
             return json.dumps(result, indent=2,ensure_ascii=False)
     
     
 
     chain = prompt | llm | parser
     Category = parse_product(query)
-
+    print("[Category] ",Category)
     return Category
 ################################################### LLM을 활용한 기능 유형 분류 구현

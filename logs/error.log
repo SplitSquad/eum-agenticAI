@@ -1624,3 +1624,41 @@ For troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/er
 
 2025-04-27 23:12:33.629 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01jp1zfkx2eg2stps9072842xw` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 98809, Requested 1390. Please try again in 2m51.38s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}} ======
 
+2025-04-28 09:05:52.325 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Invalid json output: input : 이력서 작성해줘
+lang_code : ko
+translated_query : Write a resume
+For troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/errors/OUTPUT_PARSING_FAILURE 
+
+2025-04-28 09:05:52.326 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Invalid json output: input : 이력서 작성해줘
+lang_code : ko
+translated_query : Write a resume
+For troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/errors/OUTPUT_PARSING_FAILURE  ======
+
+2025-04-28 09:06:07.532 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: Invalid json output: input : 이력서 작성해줘
+lang_code : ko
+translated_query : Write a resume
+For troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/errors/OUTPUT_PARSING_FAILURE 
+
+2025-04-28 09:06:07.533 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: Invalid json output: input : 이력서 작성해줘
+lang_code : ko
+translated_query : Write a resume
+For troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/errors/OUTPUT_PARSING_FAILURE  ======
+
+2025-04-28 09:09:01.177 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:217 - 기능 유형 분류 중 오류 발생: 'output'
+
+2025-04-28 09:11:48.018 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:217 - 기능 유형 분류 중 오류 발생: 'output'
+
+2025-04-28 09:12:10.568 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:217 - 기능 유형 분류 중 오류 발생: 'output'
+
+2025-04-28 09:17:18.045 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:217 - 기능 유형 분류 중 오류 발생: 'output'
+
+2025-04-28 09:39:46.913 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:217 - 기능 유형 분류 중 오류 발생: 'category'
+
+2025-04-28 09:41:57.480 | ERROR    | app.services.agentic.agentic_classifier:_classify_agentic_type:217 - 기능 유형 분류 중 오류 발생: 'output'
+
+2025-04-28 09:44:20.608 | ERROR    | app.services.agentic.agentic_response_generator:generate_response:31 - 응답 생성 중 오류 발생: object str can't be used in 'await' expression
+
+2025-04-28 09:56:00.744 | ERROR    | app.services.agentic.agentic:get_response:69 - 응답 생성 중 오류 발생: string indices must be integers, not 'str'
+
+2025-04-28 09:56:00.745 | ERROR    | app.services.agentic.agentic:get_response:70 - [WORKFLOW] ====== Error in agentic workflow: string indices must be integers, not 'str' ======
+

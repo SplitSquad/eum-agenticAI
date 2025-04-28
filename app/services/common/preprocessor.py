@@ -128,10 +128,7 @@ def translate_query(query) :
     {translation}
 
 
-    ⚠️ certainly print it out as shown in the example.
-    lang_code : <>
-    translated_query : <>
-    
+    ⚠️ certainly print it out as shown in the example.    
     ⚠️ Do NOT include any explanation or message. ONLY return a valid JSON object. No natural language.
     """
 
