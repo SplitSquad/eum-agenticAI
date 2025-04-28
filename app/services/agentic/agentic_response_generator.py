@@ -18,12 +18,19 @@ class AgenticResponseGenerator:
         """응답을 생성합니다."""
         try:
             if agentic_type == AgenticType.GENERAL:
-                return await self._generate_general_response(query)
+                return self._generate_general_response(query)
             elif agentic_type == AgenticType.CALENDAR:
-                logger.info(f"[CALENDAR 응답] 1 : CALENDAR")
-                return await self._generate_calendar_response(query,uid)
+                logger.info(f"[CALENDAR 기능 초기화중] : CALENDAR")
+                return self._generate_calendar_response(query,uid)
             elif agentic_type == AgenticType.RESUME:
-                return await "이력서 기능은 개발중입니다."
+                return {
+                "response": "이력서 기능은 개발중입니다.",
+                "metadata": {
+                    "query": "{query}",
+                    "agentic_type": "RESUME",
+                    "error": ""
+                }
+            }
             else:
                 return await self._generate_general_response(query)
                 
