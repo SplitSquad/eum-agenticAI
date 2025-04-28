@@ -124,11 +124,10 @@ def translate_query(query) :
     1. This is the part that analyzes language.
     2. Please tell me which language it is
     3. Please translate it into English
-    4. example 
+    4. few-shot example 
     {translation}
 
 
-    ⚠️ certainly print it out as shown in the example.    
     ⚠️ Do NOT include any explanation or message. ONLY return a valid JSON object. No natural language.
     """
 
