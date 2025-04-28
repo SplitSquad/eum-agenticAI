@@ -527,3 +527,87 @@ In JSON format:
 
 2025-04-25 09:25:59.146 | ERROR    | app.api.v1.chatbot:chatbot_handler:60 - 챗봇 처리 중 오류 발생: module 'torch' has no attribute 'get_default_device'
 
+2025-04-25 17:17:07.187 | ERROR    | app.services.agentic.agentic_resume_service:get_user_profile:109 - 🚨 사용자 프로필 조회 실패: All connection attempts failed
+
+2025-04-25 17:17:07.187 | ERROR    | app.api.v1.agentic:start_resume:109 - 이력서 생성 시작 실패: 500: 사용자 프로필 조회 중 오류 발생: All connection attempts failed
+
+2025-04-26 13:54:53.324 | ERROR    | app.services.agentic.agentic_resume_service:get_user_profile:109 - 🚨 사용자 프로필 조회 실패: All connection attempts failed
+
+2025-04-26 13:54:53.324 | ERROR    | app.api.v1.agentic:start_resume:109 - 이력서 생성 시작 실패: 500: 사용자 프로필 조회 중 오류 발생: All connection attempts failed
+
+2025-04-26 16:18:17.333 | ERROR    | app.api.v1.agentic:start_resume:109 - 이력서 생성 시작 실패: 400: 이미 진행 중인 이력서 생성 대화가 있습니다.
+
+2025-04-26 16:48:38.304 | ERROR    | app.api.v1.agentic:respond_to_resume:148 - 이력서 생성 응답 처리 실패: 400: 진행 중인 이력서 생성 대화가 없습니다.
+
+2025-04-26 16:49:55.618 | ERROR    | app.services.agentic.agentic_resume_service:save_resume_pdf:518 - 🚨 PDF 생성 중 오류 발생: [Errno 63] File name too long: '**홍길동 이력서**\n\n**이름** : 홍길동\n\n**직업** : **소프트웨어 개발자** (Java, Python 개발 경험이 있습니다.)\n\n**경력**\n\n- **자바 개발자**, [회사명] (20XX년 1월 ~ 20XX년 12월)\n + 자바 기반의 웹 어플리케이션 개발 및 유지보수\n + 팀원으로서 프로젝트 매니저와 개발자와의 협업\n- **Python 웹 개발자**, [회사명] (20XX년 1월 ~ 20XX년 12월)\n + Python 기반의 웹 어플리케이션 개발 및 유지보수\n + 데이터 분석 및 시각화 도구인 pandas, matplotlib, seaborn 등 사용\n\n**기술 스택**\n\n- **프로그래밍 언어** : Java, Python\n- **웹 개발 프레임워크** : Spring, Django\n- **데이터베이스** : MySQL, PostgreSQL\n- **버전 관리 시스템** : Git\n- **개발 도구** : Eclipse, IntelliJ IDEA\n\n**학력**\n\n- **인하 대학교 컴퓨터공학과** (20XX년 3월 ~ 20XX년 2월)\n + 컴퓨터공학 및 소프트웨어 개발에 대한 이론 및 실습 교육\n + 졸업 프로젝트에서는 Java 기반의 웹 어플리케이션 개발을 경험\n\n**자격증**\n\n- **자바 프로그래밍 언어 취득** (20XX년)\n- **Python 프로그래밍 언어 취득** (20XX년)\n\n**취미**\n\n- **코딩** : 새로운 기술 stack을 공부하고 프로젝트를 진행하는 것을 좋아합니다.\n- **독서** : 컴퓨터공학, 인공지능, 데이터 사이언스 관련 책을 읽는 것을 좋아합니다.\n\n**연락처**\n\n- **전화번호** : 010-1234-5678\n- **이메일** : [honggildong@gmail.com](mailto:honggildong@gmail.com)\n\n나는 **홍길동** 이라고 합니다. 소프트웨어 개발에 대한 열정과 전문 지식을 바탕으로 팀원과 함께 프로젝트를 진행하여 성과를 이끌어 냈습니다. 새로운 기술 스택을 공부하고 프로젝트를 진행하는 것을 좋아하며, 코딩과 독서를 취미로 합니다.'
+
+2025-04-26 16:49:55.619 | ERROR    | app.services.agentic.agentic_resume_service:process_resume_response:573 - 🚨 응답 처리 실패: 500: PDF 생성 중 오류 발생: [Errno 63] File name too long: '**홍길동 이력서**\n\n**이름** : 홍길동\n\n**직업** : **소프트웨어 개발자** (Java, Python 개발 경험이 있습니다.)\n\n**경력**\n\n- **자바 개발자**, [회사명] (20XX년 1월 ~ 20XX년 12월)\n + 자바 기반의 웹 어플리케이션 개발 및 유지보수\n + 팀원으로서 프로젝트 매니저와 개발자와의 협업\n- **Python 웹 개발자**, [회사명] (20XX년 1월 ~ 20XX년 12월)\n + Python 기반의 웹 어플리케이션 개발 및 유지보수\n + 데이터 분석 및 시각화 도구인 pandas, matplotlib, seaborn 등 사용\n\n**기술 스택**\n\n- **프로그래밍 언어** : Java, Python\n- **웹 개발 프레임워크** : Spring, Django\n- **데이터베이스** : MySQL, PostgreSQL\n- **버전 관리 시스템** : Git\n- **개발 도구** : Eclipse, IntelliJ IDEA\n\n**학력**\n\n- **인하 대학교 컴퓨터공학과** (20XX년 3월 ~ 20XX년 2월)\n + 컴퓨터공학 및 소프트웨어 개발에 대한 이론 및 실습 교육\n + 졸업 프로젝트에서는 Java 기반의 웹 어플리케이션 개발을 경험\n\n**자격증**\n\n- **자바 프로그래밍 언어 취득** (20XX년)\n- **Python 프로그래밍 언어 취득** (20XX년)\n\n**취미**\n\n- **코딩** : 새로운 기술 stack을 공부하고 프로젝트를 진행하는 것을 좋아합니다.\n- **독서** : 컴퓨터공학, 인공지능, 데이터 사이언스 관련 책을 읽는 것을 좋아합니다.\n\n**연락처**\n\n- **전화번호** : 010-1234-5678\n- **이메일** : [honggildong@gmail.com](mailto:honggildong@gmail.com)\n\n나는 **홍길동** 이라고 합니다. 소프트웨어 개발에 대한 열정과 전문 지식을 바탕으로 팀원과 함께 프로젝트를 진행하여 성과를 이끌어 냈습니다. 새로운 기술 스택을 공부하고 프로젝트를 진행하는 것을 좋아하며, 코딩과 독서를 취미로 합니다.'
+
+2025-04-26 16:49:55.619 | ERROR    | app.api.v1.agentic:respond_to_resume:148 - 이력서 생성 응답 처리 실패: 500: 응답 처리 중 오류 발생: 500: PDF 생성 중 오류 발생: [Errno 63] File name too long: '**홍길동 이력서**\n\n**이름** : 홍길동\n\n**직업** : **소프트웨어 개발자** (Java, Python 개발 경험이 있습니다.)\n\n**경력**\n\n- **자바 개발자**, [회사명] (20XX년 1월 ~ 20XX년 12월)\n + 자바 기반의 웹 어플리케이션 개발 및 유지보수\n + 팀원으로서 프로젝트 매니저와 개발자와의 협업\n- **Python 웹 개발자**, [회사명] (20XX년 1월 ~ 20XX년 12월)\n + Python 기반의 웹 어플리케이션 개발 및 유지보수\n + 데이터 분석 및 시각화 도구인 pandas, matplotlib, seaborn 등 사용\n\n**기술 스택**\n\n- **프로그래밍 언어** : Java, Python\n- **웹 개발 프레임워크** : Spring, Django\n- **데이터베이스** : MySQL, PostgreSQL\n- **버전 관리 시스템** : Git\n- **개발 도구** : Eclipse, IntelliJ IDEA\n\n**학력**\n\n- **인하 대학교 컴퓨터공학과** (20XX년 3월 ~ 20XX년 2월)\n + 컴퓨터공학 및 소프트웨어 개발에 대한 이론 및 실습 교육\n + 졸업 프로젝트에서는 Java 기반의 웹 어플리케이션 개발을 경험\n\n**자격증**\n\n- **자바 프로그래밍 언어 취득** (20XX년)\n- **Python 프로그래밍 언어 취득** (20XX년)\n\n**취미**\n\n- **코딩** : 새로운 기술 stack을 공부하고 프로젝트를 진행하는 것을 좋아합니다.\n- **독서** : 컴퓨터공학, 인공지능, 데이터 사이언스 관련 책을 읽는 것을 좋아합니다.\n\n**연락처**\n\n- **전화번호** : 010-1234-5678\n- **이메일** : [honggildong@gmail.com](mailto:honggildong@gmail.com)\n\n나는 **홍길동** 이라고 합니다. 소프트웨어 개발에 대한 열정과 전문 지식을 바탕으로 팀원과 함께 프로젝트를 진행하여 성과를 이끌어 냈습니다. 새로운 기술 스택을 공부하고 프로젝트를 진행하는 것을 좋아하며, 코딩과 독서를 취미로 합니다.'
+
+2025-04-26 16:56:34.088 | ERROR    | app.services.agentic.agentic_resume_service:process_user_response:237 - 🚨 응답 처리 중 오류 발생: Expecting value: line 1 column 1 (char 0)
+
+2025-04-26 16:56:34.088 | ERROR    | app.services.agentic.agentic_resume_service:process_resume_response:622 - 🚨 응답 처리 실패: 500: 응답 처리 중 오류 발생: Expecting value: line 1 column 1 (char 0)
+
+2025-04-26 16:56:34.089 | ERROR    | app.api.v1.agentic:respond_to_resume:148 - 이력서 생성 응답 처리 실패: 500: 응답 처리 중 오류 발생: 500: 응답 처리 중 오류 발생: Expecting value: line 1 column 1 (char 0)
+
+2025-04-26 16:57:00.069 | ERROR    | app.api.v1.agentic:respond_to_resume:148 - 이력서 생성 응답 처리 실패: 400: 진행 중인 이력서 생성 대화가 없습니다.
+
+2025-04-26 16:58:22.633 | ERROR    | app.services.agentic.agentic_resume_service:process_user_response:251 - 🚨 응답 처리 중 오류 발생: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+
+2025-04-26 16:58:22.633 | ERROR    | app.services.agentic.agentic_resume_service:process_resume_response:636 - 🚨 응답 처리 실패: 500: 응답 처리 중 오류 발생: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+
+2025-04-26 16:58:22.633 | ERROR    | app.api.v1.agentic:respond_to_resume:148 - 이력서 생성 응답 처리 실패: 500: 응답 처리 중 오류 발생: 500: 응답 처리 중 오류 발생: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+
+2025-04-26 16:59:17.323 | ERROR    | app.services.agentic.agentic_resume_service:process_user_response:251 - 🚨 응답 처리 중 오류 발생: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+
+2025-04-26 16:59:17.323 | ERROR    | app.services.agentic.agentic_resume_service:process_resume_response:642 - 🚨 응답 처리 실패: 500: 응답 처리 중 오류 발생: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+
+2025-04-26 16:59:17.323 | ERROR    | app.api.v1.agentic:respond_to_resume:148 - 이력서 생성 응답 처리 실패: 500: 응답 처리 중 오류 발생: 500: 응답 처리 중 오류 발생: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+
+2025-04-26 17:04:57.533 | ERROR    | app.api.v1.agentic:respond_to_resume:148 - 이력서 생성 응답 처리 실패: 400: 진행 중인 이력서 생성 대화가 없습니다.
+
+2025-04-26 17:11:41.749 | ERROR    | app.services.agentic.agentic_resume_service:generate_resume_text:334 - 🚨 이력서 텍스트 생성 실패 (시도 1/3): 'period'
+
+2025-04-26 17:11:43.751 | ERROR    | app.services.agentic.agentic_resume_service:generate_resume_text:334 - 🚨 이력서 텍스트 생성 실패 (시도 2/3): 'period'
+
+2025-04-26 17:11:47.753 | ERROR    | app.services.agentic.agentic_resume_service:generate_resume_text:334 - 🚨 이력서 텍스트 생성 실패 (시도 3/3): 'period'
+
+2025-04-26 17:11:47.754 | ERROR    | app.services.agentic.agentic_resume_service:generate_resume_text:341 - ❌ 최대 재시도 횟수 (3회) 도달
+
+2025-04-26 17:11:47.755 | ERROR    | app.services.agentic.agentic_resume_service:process_resume_response:662 - 🚨 응답 처리 실패: 이력서 텍스트 생성 실패 (3회 시도): 'period'
+
+2025-04-26 17:11:47.755 | ERROR    | app.api.v1.agentic:respond_to_resume:148 - 이력서 생성 응답 처리 실패: 500: 응답 처리 중 오류 발생: 이력서 텍스트 생성 실패 (3회 시도): 'period'
+
+2025-04-26 17:12:24.074 | ERROR    | app.services.agentic.agentic_resume_service:process_user_response:253 - 🚨 응답 처리 중 오류 발생: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+
+2025-04-26 17:12:24.074 | ERROR    | app.services.agentic.agentic_resume_service:process_resume_response:662 - 🚨 응답 처리 실패: 500: 응답 처리 중 오류 발생: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+
+2025-04-26 17:12:24.074 | ERROR    | app.api.v1.agentic:respond_to_resume:148 - 이력서 생성 응답 처리 실패: 500: 응답 처리 중 오류 발생: 500: 응답 처리 중 오류 발생: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+
+2025-04-26 17:13:06.923 | ERROR    | app.services.agentic.agentic_resume_service:process_user_response:251 - ❌ JSON 파싱 오류: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+
+2025-04-26 17:13:06.923 | ERROR    | app.services.agentic.agentic_resume_service:process_user_response:252 - ❌ 원본 JSON 문자열: {4}', response)
+    start_year = int(years[0])
+    end_year = int(years[1])
+    start_month = re.search(r'(\d{1,2})', response).group()
+    end_month = re.search(r'(\d{1,2})', response).group()
+
+    # 학력 정보 제거
+    school = re.search(r'(\w+)\w\d+대학교', response).group(1)
+    major = re.search(r'(\w+)공학과', response).group(1)
+    degree = re.search(r'학\s?사', response).group()
+
+    return {
+        "period": f"{start_year}.{start_month} ~ {end_year}.{end_month}",
+        "school": school,
+        "major": major,
+        "degree": degree
+    }
+
+2025-04-26 17:13:06.923 | ERROR    | app.services.agentic.agentic_resume_service:process_user_response:258 - 🚨 응답 처리 중 오류 발생: JSON 파싱 오류: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+
+2025-04-26 17:13:06.924 | ERROR    | app.services.agentic.agentic_resume_service:process_resume_response:667 - 🚨 응답 처리 실패: 500: 응답 처리 중 오류 발생: JSON 파싱 오류: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+
+2025-04-26 17:13:06.924 | ERROR    | app.api.v1.agentic:respond_to_resume:148 - 이력서 생성 응답 처리 실패: 500: 응답 처리 중 오류 발생: 500: 응답 처리 중 오류 발생: JSON 파싱 오류: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+
