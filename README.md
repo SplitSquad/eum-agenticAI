@@ -135,7 +135,6 @@ kill -9 [PID]              # 프로세스 종료
   - `api/`: API 엔드포인트
   - `core/`: 핵심 기능
   - `services/`: 비즈니스 로직
-    - `chatbot/`: 챗봇 관련 서비스
     - `agentic/`: 에이전트 관련 서비스
     - `common/`: 공통 서비스
   - `config/`: 설정 파일

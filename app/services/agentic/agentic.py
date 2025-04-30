@@ -4,7 +4,7 @@ from app.services.agentic.agentic_classifier import AgenticClassifier, AgenticTy
 from app.services.agentic.agentic_response_generator import AgenticResponseGenerator
 from app.services.common.postprocessor import Postprocessor
 from app.services.common.preprocessor import translate_query
-
+from typing import Optional
 
 class Agentic:
     """에이전트 클래스 - 워크플로우 관리"""
@@ -15,7 +15,7 @@ class Agentic:
         self.postprocessor = Postprocessor()
         logger.info("[에이전트] 초기화 완료")
     
-    async def get_response(self, query: str, uid: str) -> Dict[str, Any]:
+    async def get_response(self, query: str, uid: str, token: Optional[str] = None) -> Dict[str, Any]:
         """질의에 대한 응답을 생성합니다."""
         try:
             logger.info(f"[WORKFLOW] ====== Starting agentic workflow for user {uid} ======")
@@ -35,7 +35,7 @@ class Agentic:
             
             # 3. 응답 생성
             logger.info(f"[WORKFLOW] Step 3: Response generation")
-            result = await self.response_generator.generate_response(english_query, agentic_type, uid)
+            result = await self.response_generator.generate_response(english_query, agentic_type, uid, token)
             logger.info("[에이전트] 응답 생성 완료")
             
             # 4. 후처리 (원문 언어로 번역)
