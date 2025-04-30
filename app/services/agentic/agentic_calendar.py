@@ -14,6 +14,7 @@ from langchain_groq import ChatGroq
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from typing import Dict, Any
+from loguru import logger
 
 ################################################ 캘린더 일정 리스트로 반환
 # 결과 출력 (선택)
@@ -77,6 +78,64 @@ def Calendar_list():
 
 ################################################ 캘린더 일정 리스트로 반환
 
+################################################ 구글 켈린더 일정 확인
+def schedule(token):
+    try:
+        logger.info("[구글 켈린더 일정 확인]")
+        url = "http://localhost:8081/calendar"
+        access_token = token
+
+        headers = {
+            "Authorization": f"{access_token}",  # ✅ Bearer 꼭 포함
+            "Content-Type": "application/json"
+        }
+
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 200:
+            print("✅ 일정 가져오기 성공")
+            response = response.json()
+            return response
+        else:
+            print(f"❌ 요청 실패: {response.status_code}")
+            print("💬 응답 내용:", response.text)
+
+    except Exception as e:
+        print("❌ 일정 조회 중 오류 발생:", e)
+
+    return
+
+def calendar_events(events):
+    formatted = []
+    for event in events:
+        event_id = event.get("id", "N/A")
+        summary = event.get("summary", "N/A")
+        description = event.get("description", "N/A")
+        start = event.get("start", {})
+        end = event.get("end", {})
+
+        block = (
+            "----------------------------------------------------------------\n"
+            f"id: {event_id}\n"
+            f"summary: {summary}\n"
+            f"description: {description}\n"
+            '"start": \n'
+            f'    "dateTime": "{start.get("dateTime", "N/A")}",\n'
+            f'    "timeZone": "{start.get("timeZone", "N/A")}"\n'
+            ",\n"
+            '"end": \n'
+            f'    "dateTime": "{end.get("dateTime", "N/A")}",\n'
+            f'    "timeZone": "{end.get("timeZone", "N/A")}"\n'
+            ""
+        )
+
+        formatted.append(block)
+    
+    return "\n".join(formatted)
+
+
+################################################ 구글 켈린더 일정 확인
+
 ################################################ 구글 켈린더 엑세스
 # 인증 범위 지정
 SCOPES = ['https://www.googleapis.com/auth/calendar']
@@ -84,10 +143,10 @@ SCOPES = ['https://www.googleapis.com/auth/calendar']
 # 사용자 인증 + access_token 관리
 def get_credentials():
     creds = None
-    print("[사용자 인증 + access_token 관리] : get_credentials ")
     if os.path.exists('token.pickle'):
         with open('token.pickle','rb') as token : 
             creds = pickle.load(token)
+            print("[사용자 인증 + access_token 관리] " , creds)
 
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
@@ -105,7 +164,6 @@ def get_credentials():
 ################################################ 구글 켈린더 엑세스
 
 ################################################ user input 분류
-
 def Input_analysis(user_input):
     
     llm = ChatGroq(
@@ -223,18 +281,8 @@ def MakeSchedule(user_input):
             "summary": {"type": "string"},
             "location": {"type": "string"},
             "description": { "type": "string"},
-            "start":{
-                "dateTime": {"type": "string"},
-                "timeZone": {"type": "string"}
-            },
-            "end":{
-                "dateTime": {"type": "string"},
-                "timeZone": {"type": "string"}
-            },
-            "reminders":{
-                "useDefault": {"type": "boolean"},
-                "overrides": {"type": "string"}
-            }
+            "startDateTime":{ "type": "string"},
+            "endDateTime":{ "type": "string"}
         }
     })
     system_prompt = f"""
@@ -244,19 +292,8 @@ def MakeSchedule(user_input):
     "summary": "f< requested by user >",
     "location": "< Places mentioned by users >",
     "description": "< What users saidr >",
-    "start": 
-        "dateTime": "2025-04-18T10:00:00+09:00",
-        "timeZone": "Asia/Seoul"
-    ,
-    "end": 
-        "dateTime": "2025-04-18T11:00:00+09:00",
-        "timeZone": "Asia/Seoul"
-    ,
-    "reminders": 
-        "useDefault": false,
-        "overrides": [
-         "method": "popup", "minutes": 10 
-        ]
+    "startDateTime": "2025-05-02T10:00:00+09:00",
+    "endDateTime": "2025-05-02T11:00:00+09:00",
     
     ...
     ⚠️ Do NOT include any explanation or message. ONLY return a valid JSON object. No natural language.
@@ -264,7 +301,7 @@ def MakeSchedule(user_input):
     """
 
     prompt=system_prompt
-    print("[ADD_CALENDAR_system_prompt] ",prompt)
+    logger.info("[ADD_CALENDAR_system_prompt] ",prompt)
 
     prompt = ChatPromptTemplate.from_messages([
         ("system", prompt),
@@ -282,26 +319,34 @@ def MakeSchedule(user_input):
     description = user_input
 
     response = parse_product(description)
-    print("[ADD_CALENDAR_output] :",response)
+    print("[ADD_CALENDAR_output] ",response)
 
     return response
 
 # 실제 이벤트 등록 함수
 # 위에서 얻은 인증 정보로 API를 사용할 수 있는 service 객체 생성
-def add_event(make_event):
+def add_event(make_event , token):
     try:
-        
-        creds = get_credentials()
-        service = build('calendar', 'v3', credentials=creds)
-        event = make_event
-        print("\n📤 보내는 이벤트 JSON:")
-        print(json.dumps(event, indent=4, ensure_ascii=False))
-        event_result = service.events().insert(
-            calendarId='primary',
-            body=event
-        ).execute()
+        print("[TOKEN] ",token)
+        url = "http://localhost:8081/calendar"
+        access_token = token
+        headers = {
+            "Authorization": access_token ,            
+            "Content-Type": "application/json"
+        }
 
-        print(f"\n✅ 일정이 추가되었습니다: {event_result.get('htmlLink')}")
+        print("\n📤 보내는 이벤트 JSON:")
+        print(json.dumps(make_event, indent=4, ensure_ascii=False))
+
+        response = requests.post(url, headers=headers, data=json.dumps(make_event))
+
+        if response.status_code == 200:
+            print("✅ 일정이 성공적으로 추가되었습니다.")
+            print("🔗 응답:", response.json())
+        else:
+            print(f"❌ 요청 실패: {response.status_code}")
+            print("💬 응답 내용:", response.text)
+
     except Exception as e:
         print("❌ 일정 추가 중 오류 발생:", e)
 ################################################ 일정 추가
@@ -353,9 +398,10 @@ delete_set = [
 ]
 
 
-def delete_event(user_input):
+def delete_event(user_input,token):
 
-    formatted_events=Calendar_list()
+    formatted_events = schedule(token)
+    schedule_list=calendar_events(formatted_events)
 
     llm = ChatGroq(
         model_name="llama-3.3-70b-versatile",
@@ -365,10 +411,7 @@ def delete_event(user_input):
     parser = JsonOutputParser(pydantic_object={
         "type": "object",
         "properties": {
-            "id": {"type": "string"},
-            "summary": {"type": "string"},
-            "start": {"type": "string"},
-            "end" : {"type": "string"}
+            "id": {"type": "string"}
         }
     })
 
@@ -377,14 +420,13 @@ def delete_event(user_input):
     system_prompt_template = f"""
     0. Always remember the date : {now}
     1. I would like to ask you to delete the schedule.
-    2. It's a schedule: {Output_organization(formatted_events)}
+    2. It's a schedule: 
+    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    {schedule_list}
+    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     3. This is an example output
 
-    "output": <What the user entered>
-    "id": "<choose in schedule>",
-    "summary": "<What the user entered>",
-    "start": "<Time changed by user_input>",
-    "end": "<Time changed by user_input>"
+    "id": <choose id in schedule>
 
     ⚠️ Do NOT include any explanation or message. ONLY return a valid JSON object. No natural language.
     """
@@ -408,28 +450,51 @@ def delete_event(user_input):
     response = parse_product(description)
     print("[DELETE_CALENDAR_output] :",response)
 
-    response_dict = json.loads(response)
-    delete_event_by_id(response_dict['id'])
-   
+    return response
 
-# ✅ 주어진 event_id로 일정 삭제
-def delete_event_by_id(event_id):
-    creds = get_credentials()
-    service = build('calendar', 'v3', credentials=creds)
+def calendar_delete_api(delete_id,token):
+    
+    delete_id=json.loads(delete_id)
+    schedule_id = delete_id.get("id")
 
+    print("[schedule_id]",schedule_id)
+
+    print("[URL] " + f"http://localhost:8081/calendar/{schedule_id}")
+    
     try:
-        service.events().delete(calendarId='primary', eventId=event_id).execute()
-        print(f"🗑️ 일정이 성공적으로 삭제되었습니다: {event_id}")
+        url = f"http://localhost:8081/calendar/{schedule_id}"
+        access_token = token
+
+        headers = {
+            "Authorization": access_token,
+            "Content-Type": "application/json"
+        }
+
+        response = requests.delete(url, headers=headers, data="")
+
+        if response.status_code == 200:
+            print("✅ 일정이 성공적으로 수정되었습니다.")
+            print("🔗 응답:", response.json())
+        else:
+            print(f"❌ 요청 실패: {response.status_code}")
+            print("💬 응답 내용:", response.text)
+
     except Exception as e:
-        print(f"❌ 삭제 실패: {e}")
+        print("❌ 일정 추가 중 오류 발생:", e)    
+
+    return 
+    return
 
 ################################################ 일정 삭제
 
 ################################################ 일정 수정
-def edit_event(user_input):
+def edit_event(user_input,token):
 
-    formatted_events=Calendar_list()
+    logger.info("[user_input]",user_input)
 
+    formatted_events = schedule(token)
+    schedule_list=calendar_events(formatted_events)
+    
     llm = ChatGroq(
         model_name="llama-3.3-70b-versatile",
         temperature=0.7
@@ -449,14 +514,18 @@ def edit_event(user_input):
     system_prompt_template = f"""
     0. Always remember the date : {now}
     1. I would like to ask you to change the schedule.
-    2. It's a schedule: {Output_organization(formatted_events)}
+    2. It's a schedule: 
+    ##############################################################################################################
+    {schedule_list}
+    ##############################################################################################################
     3. This is an example output
 
-    "output": <What the user entered>
-    "id": "<choose in schedule>",
-    "summary": "<What the user entered>",
-    "start": "<Time changed by user_input>",
-    "end": "<Time changed by user_input>"
+    "id": "<choose id in schedule>",
+    "summary": "<summary in user_input>"
+    "location": "<location in user_input>"
+    "description": "<descript in user_input>",
+    "startDateTime": "<Time changed by user_input>",
+    "endDateTime": "<Time changed by user_input>"
 
     ⚠️ Do NOT include any explanation or message. ONLY return a valid JSON object. No natural language.
     """
@@ -481,54 +550,56 @@ def edit_event(user_input):
 
     print("[EDIT_CALENDAR_output] :",response)
    
+    return response
+
+
+def calendar_edit_api(response,token):
+    response_dict = json.loads(response)
+    event_id = response_dict["id"]
+    print(f"[event_id] : {event_id}")
+
     response_dict = json.loads(response)
 
-    event_id = response_dict["id"]
-    updated_fields = {
-        "summary": response_dict["summary"],
-        "start": {
-            "dateTime": response_dict["start"]
-        },
-        "end": {
-            "dateTime": response_dict["end"]
-        }
-    }
-    
-    update_event_by_id(event_id,updated_fields)
-   
+    # 'id' 키 제거
+    response_dict.pop("id", None)
+    # 출력
+    response=json.dumps(response_dict, indent=2, ensure_ascii=False)
+    print(f"[event] : {response}")
 
-# ✅ 주어진 event_id로 일정 수정
-def update_event_by_id(event_id, updated_fields: dict):
-    creds = get_credentials()
-    service = build('calendar', 'v3', credentials=creds)
+    print("[TYPE]",type(response))
+    
 
     try:
-        # 기존 이벤트 정보 가져오기
-        event = service.events().get(calendarId='primary', eventId=event_id).execute()
+        url = f"http://localhost:8081/calendar/{event_id}"
+        access_token = token
 
-        # 수정할 필드 반영
-        event.update(updated_fields)
+        headers = {
+            "Authorization": access_token,         
+            "Content-Type": "application/json"
+        }
 
-        # 이벤트 업데이트
-        updated_event = service.events().update(
-            calendarId='primary',
-            eventId=event_id,
-            body=event
-        ).execute()
+        print("\n📤 보내는 이벤트 JSON:")
+        response = requests.patch(url, headers=headers, data=response)
 
-        print("✅ 일정이 성공적으로 수정되었습니다:")
-        print(f"- 제목: {updated_event.get('summary')}")
-        print(f"- 시작: {updated_event['start'].get('dateTime')}")
-        print(f"- 종료: {updated_event['end'].get('dateTime')}")
+        if response.status_code == 200:
+            print("✅ 일정이 성공적으로 수정되었습니다.")
+            print("🔗 응답:", response.json())
+        else:
+            print(f"❌ 요청 실패: {response.status_code}")
+            print("💬 응답 내용:", response.text)
+
     except Exception as e:
-        print(f"❌ 수정 실패: {e}")
+        print("❌ 일정 추가 중 오류 발생:", e)    
 
-
+    return 
 ################################################ 일정 수정
-################################################ 일정 확인
-def check_event(user_input):
-    formatted_events=Calendar_list()
 
+################################################ 일정 확인
+def check_event(user_input,token):
+
+    formatted_events = schedule(token)
+    schedule_list=calendar_events(formatted_events)
+    
     llm = ChatGroq(
         model_name="llama-3.3-70b-versatile",
         temperature=0.7
@@ -547,18 +618,39 @@ def check_event(user_input):
     system_prompt_template = f"""
     0. Always remember the date : {now}
     1. I would like to ask you to check the schedule.
-    2. It's a schedule: {Output_organization(formatted_events)}
+    2. It's a schedule: {schedule_list}
+    3. This is an example output 
 
-    3. This is an example output
     "output": 
-    <schedule>
-    -------------
-    <schedule> 
-    -------------
-    <schedule> 
-    -------------
-    ...
-    -------------
+        summary: ""
+        description: ""
+        "start":
+            "dateTime": "",
+            "timeZone": ""
+        ,
+        "end":
+            "dateTime": "",
+            "timeZone": ""
+        ,
+        summary: ""
+        description: ""
+        "start":
+            "dateTime": "",
+            "timeZone": ""
+        ,
+        "end":
+            "dateTime": "",
+            "timeZone": ""
+        ,
+        summary: ""
+        description: ""
+        "start":
+            "dateTime": "",
+            "timeZone": ""
+        ,
+        "end":
+            "dateTime": "",
+            "timeZone": ""
 
     ⚠️ Do NOT include any explanation or message. ONLY return a valid JSON object. No natural language.
     """
@@ -590,16 +682,17 @@ class AgenticCalendar:
     def __init__(self):
         pass  # 필요한 초기화가 있다면 여기에
 
-    def Calendar_function(self, query: str) -> Dict[str, Any]:
+    def Calendar_function(self, query: str, token: str) -> Dict[str, Any]:
 
+        logger.info("[CATEGORY CLASSIFICATION 초기화]")
         classification = Input_analysis(query)
-        print("classification",classification)
+        logger.info("[CALENDAR_CATEGORY] ",classification)
         
         if classification == "add" :
             print("일정 추가")        
             make_event = MakeSchedule(query) ## 이벤트 생성
-            print("[MAKED_EVENT] ",make_event)
-            add_event( make_event ) ## 이벤트 추가
+            logger.info(f"[MAKED_EVENT] {make_event}")
+            add_event( make_event , token ) ## 이벤트 추가
             return {
                 "response": "일정이 추가되었습니다.",
                 "metadata": {
@@ -610,7 +703,8 @@ class AgenticCalendar:
             }
         elif classification == "edit" : 
             print("일정 수정")
-            edit_event(query) 
+            make_event = edit_event(query,token) 
+            calendar_edit_api(make_event, token)
             return {
                 "response": "일정이 수정되었습니다.",
                 "metadata": {
@@ -621,7 +715,8 @@ class AgenticCalendar:
             }
         elif classification == "delete" : 
             print("일정 삭제")
-            delete_event(query)
+            make_event = delete_event(query,token)
+            calendar_delete_api(make_event,token)
             return  {
                 "response": "일정이 삭제되었습니다.",
                 "metadata": {
@@ -632,7 +727,7 @@ class AgenticCalendar:
             } 
         elif classification == "check" : 
             print("일정 확인")
-            check_output = check_event(query)
+            check_output = check_event(query,token)
             return  {
                 "response": f"{check_output}",
                 "metadata": {
