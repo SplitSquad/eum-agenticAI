@@ -15,12 +15,12 @@ class Agentic:
         self.postprocessor = Postprocessor()
         logger.info("[에이전트] 초기화 완료")
     
-    async def get_response(self, query: str, uid: str, token: Optional[str] = None) -> Dict[str, Any]:
+    async def get_response(self, query: str, uid: str, token: Optional[str] = None, state: Optional[str] = None) -> Dict[str, Any]:
         """질의에 대한 응답을 생성합니다."""
         try:
             logger.info(f"[WORKFLOW] ====== Starting agentic workflow for user {uid} ======")
             logger.info(f"[WORKFLOW] Original query: {query}")
-            
+
             # 1. 전처리 (언어 감지 및 번역)
             logger.info(f"[WORKFLOW] Step 1: Preprocessing (language detection and translation)")
             translation_result = translate_query(query)
@@ -35,8 +35,9 @@ class Agentic:
             
             # 3. 응답 생성
             logger.info(f"[WORKFLOW] Step 3: Response generation")
-            result = await self.response_generator.generate_response(english_query, agentic_type, uid, token)
+            result = await self.response_generator.generate_response(english_query, agentic_type, uid, token, state)
             logger.info("[에이전트] 응답 생성 완료")
+            logger.info(f"[에이전트] 응답 생성 완료 { result }")
             
             # 4. 후처리 (원문 언어로 번역)
             logger.info(f"[WORKFLOW] Step 4: Postprocessing (translation back to original language)")
@@ -55,7 +56,9 @@ class Agentic:
                     "agentic_type": agentic_type.value,
                     "uid": uid,
                     "state": result.get("metadata", {}).get("state", "general")
-                }
+                },
+                "state" : result["state"],
+                "url" : result["url"]
             }
             
             # 메타데이터에 추가 정보가 있으면 병합
@@ -75,5 +78,6 @@ class Agentic:
                     "state": "error",
                     "uid": uid,
                     "error": str(e)
-                }
+                },
+                "state": "error"
             } 

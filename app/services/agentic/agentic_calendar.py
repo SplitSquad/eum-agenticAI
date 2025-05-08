@@ -699,7 +699,9 @@ class AgenticCalendar:
                     "query": "{query}",
                     "agentic_type": "calendar",
                     "error": ""
-                }
+                },
+                "state" : "first",
+                "url" : "null"
             }
         elif classification == "edit" : 
             print("일정 수정")
@@ -711,7 +713,9 @@ class AgenticCalendar:
                     "query": "{query}",
                     "agentic_type": "calendar",
                     "error": ""
-                }
+                },
+                "state" : "first",
+                "url" : "null"
             }
         elif classification == "delete" : 
             print("일정 삭제")
@@ -723,7 +727,9 @@ class AgenticCalendar:
                     "query": "{query}",
                     "agentic_type": "calendar",
                     "error": ""
-                }
+                },
+                "state" : "first",
+                "url" : "null"
             } 
         elif classification == "check" : 
             print("일정 확인")
@@ -734,7 +740,9 @@ class AgenticCalendar:
                     "query": "{query}",
                     "agentic_type": "calendar",
                     "error": ""
-                }
+                },
+                "state" : "first",
+                "url" : "null"
             } 
         else : 
             print('알 수 없는 명령입니다.')

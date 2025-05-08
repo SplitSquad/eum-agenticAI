@@ -27,6 +27,7 @@ class ResumeConversationState:
 
     async def initialize(self, authotization, user_email, request):
         """외부 API로부터 사용자 프로필을 받아 초기화"""
+        logger.info("[API로부터 사용자 프로필을 받아 초기화]")
         profile = await get_user_profile(self.user_id)
         self.user_data = {
             key: [{"value": value}] for key, value in profile.items()
@@ -121,15 +122,25 @@ async def start_resume_conversation(authotization, user_email, request) -> Resum
 ########################################################## """이력서 생성 대화 시작"""
 
 ########################################################## job_resume조건문
-async def job_resume(authotization,user_email,state,str):
-    pre_state=state
-    if pre_state == "start" :
-        user_id=""
-        await start_resume(authotization,user_email,state)
-    elif pre_state == "response" : 
-        print("[response]")
-        request=str
-        await respond_to_resume(authotization, user_email, request)
+async def job_resume(query, uid, state, token):
+    authotization = token
+    user_email = uid
+    pre_state = state
+    logger.info(f"[job_resume parameter] : {authotization} , {user_email} , {pre_state}")
+
+    ## 첫번째 응답.
+    if pre_state == "first" :
+        print("[first_response]")
+        first_response = await start_resume(state)
+        return first_response
+    ## 두번째 응답.
+    elif pre_state == "second" : 
+        print("[second_response]")
+        request=query
+        second_response = await respond_to_resume(authotization, user_email, request)
+        logger.info(f"[두번째 응답] : {second_response}")
+        print(f"[두번째 응답] : {second_response}")
+        return second_response
     else :
         print("잘못된 상태입니다.") 
 
@@ -155,13 +166,18 @@ conversation_states: Dict[str, ResumeConversationState] = {}
 ########################################################## 이력서 생성 환경설정
 
 ########################################################## 이력서 작성 시작 API
-async def start_resume(authotization: str, user_email: str, state: str) -> ResumeResponse:
+async def start_resume(state: str) -> Dict[str, str]:
     """이력서 생성 대화 시작"""
-    
-    text = " 본인을 어필해주세요 (사용 가능한 기술 , 수상경력 , 성격 등 )"
     logger.info("[사용자에게 이력서 요청을 보냄...] ")
-    state = "response"
-    return text, state
+
+    response = "본인을 어필해주세요 (사용 가능한 기술 , 수상경력 , 성격 등 )"
+    new_state = "second"
+
+    return {
+        "response": response,
+        "state": new_state
+    }
+
     
 ########################################################## 이력서 작성 시작 API
 
@@ -390,16 +406,32 @@ async def respond_to_resume(authotization: str, user_email: str,request: ResumeR
         logger.info("[AI가 이력서 PDF 만드는중...]")
         pdf_form = await make_pdf(state,str(state.user_data))
 
-        output_path = "C:/Users/r2com/Documents/final-project/resume/resume_pdf.pdf"
+        output_dir = r"C:\Users\r2com\Documents\eum-agenticAI\app\services\agentic\resume"
+        os.makedirs(output_dir, exist_ok=True)
 
-        print("[pdf_form] ",pdf_form['html'])
+        # 저장할 파일 전체 경로
+        output_path = os.path.join(output_dir, "resume.pdf")
+
+        print("[pdf_form2] ",pdf_form['html'])
         await save_html_to_pdf(pdf_form,output_path)
+
+        print("[upload_to_s3] 파일 업로드 시작")
+        # S3 업로드
+        s3_url = upload_to_s3(output_path, "pdfs/resume.pdf")
+        print(f"[S3 업로드] : {s3_url}")
+
+        return {
+            "response": "이력서가 생성되었습니다.",
+            "state": "first",
+            "message": "PDF가 업로드되었습니다.",
+            "download_url": s3_url     
+        }
     
     except Exception as e:
         logger.error(f"이력서 생성 시작 실패: {str(e)}")
         raise HTTPException(
             status_code=500,
-            detail=str(e)
+            detail=str(e)   
         )    
 ########################################################## 이력서 작성 중 응답 API
 
@@ -429,12 +461,17 @@ async def save_html_to_pdf(pdr_form: dict, output_path: str) -> str:
     async with async_playwright() as p:
         browser = await p.chromium.launch()
         page = await browser.new_page()
-        await page.goto(f"file://{temp_html_path}")
-        await page.pdf(path=output_path, format="A4")
-        await browser.close()
+        await page.goto(f"file://{temp_html_path}")  # ✅ HTML 파일 열기
+        await page.pdf(path=output_path, format="A4")  # ✅ 지정된 경로에 저장
+        logger.info(f"[output_path] : {output_path}")
+        print((f"[output_path] : {output_path}"))
+        # await browser.close()
+        print((f"[ browser.close()] : {output_path}"))
 
     # 임시 HTML 삭제
+    print((f"[os.remove(temp_html_path) 1 ] : {output_path}"))
     os.remove(temp_html_path)
+    print((f"[os.remove(temp_html_path) 2 ] : {output_path}"))
     return output_path
 
 ########################################################## ✅ PDF 저장 함수 (save_html_to_pdf)
@@ -457,14 +494,50 @@ async def get_resume_status(user_id: str) -> ResumeResponse:
     )
 ########################################################## 이력서 진행 상태 조회 API
 
-########################################################## TEST TEST TEST TEST
-# --- 최상위에서 실행하려면 이렇게 해야 함 ---
-if __name__ == "__main__":
-    token = "test"
-    email = "test"
-    state = "response"
-    response = "test"
 
-    result = asyncio.run(job_resume(token, email, state, response))
-    print("[TEST]", result)
-########################################################## TEST TEST TEST TEST
+
+########################################################## PDF 파일을 S3로 업로드하는 함수
+import boto3
+from botocore.exceptions import NoCredentialsError
+import os
+
+from botocore.exceptions import NoCredentialsError, ClientError
+
+def upload_to_s3(file_path: str, object_name: str) -> str:
+    try:
+        print("[upload_to_s3] 파일 업로드 시작")
+        s3 = boto3.client(
+            's3',
+            aws_access_key_id=os.getenv("S3_ACCESS_KEY"),
+            aws_secret_access_key=os.getenv("S3_SECRET_KEY"),
+            region_name=os.getenv("S3_REGION")
+        )
+        bucket = os.getenv("S3_BUCKET_NAME")
+        if not bucket:
+            raise ValueError("S3_BUCKET_NAME 환경변수가 비어있습니다.")
+
+        logger.info("[upload_to_s3] 파일 업로드 시작")
+        s3.upload_file(file_path, bucket, object_name, ExtraArgs={'ContentType': 'application/pdf'})
+        
+        url = f"https://{bucket}.s3.{os.getenv('S3_REGION')}.amazonaws.com/{object_name}"
+        logger.info(f"[upload_to_s3] 업로드 성공: {url}")
+        return url
+    
+    except (NoCredentialsError, ClientError, Exception) as e:
+        logger.error(f"[upload_to_s3] 업로드 실패: {str(e)}")
+        raise Exception(f"S3 업로드 실패: {str(e)}")
+
+########################################################## PDF 파일을 S3로 업로드하는 함수
+
+
+# 실행 진입전
+class AgenticResume:
+    def __init__(self):
+        pass  # 필요한 초기화가 있다면 여기에
+
+    async def Resume_function( self, query, uid, state, token ) -> Dict[str, Any]:
+        """ 이력서 생성 """
+        response = await job_resume( query, uid, state, token )
+        logger.info(f"[Resume_function] : {response}")
+        print(f"[Resume_function] : {response}")
+        return response
