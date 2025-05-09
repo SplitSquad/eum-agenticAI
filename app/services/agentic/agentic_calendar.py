@@ -291,7 +291,7 @@ def MakeSchedule(user_input):
         }
     })
     system_prompt = f"""
-    0. Always remember the date : {now}
+    0. today's date : {now}
     1. This is an example of a one-shot. 
     
     "summary": "f< requested by user >",
@@ -424,7 +424,7 @@ def delete_event(user_input,token):
     
     # 프롬프트 문자열 구성
     system_prompt_template = f"""
-    0. Always remember the date : {now}
+    0. today's date : {now}
     1. I would like to ask you to delete the schedule.
     2. It's a schedule: 
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -519,7 +519,7 @@ def edit_event(user_input,token):
 
     # 프롬프트 문자열 구성
     system_prompt_template = f"""
-    0. Always remember the date : {now}
+    0. today's date : {now}
     1. I would like to ask you to change the schedule.
     2. It's a schedule: 
     ##############################################################################################################
@@ -624,7 +624,7 @@ def check_event(user_input,token):
     
     # 프롬프트 문자열 구성
     system_prompt_template = f"""
-    0. Always remember the date : {now}
+    0. today's date : {now}
     1. I would like to ask you to check the schedule.
     2. It's a schedule: {schedule_list}
     3. This is an example output 

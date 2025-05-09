@@ -2,7 +2,7 @@ import os
 import tempfile
 from typing import Dict, List, Optional, TypedDict, Any
 import asyncio
-from datetime import datetime
+from datetime import datetime, date
 import httpx
 from fastapi import HTTPException
 from playwright.async_api import async_playwright
@@ -13,9 +13,85 @@ load_dotenv()  # .env 파일 자동 로딩
 from langchain_groq import ChatGroq
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-# 기존: from langchain_groq import ChatGroq
-from langchain_openai import ChatOpenAI
 
+# 테스트용 더미 데이터
+TEST_USER_DATA = {
+    'name': '홍길동',
+    'birth_date': '1990-01-01',
+    'phone': '010-1234-5678',
+    'nation': 'KOR',
+    'address': '서울시 강남구 테헤란로 123',
+    'email': 'hong@example.com',
+    'education': [
+        {
+            'period': '2010-2014',
+            'school': '서울대학교',
+            'major': '컴퓨터공학과',
+            'degree': '학사'
+        },
+        {
+            'period': '2014-2016',
+            'school': '서울대학교',
+            'major': '컴퓨터공학과',
+            'degree': '석사'
+        }
+    ],
+    'certifications': [
+        {
+            'period': '2015',
+            'name': '정보처리기사',
+            'issuer': '한국산업인력공단',
+            'grade': '합격'
+        },
+        {
+            'period': '2016',
+            'name': 'AWS 솔루션스 아키텍트',
+            'issuer': 'Amazon',
+            'grade': 'Associate'
+        }
+    ],
+    'career': [
+        {
+            'period': '2016-2018',
+            'company': '네이버',
+            'position': '소프트웨어 엔지니어',
+            'description': '검색 엔진 개발'
+        },
+        {
+            'period': '2018-2020',
+            'company': '카카오',
+            'position': '시니어 개발자',
+            'description': '메시징 플랫폼 개발'
+        },
+        {
+            'period': '2020-현재',
+            'company': '구글',
+            'position': '테크니컬 리드',
+            'description': '클라우드 인프라 설계'
+        }
+    ]
+}
+
+async def test_resume_generation():
+    """이력서 생성 테스트 함수"""
+    try:
+        # 1. HTML 생성
+        pdf_form = await make_pdf("test", TEST_USER_DATA)
+        
+        # 2. 출력 디렉토리 생성
+        output_dir = "test_output"
+        os.makedirs(output_dir, exist_ok=True)
+        
+        # 3. PDF 저장
+        output_path = os.path.join(output_dir, "test_resume.pdf")
+        await save_html_to_pdf(pdf_form, output_path)
+        
+        logger.info(f"✅ 테스트 이력서가 생성되었습니다: {output_path}")
+        return output_path
+        
+    except Exception as e:
+        logger.error(f"❌ 테스트 중 오류 발생: {str(e)}")
+        raise
 
 class ResumeConversationState:
     """이력서 생성 대화 상태 관리 클래스"""
@@ -185,201 +261,190 @@ async def start_resume(state: str) -> Dict[str, str]:
 ########################################################## 이력서 작성 시작 API
 
 ########################################################## 이력서 작성 중 응답 API
-import json
-async def make_pdf(request: str,user_data: str):
-
-    llm = ChatGroq(
-        model_name="llama-3.3-70b-versatile",
-        temperature=0.7
-    )
-
-    parser = JsonOutputParser(pydantic_object={
-        "type": "object",
-        "properties": {
-            "input": {"type": "string"}
-        }
-    })
-
-    system_prompt="""
-    0. will provide user information in user_input
-    1. making a pdf.
-    2. Please return it as html(⚠️ Do NOT include any explanation or message. ONLY return a valid JSON object. No natural language.)
-    3. This is an example.
-
-    "html" : " "
-
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <style>
-        @page {{
-            size: A4;
-            margin: 0;
-        }}
-        body {{
-            font-family: 'Batang', serif;
-            margin: 0;
-            padding: 0;
-            line-height: 1.5;
-        }}
-        .page {{
-            width: 210mm;
-            height: 297mm;
-            padding: 15mm 20mm;
-            box-sizing: border-box;
-        }}
-        h1 {{
-            text-align: center;
-            font-size: 24px;
-            margin-bottom: 10px;
-            letter-spacing: 15px;
-            font-weight: normal;
-        }}
-        table {{
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-            font-size: 11px;
-        }}
-        th, td {{
-            border: 1.2px solid black;
-            padding: 8px 4px;
-            text-align: center;
-            vertical-align: middle;
-            height: 25px;
-            box-sizing: border-box;
-        }}
-        .photo-cell {{
-            width: 30mm;
-            height: 40mm;
-            text-align: center;
-            vertical-align: middle;
-            font-size: 10px;
-            color: #666;
-        }}
-        .header-table td {{
-            height: 32px;
-        }}
-        .family-table td {{
-            height: 28px;
-        }}
-        .period-cell {{
-            width: 20%;
-        }}
-        .content-cell {{
-            width: 60%;
-        }}
-        .note-cell {{
-            width: 20%;
-        }}
-        .footer {{
-            margin-top: 60px;
-            text-align: center;
-            font-size: 12px;
-        }}
-        .date-line {{
-            margin: 30px 0;
-            line-height: 2;
-        }}
-    </style>
-</head>
-<body>
-    <div class="page">
-        <table class="header-table">
-            <tr>
-                <td rowspan="3" class="photo-cell">(사 진)</td>
-                <td colspan="6"><h1>이 력 서</h1></td>
-            </tr>
-            <tr>
-                <td>성 명</td>
-                <td colspan="2">홍길동</td>
-                <td colspan="2">생년월일</td>
-                <td colspan="2">1990-01-01</td>
-            </tr>
-            <tr>
-                <td>전화번호</td>
-                <td colspan="2">010-1234-5678</td>
-                <td colspan="2">국적</td>
-                <td>jap</td>
-            </tr>
-            <tr>
-                <td rowspan="4">가족관계</td>
-                <td>관 계</td>
-                <td>성 명</td>
-                <td colspan="2">연 령</td>
-                <td colspan="2">현재직업</td>
-            </tr>
-            <tr><td></td><td></td><td colspan="2"></td><td colspan="2"></td></tr>
-            <tr><td></td><td></td><td colspan="2"></td><td colspan="2"></td></tr>
-            <tr><td></td><td></td><td colspan="2"></td><td colspan="2"></td></tr>
-            <tr>
-                <td colspan="2">현 주 소</td>
-                <td colspan="5">서울시 강남구</td>
-            </tr>
-            <tr>
-                <td colspan="2">이메일</td>
-                <td colspan="5">test@test.com</td>
-            </tr>
-        </table>
-
-        <table>
-            <tr>
-                <th class="period-cell">기 간</th>
-                <th class="content-cell">학 력 · 병 역 · 자 격 사 항</th>
-                <th class="note-cell">비 고</th>
-            </tr>
-            <tr><td colspan="3">데이터 삽입</td></tr>
-        </table>
-
-        <table>
-            <tr>
-                <th class="period-cell">기 간</th>
-                <th class="content-cell">경 력 사 항</th>
-                <th class="note-cell">비 고</th>
-            </tr>
-            <tr><td colspan="3">데이터 삽입</td></tr>
-        </table>
-
-        <div class="footer">
-            <p>위의 기재한 내용이 사실과 다름이 없습니다.</p>
-            <div class="date-line">
-                2025년 05월 09일
-            </div>
-            <p>(인)</p>
-        </div>
-    </div>
-</body>
-</html>
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-⚠️ Do NOT include any explanation or message. ONLY return a valid JSON object. No natural language.
-⚠️ Do NOT include any explanation or message. ONLY return a valid JSON object. No natural language.
-⚠️ Do NOT include any explanation or message. ONLY return a valid JSON object. No natural language.
-
+async def make_pdf(state: str, user_data: dict):
     """
+    사용자 데이터를 받아 HTML 이력서 생성
+    """
+    def get_current_date():
+        today = date.today()
+        return f"{today.year}년 {today.month:02d}월 {today.day:02d}일"
 
-    prompt = ChatPromptTemplate.from_messages([
-    ("system", system_prompt ),
-        ("user", "{input}")
+    # 가족사항 3줄 생성 (빈 줄 포함)
+    family_rows = user_data.get('family', [])
+    family_rows = (family_rows + [{}]*3)[:3]  # 최대 3줄로 제한
+    family_html = ''
+    family_html += '''
+        <tr>
+            <td rowspan="4">가족관계</td>
+            <td>관 계</td>
+            <td>성 명</td>
+            <td colspan="2">연 령</td>
+            <td colspan="2">현재직업</td>
+        </tr>
+    '''
+    for row in family_rows:
+        family_html += f'''
+        <tr>
+            <td>{row.get('relation', '')}</td>
+            <td>{row.get('name', '')}</td>
+            <td colspan="2">{row.get('age', '')}</td>
+            <td colspan="2">{row.get('job', '')}</td>
+        </tr>
+        '''
+
+    # 학력/자격사항 5개 row 생성
+    education_rows = user_data.get('education', [])
+    certifications_rows = user_data.get('certifications', [])
+    edu_cert_rows = education_rows + certifications_rows
+    edu_cert_rows = (edu_cert_rows + [{}]*5)[:5]
+    edu_cert_html = ''.join([
+        f'''<tr>\n<td class="period-cell">{row.get('period', '')}</td>\n<td class="content-cell">{row.get('school', row.get('name', ''))} {row.get('major', '')} {row.get('degree', '')} {row.get('issuer', '')} {row.get('grade', '')}</td>\n<td class="note-cell"></td>\n</tr>''' for row in edu_cert_rows
     ])
 
-    chain = prompt | llm | parser
+    # 경력사항 5개 row 생성
+    career_rows = user_data.get('career', [])
+    career_rows = (career_rows + [{}]*5)[:5]
+    career_html = ''.join([
+        f'''<tr>\n<td class="period-cell">{row.get('period', '')}</td>\n<td class="content-cell">{row.get('company', '')} {row.get('position', '')}</td>\n<td class="note-cell">{row.get('description', '')}</td>\n</tr>''' for row in career_rows
+    ])
 
-    def parse_product(description: str) -> dict:
-        result = chain.invoke({"input": description})
-        # print("[AI로받은 응답.]",json.dumps(result, indent=2))
+    html_content = f"""
+    <!DOCTYPE html>
+    <html lang=\"ko\">
+    <head>
+        <meta charset=\"UTF-8\">
+        <style>
+            @page {{
+                size: A4;
+                margin: 0;
+            }}
+            body {{
+                font-family: 'Batang', serif;
+                margin: 0;
+                padding: 0;
+                line-height: 1.5;
+            }}
+            .page {{
+                width: 210mm;
+                height: 297mm;
+                padding: 15mm 20mm;
+                box-sizing: border-box;
+            }}
+            h1 {{
+                text-align: center;
+                font-size: 24px;
+                margin-bottom: 10px;
+                letter-spacing: 15px;
+                font-weight: normal;
+            }}
+            table {{
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+                font-size: 11px;
+            }}
+            th, td {{
+                border: 1.2px solid black;
+                padding: 8px 4px;
+                text-align: center;
+                vertical-align: middle;
+                height: 25px;
+                box-sizing: border-box;
+            }}
+            .photo-cell {{
+                width: 30mm;
+                height: 40mm;
+                text-align: center;
+                vertical-align: middle;
+                font-size: 10px;
+                color: #666;
+            }}
+            .header-table td {{
+                height: 32px;
+            }}
+            .family-table td {{
+                height: 28px;
+            }}
+            .period-cell {{
+                width: 20%;
+            }}
+            .content-cell {{
+                width: 60%;
+            }}
+            .note-cell {{
+                width: 20%;
+            }}
+            .footer {{
+                margin-top: 60px;
+                text-align: center;
+                font-size: 12px;
+            }}
+            .date-line {{
+                margin: 30px 0;
+                line-height: 2;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class=\"page\">
+            <table class=\"header-table\">
+                <tr>
+                    <td rowspan=\"3\" class=\"photo-cell\">(사 진)</td>
+                    <td colspan=\"6\"><h1>이 력 서</h1></td>
+                </tr>
+                <tr>
+                    <td>성 명</td>
+                    <td colspan=\"2\">{user_data.get('name', '')}</td>
+                    <td colspan=\"2\">생년월일</td>
+                    <td colspan=\"2\">{user_data.get('birth_date', '')}</td>
+                </tr>
+                <tr>
+                    <td>전화번호</td>
+                    <td colspan=\"2\">{user_data.get('phone', '')}</td>
+                    <td colspan=\"2\">국적</td>
+                    <td>{user_data.get('nation', '')}</td>
+                </tr>
+                {family_html}
+                <tr>
+                    <td colspan=\"2\">현 주 소</td>
+                    <td colspan=\"5\">{user_data.get('address', '')}</td>
+                </tr>
+                <tr>
+                    <td colspan=\"2\">이메일</td>
+                    <td colspan=\"5\">{user_data.get('email', '')}</td>
+                </tr>
+            </table>
 
-        return result
-        
-    description = f"user_input:{request}   +   {user_data}"
-    response = parse_product(description)
-    
+            <table>
+                <tr>
+                    <th class=\"period-cell\">기 간</th>
+                    <th class=\"content-cell\">학 력 · 자 격 사 항</th>
+                    <th class=\"note-cell\">비 고</th>
+                </tr>
+                {edu_cert_html}
+            </table>
 
-    return response
+            <table>
+                <tr>
+                    <th class=\"period-cell\">기 간</th>
+                    <th class=\"content-cell\">경 력 사 항</th>
+                    <th class=\"note-cell\">비 고</th>
+                </tr>
+                {career_html}
+            </table>
 
-########################################################## 이력서 작성 중 응답 API
+            <div class=\"footer\">
+                <p>위의 기재한 내용이 사실과 다름이 없습니다.</p>
+                <div class=\"date-line\">
+                    {get_current_date()}
+                </div>
+                <p>(인)</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    return {"html": html_content}
 
 ########################################################## 이력서 작성 중 응답 API
 async def respond_to_resume(authotization: str, user_email: str,request: ResumeRequest) -> ResumeResponse:
@@ -391,7 +456,7 @@ async def respond_to_resume(authotization: str, user_email: str,request: ResumeR
 
         # 이력서 만드는중("[이력서 pdf 생성중...]")
         logger.info("[AI가 이력서 PDF 만드는중...]")
-        pdf_form = await make_pdf(request,str(state.user_data))
+        pdf_form = await make_pdf(state, state.user_data)
 
         output_dir = r"C:\Users\r2com\Documents\eum-agenticAI\app\services\agentic\resume"
         os.makedirs(output_dir, exist_ok=True)
@@ -399,7 +464,7 @@ async def respond_to_resume(authotization: str, user_email: str,request: ResumeR
         # 저장할 파일 전체 경로
         output_path = os.path.join(output_dir, "resume.pdf")
 
-        print("[AI가 생성한 pdf_form] ",pdf_form['html'])
+        print("[pdf_form2] ",pdf_form['html'])
         await save_html_to_pdf(pdf_form,output_path)
 
         print("[upload_to_s3] 파일 업로드 시작")
@@ -528,3 +593,7 @@ class AgenticResume:
         logger.info(f"[Resume_function] : {response}")
         print(f"[Resume_function] : {response}")
         return response
+
+if __name__ == "__main__":
+    # 테스트 실행
+    asyncio.run(test_resume_generation())
