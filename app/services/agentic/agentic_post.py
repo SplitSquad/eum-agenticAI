@@ -33,16 +33,7 @@ class AgenticPost:
         system_prompt = f"""
         1. User wants to create a post.
         2. Please answer as in the example. ( Please return it like output )
-        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        input: "게시글을 생성해줘"
-        output:
-            title: null
-            tags : null
-
-        input: "홍보글을 생성해줘"
-        output:
-            title: null
-            tags : null        
+        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@     
         ----------------------------------------------------
         input: "한국 관광지 추천 글을 써볼게"
         output: 
@@ -283,6 +274,7 @@ class AgenticPost:
 
         @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         !!! if postType is "자유" then address is "자유"
+        category example : ["관광/체험"] , [식도락/맛집] , ["관광/체험"] , ["교통/이동"] , ["대사관/응급"]
         tags example : {"KO", "EN", "JA", "ZH", "DE", "FR", "ES", "RU"}
         ----------------------------------------------------------------------------------------------------
         input : I want to create a post recommending tourist attractions in Jeju Island. , "category": "여행" , "tags": [관광/체험]
