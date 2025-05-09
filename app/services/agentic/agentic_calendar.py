@@ -629,36 +629,19 @@ def check_event(user_input,token):
     2. It's a schedule: {schedule_list}
     3. This is an example output 
 
-    "output": 
-        summary: ""
-        description: ""
-        "start":
-            "dateTime": "",
-            "timeZone": ""
-        ,
-        "end":
-            "dateTime": "",
-            "timeZone": ""
-        ,
-        summary: ""
-        description: ""
-        "start":
-            "dateTime": "",
-            "timeZone": ""
-        ,
-        "end":
-            "dateTime": "",
-            "timeZone": ""
-        ,
-        summary: ""
-        description: ""
-        "start":
-            "dateTime": "",
-            "timeZone": ""
-        ,
-        "end":
-            "dateTime": "",
-            "timeZone": ""
+    ----------------
+    "time" : 
+    "title" :
+    "content" : 
+    ----------------
+    "time" : 
+    "title" :
+    "content" : 
+    ----------------
+    "time" : 
+    "title" :
+    "content" : 
+    ----------------
 
     ⚠️ Do NOT include any explanation or message. ONLY return a valid JSON object. No natural language.
     """
