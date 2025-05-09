@@ -36,6 +36,7 @@ class AgenticType(str, Enum):
     CALENDAR = "calendar"  # 캘린더 관리
     REMINDER = "reminder"  # 알림 관리
     RESUME = "resume" # 이력서 기능
+    POST = "post" # 게시판기능
 
 class AgentClassifier:
     """에이전트 분류기"""
@@ -267,6 +268,30 @@ def Category_Classification(query):
 
     input : 아래 내용 기반으로 이력서 만들어줘  
     output : resume
+    -----------------
+    input : 게시글 작성해줘  
+    output : post
+
+    input : 블로그 글 하나 올리고 싶어  
+    output : post
+
+    input : 새로운 게시물 작성할게  
+    output : post
+
+    input : 글쓰기 시작할게  
+    output : post
+
+    input : 포스트 등록하고 싶어  
+    output : post
+
+    input : 게시판에 글 남길게  
+    output : post
+
+    input : 아래 내용을 게시글로 만들어줘  
+    output : post
+
+    input : 게시판에 올릴 글입니다  
+    output : post
     -----------------
     input : all Other query
     output : general

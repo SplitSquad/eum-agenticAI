@@ -30,8 +30,8 @@ class AgenticResponse(BaseModel):
     """에이전틱 응답 모델"""
     response: str
     metadata: Dict[str, Any]
-    state : str
-    url : str
+    state : Optional[str] = None  # ✅ None 허용
+    url: Optional[str] = None  # ✅ None 허용
 
 class ResumeResponse(BaseModel):
     """이력서 생성 응답 모델"""

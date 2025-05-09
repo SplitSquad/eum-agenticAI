@@ -183,7 +183,7 @@ async def start_resume(state: str) -> Dict[str, str]:
 
 ########################################################## 이력서 작성 중 응답 API
 import json
-async def make_pdf(state: str,request: str):
+async def make_pdf(request: str,user_data: str):
 
     llm = ChatGroq(
     model_name="llama-3.3-70b-versatile",
@@ -290,15 +290,15 @@ async def make_pdf(state: str,request: str):
             </tr>
             <tr>
                 <td>성 명</td>
-                <td colspan="2">이름</td>
+                <td colspan="2">홍길동</td>
                 <td colspan="2">생년월일</td>
-                <td colspan="2">YYYY-MM-DD</td>
+                <td colspan="2">1990-01-01</td>
             </tr>
             <tr>
                 <td>전화번호</td>
-                <td colspan="2">010-XXXX-XXXX</td>
+                <td colspan="2">010-1234-5678</td>
                 <td colspan="2">국적</td>
-                <td>KOR</td>
+                <td>jap</td>
             </tr>
             <tr>
                 <td rowspan="4">가족관계</td>
@@ -307,31 +307,16 @@ async def make_pdf(state: str,request: str):
                 <td colspan="2">연 령</td>
                 <td colspan="2">현재직업</td>
             </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td colspan="2"></td>
-                <td colspan="2"></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td colspan="2"></td>
-                <td colspan="2"></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td colspan="2"></td>
-                <td colspan="2"></td>
-            </tr>
+            <tr><td></td><td></td><td colspan="2"></td><td colspan="2"></td></tr>
+            <tr><td></td><td></td><td colspan="2"></td><td colspan="2"></td></tr>
+            <tr><td></td><td></td><td colspan="2"></td><td colspan="2"></td></tr>
             <tr>
                 <td colspan="2">현 주 소</td>
-                <td colspan="5">주소</td>
+                <td colspan="5">서울시 강남구</td>
             </tr>
             <tr>
                 <td colspan="2">이메일</td>
-                <td colspan="5">email@example.com</td>
+                <td colspan="5">test@test.com</td>
             </tr>
         </table>
 
@@ -341,7 +326,6 @@ async def make_pdf(state: str,request: str):
                 <th class="content-cell">학 력 · 병 역 · 자 격 사 항</th>
                 <th class="note-cell">비 고</th>
             </tr>
-            <!-- 데이터 반복 영역 -->
             <tr><td colspan="3">데이터 삽입</td></tr>
         </table>
 
@@ -351,14 +335,13 @@ async def make_pdf(state: str,request: str):
                 <th class="content-cell">경 력 사 항</th>
                 <th class="note-cell">비 고</th>
             </tr>
-            <!-- 데이터 반복 영역 -->
             <tr><td colspan="3">데이터 삽입</td></tr>
         </table>
 
         <div class="footer">
             <p>위의 기재한 내용이 사실과 다름이 없습니다.</p>
             <div class="date-line">
-                YYYY년 MM월 DD일
+                2025년 05월 09일
             </div>
             <p>(인)</p>
         </div>
@@ -386,9 +369,9 @@ async def make_pdf(state: str,request: str):
 
         return result
         
-    description = request
+    description = f"user_input:{request}   +   {user_data}"
     response = parse_product(description)
-    print("[AI로부터 받은 응답] ",response)
+    
 
     return response
 
@@ -404,7 +387,7 @@ async def respond_to_resume(authotization: str, user_email: str,request: ResumeR
 
         # 이력서 만드는중("[이력서 pdf 생성중...]")
         logger.info("[AI가 이력서 PDF 만드는중...]")
-        pdf_form = await make_pdf(state,str(state.user_data))
+        pdf_form = await make_pdf(request,str(state.user_data))
 
         output_dir = r"C:\Users\r2com\Documents\eum-agenticAI\app\services\agentic\resume"
         os.makedirs(output_dir, exist_ok=True)
@@ -412,7 +395,7 @@ async def respond_to_resume(authotization: str, user_email: str,request: ResumeR
         # 저장할 파일 전체 경로
         output_path = os.path.join(output_dir, "resume.pdf")
 
-        print("[pdf_form2] ",pdf_form['html'])
+        print("[AI가 생성한 pdf_form] ",pdf_form['html'])
         await save_html_to_pdf(pdf_form,output_path)
 
         print("[upload_to_s3] 파일 업로드 시작")
