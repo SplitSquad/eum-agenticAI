@@ -21,6 +21,8 @@ class Agentic:
             logger.info(f"[WORKFLOW] ====== Starting agentic workflow for user {uid} ======")
             logger.info(f"[WORKFLOW] Original query: {query}")
 
+            original_query = query
+
             # 1. 전처리 (언어 감지 및 번역)
             logger.info(f"[WORKFLOW] Step 1: Preprocessing (language detection and translation)")
             translation_result = translate_query(query)
@@ -35,7 +37,7 @@ class Agentic:
             
             # 3. 응답 생성
             logger.info(f"[WORKFLOW] Step 3: Response generation")
-            result = await self.response_generator.generate_response(english_query, agentic_type, uid, token, state)
+            result = await self.response_generator.generate_response(original_query,english_query, agentic_type, uid, token, state)
             logger.info("[에이전트] 응답 생성 완료")
             logger.info(f"[에이전트] 응답 생성 완료 { result }")
             

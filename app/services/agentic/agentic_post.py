@@ -283,14 +283,15 @@ class AgenticPost:
 
         @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         !!! if postType is "자유" then address is "자유"
+        tags example : {"KO", "EN", "JA", "ZH", "DE", "FR", "ES", "RU"}
         ----------------------------------------------------------------------------------------------------
-        input : 제주도 관광지 추천 게시물을 만들고 싶어 , "category": "여행" , "tags": [관광/체험]
+        input : I want to create a post recommending tourist attractions in Jeju Island. , "category": "여행" , "tags": [관광/체험]
         output :  
             "post":  
-                "title": "제주도 여행 추천",  
-                "content": "제주도에서 꼭 가봐야 할 명소들을 정리해봤어요! 성산일출봉, 협재 해수욕장, 우도까지 여유로운 여행을 즐겨보세요.",  
+                "title": "Jeju Island travel recommendations",  
+                "content": "We've compiled a list of must-see attractions in Jeju Island! Enjoy a leisurely trip to Seongsan Ilchulbong, Hyeopjae Beach, and Udo.",  
                 "category": "여행",  
-                "language": "KO",  
+                "language": "EN",  
                 "tags": ["관광/체험"] ,  
                 "postType": "자유",  
                 "address": "자유"  
@@ -306,35 +307,35 @@ class AgenticPost:
                 "postType": "자유",  
                 "address": "자유"  
         ----------------------------------------------------------------------------------------------------
-        input : 파리 박물관 투어 모임 만들고 싶어 , "category": "여행" , "tags": [관광/체험]  
+        input : パリ博物館ツアー会議をしたい , "category": "여행" , "tags": [관광/체험]  
         output :  
             "post":  
-                "title": "파리 문화 탐방",  
-                "content": "루브르, 오르세, 로댕 미술관 투어 함께 하실 분 모집해요. 프랑스 예술에 관심 있는 분 환영합니다!",  
+                "title": "パリ文化を訪れる",  
+                "content": "ルーヴル、オルセ、ロダン美術館ツアー一緒にいただく方募集します。フランス芸術に興味のある方歓迎します！",  
                 "category": "여행",  
-                "language": "KO",  
+                "language": "JA",  
                 "tags": ["관광/체험"],  
                 "postType": "모임",  
                 "address": "프랑스 파리"  
         ----------------------------------------------------------------------------------------------------
-        input : 서울 교통편 정리한 게시글을 쓰고 싶어 ,"category": "여행" , "tags": [교통/이동 ] 
+        input : 我想写一篇总结首尔交通的文章。 ,"category": "여행" , "tags": [교통/이동 ] 
         output :  
             "post":  
-                "title": "서울 교통 꿀팁",  
-                "content": "서울에서 지하철과 버스를 쉽게 타는 법, 환승 팁과 티머니 사용법을 공유합니다.",  
+                "title": " 首尔交通提示",  
+                "content": "我们分享如何在首尔轻松乘坐地铁和公交车、换乘技巧以及如何使用T-money的技巧。",  
                 "category": "여행",  
-                "language": "KO",  
+                "language": "ZH",  
                 "tags": ["교통/이동"],  
                 "postType": "자유",  
                 "address": "자유"  
         ----------------------------------------------------------------------------------------------------
-        input : 외국인을 위한 약국 정보 글 써볼게 , "category": "여행" , tags": [대사관/응급]  
+        input : Ich werde einen Artikel über Apothekeninformationen für Ausländer schreiben. , "category": "여행" , tags": [대사관/응급]  
         output :  
             "post":  
-                "title": "외국인을 위한 약국 이용 팁",  
-                "content": "외국인도 쉽게 갈 수 있는 약국 정보, 처방전 없이 살 수 있는 기본 상비약 정리했습니다.",  
+                "title": "Tipps zur Apothekennutzung für Ausländer",  
+                "content": "Wir haben Informationen zu für Ausländer leicht zugänglichen Apotheken und grundlegenden rezeptfreien Medikamenten zusammengestellt.",  
                 "category": "여행",  
-                "language": "KO",  
+                "language": "DE",  
                 "tags": ["대사관/응급"] ,  
                 "postType": "자유",  
                 "address": "자유"  
