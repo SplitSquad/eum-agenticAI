@@ -20,7 +20,7 @@ class AgenticPost:
         logger.info(f"[넘어온정보]: {token} {query} {state}]")
 
         llm = ChatOpenAI(
-            model="gpt-4",
+            model="gpt-4-turbo",
             temperature=0.7
         )
 
@@ -31,194 +31,58 @@ class AgenticPost:
             }
         })
         system_prompt = f"""
-        1. User wants to create a post.
-        2. Please answer as in the example. ( Please return it like output )
+        1. Please return the title and tags
+        2. Types of titles and tags.
+        ------------------------
+        title : 여행
+        tags : 
+            식도락/맛집
+            교통/이동
+            숙소/지역정보
+            대사관/응급
+        ------------------------
+        title : 주거
+        tags :
+            부동산/계약
+            생활환경/편의
+            문화/생활
+            주거지 관리/유지
+        ------------------------
+        title : 유학
+        tags :
+            학사/캠퍼스
+            학업지원/시설
+            행정/비자/서류
+            기숙사/주거
+        ------------------------
+        title : 취업
+        tags :
+            이력/채용준비
+            비자/법률/노동
+            잡페어/네트워킹
+            알바/파트타임
+
+        3. fewshot example
         @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@     
-        ----------------------------------------------------
-        input: "한국 관광지 추천 글을 써볼게"
-        output: 
-            title: 여행
-            tags: 관광/체험
+        
 
-        input: "전통 문화 체험 소개하려고 해"
-        output: 
-            title: 여행
-            tags: 관광/체험
-
-            
-        input: "서울 음식점 정리해봤어"
-        output: 
-            title: 여행
-            tags: 식도락/맛집
-
-        input: "맛집 리스트 공유할게"
-        output: 
-            title: 여행
-            tags: 식도락/맛집
-
-
-        input: "지하철 이용법 설명할게"
-        output: 
-            title: 여행
-            tags: 교통/이동
-
-        input: "공항 환승 노하우 정리했어"
-        output: 
-            title: 여행
-            tags: 교통/이동
-
-
-        input: "호텔 예약 팁 알려줄게"
-        output: 
-            title: 여행
-            tags: 숙소/지역정보
-
-        input: "지역 숙소 후기 써볼게"
-        output: 
-            title: 여행
-            tags: 숙소/지역정보
-
-
-        input: "대사관 연락처 정리했어"
-        output: 
-            title: 여행
-            tags: 대사관/응급
-
-        input: "약국 찾는 방법 알려줄게"
-        output: 
-            title: 여행
-            tags: 대사관/응급
-
-        ----------------------------------------------------
-        input: "수업 듣는 꿀팁 알려줄게"
-        output: 
-            title: 유학
-            tags: 학사/캠퍼스
-
-        input: "캠퍼스 건물 위치 정리해봤어"
-        output: 
-            title: 유학
-            tags: 학사/캠퍼스
-
-
-        input: "튜터링 프로그램 이용 후기야"
-        output: 
-            title: 유학
-            tags: 학업지원/시설
-
-        input: "장학금 신청하는 방법 공유할게"
-        output: 
-            title: 유학
-            tags: 학업지원/시설
-
-
-        input: "학생비자 갱신 절차 설명해줄게"
-        output: 
-            title: 유학
-            tags: 행정/비자/서류
-
-        input: "출입국 서류 준비 방법 알려줄게"
-        output: 
-            title: 유학
-            tags: 행정/비자/서류
-
-
-        input: "기숙사 신청 절차 알려줄게"
-        output: 
-            title: 유학
-            tags: 기숙사/주거
-
-        input: "기숙사 규칙 정리했어"
-        output: 
-            title: 유학
-            tags: 기숙사/주거
-        ----------------------------------------------------
-        input: "이력서 양식 추천해줄 수 있어?"
-        output: 
+        output:
             title: 취업
             tags: 이력/채용준비
 
-        input: "면접 준비 어떻게 하는지 공유할게"
-        output: 
-            title: 취업
-            tags: 이력/채용준비
+        output:
+            title: 유학
+            tags: 학업지원/시설
 
-
-        input: "워킹비자 신청 팁 알려줄게"
-        output: 
-            title: 취업
-            tags: 비자/법률/노동
-
-        input: "근로계약서에서 주의할 점이 있어"
-        output: 
-            title: 취업
-            tags: 비자/법률/노동
-
-
-        input: "멘토링 프로그램 추천할게"
-        output: 
-            title: 취업
-            tags: 잡페어/네트워킹
-
-        input: "업계 소식 공유합니다"
-        output: 
-            title: 취업
-            tags: 잡페어/네트워킹
-
-
-        input: "외국인 알바 구직 사이트 소개해줄게"
-        output: 
-            title: 취업
-            tags: 알바/파트타임
-
-        input: "단기 알바 후기 남길게"
-        output: 
-            title: 취업
-            tags: 알바/파트타임
-        ----------------------------------------------------
-        input: "서울에서 집 구할 때 꿀팁 알려줄게"
-        output: 
+        output:
             title: 주거
             tags: 부동산/계약
 
-        input: "원룸 계약 시 주의사항을 정리했어"
-        output: 
-            title: 주거
-            tags: 부동산/계약
+        output
+            title : 여행
+            tags : 식도락/맛집    
 
-
-        input: "생활비랑 병원 정보 공유할게"
-        output: 
-            title: 주거
-            tags: 생활환경/편의
-
-        input: "통신사 비교해봤어"
-        output: 
-            title: 주거
-            tags: 생활환경/편의
-
-
-        input: "동네 소모임 참여 후기 남깁니다"
-        output: 
-            title: 주거
-            tags: 문화/생활
-
-        input: "우리 동네 축제 소개할게"
-        output: 
-            title: 주거
-            tags: 문화/생활
-
-
-        input: "고장 난 에어컨 수리 후기"
-        output: 
-            title: 주거
-            tags: 주거지 관리/유지
-
-        input: "관리비 아끼는 팁 알려줄게"
-        output: 
-            title: 주거
-            tags: 주거지 관리/유지
-        ----------------------------------------------------
+        
         @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         
         ⚠️ Do NOT include any explanation or message. ONLY return a valid JSON object. No natural language.
