@@ -1,19 +1,19 @@
-# EUM Chatbot
+## 📘 EUM Agentic
+EUM Agentic은 외국인을 대상으로 다양한 편리한 서비스를 에이전틱(Agentic) 방식으로 제공하는 스마트 챗봇입니다.
 
-이음 챗봇은 외국인을 위한 종합 정보 제공 챗봇 서비스입니다. 다양한 도메인의 전문 지식을 제공하며, RAG(Retrieval-Augmented Generation) 기술을 활용하여 정확하고 신뢰할 수 있는 정보를 제공합니다.
+## ✨ 주요 기능
+1. 일반 질의 응답
+외국인이 궁금해하는 다양한 질문에 대해 친절하고 신속하게 답변합니다.
 
-## 주요 기능
+2. 이력서 생성
+간편한 입력만으로 이력서(Resume)를 자동으로 생성하고 편집할 수 있습니다.
 
-- 다국어 지원 (한국어, 영어 등)
-- 도메인별 전문 지식 제공
-  - 비자/법률 (VISA_LAW)
-  - 사회보장제도 (SOCIAL_SECURITY)
-  - 세금/금융 (TAX_FINANCE)
-  - 의료/건강 (MEDICAL_HEALTH)
-  - 취업 (EMPLOYMENT)
-  - 일상생활 (DAILY_LIFE)
-- RAG 기반 정확한 정보 제공
-- 추론 기반 복잡한 질문 처리
+3. 캘린더 일정 등록
+대화형으로 일정을 받아 Google Calendar에 바로 등록할 수 있습니다.
+
+4. 게시판 글 작성
+게시판에 필요한 글을 작성하고 업로드하는 기능을 지원합니다.
+
 
 ## 프로젝트 구조
 
@@ -22,18 +22,15 @@ eum-chatbot/
 ├── app/
 │   ├── api/
 │   │   └── v1/
-│   │       ├── chatbot.py      # 챗봇 API 엔드포인트
 │   │       └── agentic.py      # 에이전트 API 엔드포인트
 │   ├── core/
 │   │   └── llm_client.py       # LLM 클라이언트
-│   ├── services/
-│   │   ├── chatbot/            # 챗봇 관련 서비스
-│   │   │   ├── chatbot.py
-│   │   │   ├── chatbot_classifier.py
-│   │   │   └── chatbot_rag_service.py
+│   ├── services/   
 │   │   ├── agentic/            # 에이전트 관련 서비스
+│   │   │   ├── agentic_calendar.py
+│   │   │   ├── agentic_classifier.py
+│   │   │   ├── agentic_response_generator.py
 │   │   │   ├── agentic.py
-│   │   │   └── agentic_classifier.py
 │   │   └── common/             # 공통 서비스
 │   │       ├── preprocessor.py
 │   │       └── postprocessor.py
@@ -59,8 +56,10 @@ source .venv/bin/activate  # Linux/Mac
 # 또는
 .venv\Scripts\activate  # Windows
 
-# 의존성 설치
+# 의존성 설치 ( + 윈도우의 경우 의존성 설치전 c++ build tool을 설치해야합니다. | visual studio )
 pip install -r requirements.txt
+
+
 ```
 
 ### 2. Ollama 설정
@@ -87,34 +86,47 @@ cp .env.example .env
 # .env 파일을 수정하여 필요한 설정을 입력
 
 # 서버 실행
-PYTHONPATH=$PYTHONPATH:. uvicorn app.main:app --reload
+
+mac,linux ( 백그라운드 실행 ) 
+nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload > logs/uvicorn.log 2>&1 &
+
+윈도우( 개발모드 )
+uvicorn app.main:app --reload
+
+서버 종료
+ps aux | grep uvicorn      # 실행 중인 프로세스 확인
+kill -9 [PID]              # 프로세스 종료
+```
 ```
 
 ## API 엔드포인트
 
-### 챗봇 API
 
-```
-POST /api/v1/chatbot
-Content-Type: application/json
+✅ api 명세서
+| 엔드포인트           | 메서드 | 설명             | 요청 파라미터                         | 응답 데이터 (예상)                      |
+|---------------------|--------|------------------|---------------------------------------|----------------------------------------|
+| `/api/v1/agentic`    | POST   | 에이전트 응답 생성 | `{ "query": "string", "uid": "string" }` | `{ "response": "string", "metadata": { ... } }` |
 
-{
-    "query": "건강보험 자격 취득은 어떻게 하나요?",
-    "uid": "user_id"
-}
-```
 
-### 에이전트 API
-
-```
-POST /api/v1/agentic
-Content-Type: application/json
+✅ 요청 예시
 
 {
-    "query": "건강보험 자격 취득은 어떻게 하나요?",
-    "uid": "user_id"
+    "query":"건강보험 자격 취득은 어떻게 하나요?",
+    "uid":"user_id"
 }
-```
+
+
+✅ 응답 예시
+
+{
+    "response": "건강보험 자격 취득은 사업장 가입자는 입사일 기준으로 자동 등록됩니다.",
+    "metadata": {
+        "query": "건강보험 자격 취득은 어떻게 하나요?",
+        "state": "general",
+        "uid": "user_id",
+        "error": ""
+    }
+}
 
 ## 코드 컨벤션
 
@@ -123,7 +135,6 @@ Content-Type: application/json
   - `api/`: API 엔드포인트
   - `core/`: 핵심 기능
   - `services/`: 비즈니스 로직
-    - `chatbot/`: 챗봇 관련 서비스
     - `agentic/`: 에이전트 관련 서비스
     - `common/`: 공통 서비스
   - `config/`: 설정 파일
@@ -155,8 +166,11 @@ pytest tests/
 ## 서버 실행 방법
 
 ```bash
-# 백그라운드 실행
+mac,linux ( 백그라운드 실행 ) 
 nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload > logs/uvicorn.log 2>&1 &
+
+윈도우( 개발모드 )
+uvicorn app.main:app --reload
 
 # 서버 종료
 ps aux | grep uvicorn      # 실행 중인 프로세스 확인

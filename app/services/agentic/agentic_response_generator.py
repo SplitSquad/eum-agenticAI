@@ -14,21 +14,24 @@ class AgenticResponseGenerator:
         self.user_states = {}
         logger.info(f"[에이전틱 응답] 고성능 모델 사용: {self.llm_client.model}")
     
-    async def generate_response(self, query: str, agentic_type: AgenticType, uid: str) -> Dict[str, Any]:
+    async def generate_response(self, query: str, agentic_type: AgenticType, uid: str, token: str) -> Dict[str, Any]:
         """응답을 생성합니다."""
         try:
             if agentic_type == AgenticType.GENERAL:
                 return await self._generate_general_response(query)
-            elif agentic_type == AgenticType.SCHEDULE:
-                return await self._generate_schedule_response(query)
-            elif agentic_type == AgenticType.TODO:
-                return await self._generate_todo_response(query)
-            elif agentic_type == AgenticType.MEMO:
-                return await self._generate_memo_response(query)
             elif agentic_type == AgenticType.CALENDAR:
-                return await self._generate_calendar_response(query, uid)
-            elif agentic_type == AgenticType.REMINDER:
-                return await self._generate_reminder_response(query)
+                logger.info(f"[CALENDAR 기능 초기화중] : CALENDAR")
+                agentic_calendar = self._generate_calendar_response(query,uid,token)
+                return await agentic_calendar
+            elif agentic_type == AgenticType.RESUME:
+                return await {
+                "response": "이력서 기능은 개발중입니다.",
+                "metadata": {
+                    "query": "{query}",
+                    "agentic_type": "RESUME",
+                    "error": ""
+                }
+            }
             else:
                 return await self._generate_general_response(query)
                 
@@ -80,11 +83,13 @@ class AgenticResponseGenerator:
         # TODO: 메모 관리 기능 구현
         return await self._generate_general_response(query)
     
-    async def _generate_calendar_response(self, query: str, uid: str) -> Dict[str, Any]:
+    async def _generate_calendar_response(self, query: str, uid: str, token: str) -> Dict[str, Any]:
         """캘린더 관리 응답을 생성합니다."""
         try:
-            # AgenticCalendar를 통해 일정 관리 기능 처리
-            return await self.calendar_agent.process_query(query, uid, self.user_states)
+            logger.info(f"[CALENDAR 응답] : CALENDAR")
+            response = self.calendar_agent.Calendar_function(query,token)
+            logger.info(f"[CALENDAR response]  { response }")
+            return response
         except Exception as e:
             logger.error(f"캘린더 관리 응답 생성 중 오류 발생: {str(e)}")
             return {

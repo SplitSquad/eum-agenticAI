@@ -1,10 +1,25 @@
 # app/api/v1/agentic.py
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request, Body, Header
 from pydantic import BaseModel
-from typing import Dict, Any
+from typing import Dict, Any, Optional, List
 from loguru import logger
 from app.services.agentic.agentic import Agentic
+from app.services.agentic.agentic_resume_service import (
+    ResumeConversationState,
+    start_resume_conversation,
+    process_resume_response
+)
+from app.services.agentic.agentic_job_search import (
+    JobSearchState,
+    process_job_search_response,
+    start_job_search
+)
+from app.services.agentic.agentic_cover_letter_service import (
+    start_cover_letter_conversation,
+    process_cover_letter_response,
+    CoverLetterConversationState
+)
 
 router = APIRouter(
     prefix="/agentic",
@@ -18,15 +33,62 @@ router = APIRouter(
 class AgenticRequest(BaseModel):
     """에이전틱 요청 모델"""
     query: str
-    uid: str
+    uid: str   
+    # state_variable : str
 
 class AgenticResponse(BaseModel):
     """에이전틱 응답 모델"""
     response: str
     metadata: Dict[str, Any]
+    # state_variable : str
+
+class ResumeResponse(BaseModel):
+    """이력서 생성 응답 모델"""
+    status: str
+    message: Optional[str] = None
+    question: Optional[str] = None
+    field: Optional[str] = None
+    pdf_path: Optional[str] = None
+
+class ResumeRequest(BaseModel):
+    """이력서 생성 요청 모델"""
+    response: str
+    cover_letter: Optional[str] = None  # ← 선택적으로 포함
+
+class JobSearchResponse(BaseModel):
+    """구직 정보 검색 응답 모델"""
+    status: str
+    message: Optional[str] = None
+    results: Optional[List[Dict[str, str]]] = None
+
+class JobSearchRequest(BaseModel):
+    """구직 정보 검색 요청 모델"""
+    response: str
+
+class CoverLetterStartRequest(BaseModel):
+    """자기소개서 생성 시작 요청 모델"""
+    user_id: str
+
+class CoverLetterResponseRequest(BaseModel):
+    """자기소개서 응답 요청 모델"""
+    response: str
+    state: CoverLetterConversationState
+
+class CoverLetterResponse(BaseModel):
+    """자기소개서 생성 응답 모델"""
+    message: str
+    state: CoverLetterConversationState
+    cover_letter: Optional[str] = None
+    pdf_path: Optional[str] = None
 
 # 에이전트 인스턴스 생성 (애플리케이션 시작 시 한 번만 초기화)
 agentic = Agentic()
+
+# 대화 상태 저장소 (실제 프로덕션에서는 Redis나 DB를 사용해야 함)
+conversation_states: Dict[str, ResumeConversationState] = {}
+
+# 구직 정보 검색 상태 저장소
+job_search_states: Dict[str, JobSearchState] = {}
 
 @router.post(
     "",
@@ -34,7 +96,7 @@ agentic = Agentic()
     summary="에이전틱 응답 생성",
     description="사용자 질의에 대한 에이전틱 응답을 생성합니다."
 )
-async def agentic_handler(request: AgenticRequest) -> AgenticResponse:
+async def agentic_handler(request: AgenticRequest, authorization: Optional[str] = Header(None)) -> AgenticResponse:
     """
     에이전틱 핸들러
     
@@ -48,8 +110,24 @@ async def agentic_handler(request: AgenticRequest) -> AgenticResponse:
         HTTPException: 처리 중 오류가 발생한 경우
     """
     try:
+        logger.info(f"[TOKEN] Authorization header: {authorization}")  # 로그 확인용
+        
+        if authorization.startswith("Bearer "):
+            token = authorization.split(" ")[1]
+        else:
+            token = authorization
+
+        logger.info(f"[TOKEN] Extracted token: {token}")
+        
+
         # 에이전트 응답 생성
-        result = await agentic.get_response(request.query, request.uid)
+        result = await agentic.get_response(request.query, request.uid, token)
+        
+        # 구직 정보 검색이 필요한지 확인
+        if "구직" in request.query or "일자리" in request.query or "채용" in request.query:
+            # 구직 정보 검색 시작
+            job_search_result = await start_job_search(request.uid)
+            result["metadata"]["job_search"] = job_search_result.dict()
         
         # 응답 반환
         return AgenticResponse(
@@ -62,17 +140,142 @@ async def agentic_handler(request: AgenticRequest) -> AgenticResponse:
             status_code=500,
             detail=f"에이전틱 처리 중 오류가 발생했습니다: {str(e)}"
         )
-@router.post(
-    "/resume",
+
+@router.get(
+    "/resume/status/{user_id}",
     response_model=ResumeResponse,
-    summary="이력서 생성",
-    description="사용자 정보를 바탕으로 이력서를 생성하고 PDF로 저장합니다."
+    summary="이력서 생성 상태",
+    description="이력서 생성 진행 상태를 확인합니다."
 )
-async def generate_resume_handler(payload: ResumeInput) -> ResumeResponse:
+async def get_resume_status(user_id: str) -> ResumeResponse:
+    """이력서 생성 진행 상태 확인"""
+    if user_id not in conversation_states:
+        raise HTTPException(
+            status_code=404,
+            detail="진행 중인 이력서 생성 대화가 없습니다."
+        )
+    
+    state = conversation_states[user_id]
+    return ResumeResponse(
+        status="in_progress" if not state.is_completed else "completed",
+        question=state.current_question,
+        field=state.current_field
+    )
+
+@router.post(
+    "/job-search/start/{user_id}",
+    response_model=JobSearchResponse,
+    summary="구직 정보 검색 시작",
+    description="구직 정보 검색을 시작합니다."
+)
+async def start_job_search(user_id: str) -> JobSearchResponse:
+    """구직 정보 검색 시작"""
     try:
-        resume_text = await generate_resume_text(payload.dict())
-        pdf_path = await save_resume_pdf(payload.dict(), resume_text)
-        return ResumeResponse(pdf_path=pdf_path)
+        # 이미 진행 중인 검색이 있는지 확인
+        if user_id in job_search_states:
+            raise HTTPException(
+                status_code=400,
+                detail="이미 진행 중인 구직 정보 검색이 있습니다."
+            )
+        
+        # 새로운 검색 상태 생성
+        state = JobSearchState(is_active=True)
+        job_search_states[user_id] = state
+        
+        return JobSearchResponse(
+            status="started",
+            message="구직 정보를 제공 받으시겠습니까? 어떤 분야에서 일하고 싶으십니까?"
+        )
+        
     except Exception as e:
-        logger.error(f"[Resume] 이력서 생성 중 오류 발생: {str(e)}")
-        raise HTTPException(status_code=500, detail="이력서 생성 실패")
+        logger.error(f"구직 정보 검색 시작 실패: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
+
+@router.post(
+    "/job-search/respond/{user_id}",
+    response_model=JobSearchResponse,
+    summary="구직 정보 검색 응답",
+    description="구직 정보 검색에 대한 응답을 처리합니다."
+)
+async def respond_to_job_search(
+    user_id: str,
+    request: JobSearchRequest
+) -> JobSearchResponse:
+    """구직 정보 검색 응답 처리"""
+    try:
+        # 검색 상태 확인
+        if user_id not in job_search_states:
+            raise HTTPException(
+                status_code=400,
+                detail="진행 중인 구직 정보 검색이 없습니다."
+            )
+        
+        # 응답 처리
+        result = await process_job_search_response(request.response)
+        
+        # 검색이 완료되거나 취소된 경우 상태 제거
+        if result["status"] in ["search_completed", "search_cancelled"]:
+            del job_search_states[user_id]
+        
+        return JobSearchResponse(**result)
+        
+    except Exception as e:
+        logger.error(f"구직 정보 검색 응답 처리 실패: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
+
+@router.get(
+    "/job-search/status/{user_id}",
+    response_model=JobSearchResponse,
+    summary="구직 정보 검색 상태",
+    description="구직 정보 검색 진행 상태를 확인합니다."
+)
+async def get_job_search_status(user_id: str) -> JobSearchResponse:
+    """구직 정보 검색 진행 상태 확인"""
+    if user_id not in job_search_states:
+        raise HTTPException(
+            status_code=404,
+            detail="진행 중인 구직 정보 검색이 없습니다."
+        )
+    
+    state = job_search_states[user_id]
+    return JobSearchResponse(
+        status="in_progress" if state.is_active else "completed",
+        message="구직 정보 검색이 진행 중입니다."
+    )
+
+@router.post("/cover-letter/start")
+async def start_cover_letter(
+    request: CoverLetterStartRequest
+):
+    """자기소개서 생성 대화 시작"""
+    state = await start_cover_letter_conversation(request.user_id)
+    return {
+        "message": "자기소개서 작성을 도와드리겠습니다. 어떤 분야에서 일하고 싶으신가요?",
+        "state": state
+    }
+
+@router.post(
+    "/cover-letter/response",
+    response_model=CoverLetterResponse,
+    summary="자기소개서 응답 처리",
+    description="자기소개서 생성에 대한 응답을 처리합니다."
+)
+async def process_cover_letter(
+    request: CoverLetterResponseRequest
+) -> CoverLetterResponse:
+    """자기소개서 응답 처리"""
+    try:
+        result = await process_cover_letter_response(request.state, request.response)
+        return CoverLetterResponse(**result)
+    except Exception as e:
+        logger.error(f"자기소개서 응답 처리 실패: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )

@@ -23,7 +23,7 @@ class GroqClient(BaseLLMClient):
     
     def __init__(self, is_lightweight: bool = True):
         self.is_lightweight = is_lightweight
-        self.api_key = settings.GROQ_API_KEY
+        self.api_key = settings.GROQ_API_KEY or "gsk_test123"  # 테스트용 임시 API 키
         
         if is_lightweight:
             self.model = settings.GROQ_LIGHTWEIGHT_MODEL
@@ -36,8 +36,9 @@ class GroqClient(BaseLLMClient):
         
         self.base_url = "https://api.groq.com/openai/v1"
         
+        # API 키가 없을 때 예외를 발생시키지 않고 경고만 출력
         if not self.api_key:
-            raise ValueError("Groq API 키가 설정되지 않았습니다.")
+            logger.warning("Groq API 키가 설정되지 않았습니다. 테스트용 임시 API 키를 사용합니다.")
     
     async def check_connection(self) -> bool:
         """Groq 서버 연결 상태를 확인합니다."""
@@ -58,6 +59,7 @@ class GroqClient(BaseLLMClient):
             return False
     
     async def generate(self, prompt: str, **kwargs) -> str:
+        print("✅ 지금 사용하는 GROQ API 키:", self.api_key)
         """Groq API를 사용하여 텍스트를 생성합니다."""
         start_time = time.time()
         headers = {
