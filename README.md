@@ -105,27 +105,34 @@ kill -9 [PID]              # 프로세스 종료
 ✅ api 명세서
 | 엔드포인트           | 메서드 | 설명             | 요청 파라미터                         | 응답 데이터 (예상)                      |
 |---------------------|--------|------------------|---------------------------------------|----------------------------------------|
-| `/api/v1/agentic`    | POST   | 에이전트 응답 생성 | `{ "query": "string", "uid": "string" }` | `{ "response": "string", "metadata": { ... } }` |
+| `/api/v1/agentic`    | POST   | 에이전트 응답 생성 | `{ "query": "string", "uid": "string", "state":"string" }` | `{ "response": "string", "metadata": { ... }, "state": "string" , url : "string" }` |
 
 
 ✅ 요청 예시
 
 {
-    "query":"건강보험 자격 취득은 어떻게 하나요?",
-    "uid":"user_id"
+    "query":" 이력서좀 만들어줄래? ",
+    "uid":"user_id",
+    "state":"second"
 }
 
 
 ✅ 응답 예시
 
 {
-    "response": "건강보험 자격 취득은 사업장 가입자는 입사일 기준으로 자동 등록됩니다.",
+    "response": "이력서가 생성되었습니다. \n",
     "metadata": {
-        "query": "건강보험 자격 취득은 어떻게 하나요?",
-        "state": "general",
+        "query": "Can you make a resume for me?",
+        "english_query": "Can you make a resume for me?",
+        "source_lang": "ko",
+        "agentic_type": "RESUME",
         "uid": "user_id",
-        "error": ""
-    }
+        "state": "general",
+        "error": "",
+        "translated": true
+    },
+    "state": "first",
+    "url": "https://eum-msa-bucket.s3.ap-northeast-2.amazonaws.com/pdfs/resume.pdf"
 }
 
 ## 코드 컨벤션
