@@ -15,7 +15,7 @@ from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from typing import Dict, Any
 from loguru import logger
-
+from pathlib import Path
 ################################################ 캘린더 일정 리스트로 반환
 # 결과 출력 (선택)
 def Output_organization(formatted_events) -> str:
@@ -82,11 +82,11 @@ def Calendar_list():
 def schedule(token):
     try:
         logger.info("[구글 켈린더 일정 확인]")
-        url = "http://localhost:8081/calendar"
+        url = "http://af9c53d0f69ea45c793da25cdc041496-1311657830.ap-northeast-2.elb.amazonaws.com/calendar"
         access_token = token
 
         headers = {
-            "Authorization": f"{access_token}",  # ✅ Bearer 꼭 포함
+            "Authorization": access_token,  # ✅ Bearer 꼭 포함
             "Content-Type": "application/json"
         }
 
@@ -328,13 +328,13 @@ def MakeSchedule(user_input):
 def add_event(make_event , token):
     try:
         print("[TOKEN] ",token)
-        url = "http://localhost:8081/calendar"
+        url = "http://af9c53d0f69ea45c793da25cdc041496-1311657830.ap-northeast-2.elb.amazonaws.com/calendar"
         access_token = token
         headers = {
             "Authorization": access_token ,            
             "Content-Type": "application/json"
         }
-
+        print(f" [headers] : { headers} ")
         print("\n📤 보내는 이벤트 JSON:")
         print(json.dumps(make_event, indent=4, ensure_ascii=False))
 
@@ -459,10 +459,10 @@ def calendar_delete_api(delete_id,token):
 
     print("[schedule_id]",schedule_id)
 
-    print("[URL] " + f"http://localhost:8081/calendar/{schedule_id}")
+    print("[URL] " + f"http://af9c53d0f69ea45c793da25cdc041496-1311657830.ap-northeast-2.elb.amazonaws.com/calendar/{schedule_id}")
     
     try:
-        url = f"http://localhost:8081/calendar/{schedule_id}"
+        url = f"http://af9c53d0f69ea45c793da25cdc041496-1311657830.ap-northeast-2.elb.amazonaws.com/calendar/{schedule_id}"
         access_token = token
 
         headers = {
@@ -570,7 +570,7 @@ def calendar_edit_api(response,token):
     
 
     try:
-        url = f"http://localhost:8081/calendar/{event_id}"
+        url = f"http://af9c53d0f69ea45c793da25cdc041496-1311657830.ap-northeast-2.elb.amazonaws.com/calendar/{event_id}"
         access_token = token
 
         headers = {
@@ -685,9 +685,14 @@ class AgenticCalendar:
     def Calendar_function(self, query: str, token: str) -> Dict[str, Any]:
 
         logger.info("[CATEGORY CLASSIFICATION 초기화]")
+        # # ✅ 최초 로그인 시 token.pickle 없으면 로그인 유도
+        # if not Path("token.pickle").exists():
+        #     print("🔑 Google 로그인이 필요합니다. 브라우저 창이 열립니다.")
+        #     get_credentials()
+
         classification = Input_analysis(query)
         logger.info("[CALENDAR_CATEGORY] ",classification)
-        
+    
         if classification == "add" :
             print("일정 추가")        
             make_event = MakeSchedule(query) ## 이벤트 생성
