@@ -6,6 +6,9 @@ from app.services.agentic.agentic_calendar import AgenticCalendar
 from app.services.agentic.agentic_resume_service import AgenticResume
 from app.services.agentic.agentic_post import AgenticPost
 import json
+# 기존: from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
+
 
 class AgenticResponseGenerator:
     """에이전틱 응답 생성기"""
@@ -164,7 +167,7 @@ class AgenticResponseGenerator:
         logger.info("[2. 어디 단계인지 확인] (ex_ 카테고리 반환 단계 , 게시판 생성단계)")
         """ 게시판 생성 기능 """
         state="first"
-        
+
         if state == "first" : 
             post_first_response = await self.post_agent.first_query(token , query , state)
             

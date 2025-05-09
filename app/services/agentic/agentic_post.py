@@ -6,6 +6,8 @@ from langchain_core.prompts import ChatPromptTemplate
 import json
 import re
 import requests
+# 기존: from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
 
 class AgenticPost:
     def __init__(self):
@@ -17,9 +19,9 @@ class AgenticPost:
         logger.info("[카테고리 반환 단계]")
         logger.info(f"[넘어온정보]: {token} {query} {state}]")
 
-        llm = ChatGroq(
-        model_name="llama-3.3-70b-versatile",
-        temperature=0.7
+        llm = ChatOpenAI(
+            model="gpt-4",
+            temperature=0.7
         )
 
         parser = JsonOutputParser(pydantic_object={
@@ -259,9 +261,9 @@ class AgenticPost:
     async def second_query(self, token , query , state, title, tags) : 
         logger.info("[게시판 생성 단계]")
         category = title
-        llm = ChatGroq(
-                model_name="llama-3.3-70b-versatile",
-                temperature=0.7
+        llm = ChatOpenAI(
+            model="gpt-4",
+            temperature=0.7
         )
         parser = JsonOutputParser(pydantic_object={
             "type": "object",
@@ -280,6 +282,7 @@ class AgenticPost:
         2. Please make it like the example (tags is list)
 
         @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        !!! if postType is "자유" then address is "자유"
         ----------------------------------------------------------------------------------------------------
         input : 제주도 관광지 추천 게시물을 만들고 싶어 , "category": "여행" , "tags": [관광/체험]
         output :  

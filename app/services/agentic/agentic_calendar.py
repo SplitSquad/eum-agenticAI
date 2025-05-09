@@ -16,6 +16,9 @@ from langchain_core.prompts import ChatPromptTemplate
 from typing import Dict, Any
 from loguru import logger
 from pathlib import Path
+# 기존: from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
+
 ################################################ 캘린더 일정 리스트로 반환
 # 결과 출력 (선택)
 def Output_organization(formatted_events) -> str:
@@ -166,10 +169,11 @@ def get_credentials():
 ################################################ user input 분류
 def Input_analysis(user_input):
     
-    llm = ChatGroq(
-    model_name="llama-3.3-70b-versatile",
-    temperature=0.7
+    llm = ChatOpenAI(
+        model="gpt-4",
+        temperature=0.7
     )
+
     parser = JsonOutputParser(pydantic_object={
         "type": "object",
         "properties": {
@@ -271,10 +275,11 @@ from pydantic import BaseModel, Field
 now = datetime.now()
 def MakeSchedule(user_input):
 
-    llm = ChatGroq(
-    model_name="llama-3.3-70b-versatile",
-    temperature=0.7
+    llm = ChatOpenAI(
+        model="gpt-4",
+        temperature=0.7
     )
+
     parser = JsonOutputParser(pydantic_object={
         "type": "object",
         "properties": {
@@ -403,10 +408,11 @@ def delete_event(user_input,token):
     formatted_events = schedule(token)
     schedule_list=calendar_events(formatted_events)
 
-    llm = ChatGroq(
-        model_name="llama-3.3-70b-versatile",
+    llm = ChatOpenAI(
+        model="gpt-4",
         temperature=0.7
     )
+
 
     parser = JsonOutputParser(pydantic_object={
         "type": "object",
@@ -495,10 +501,11 @@ def edit_event(user_input,token):
     formatted_events = schedule(token)
     schedule_list=calendar_events(formatted_events)
     
-    llm = ChatGroq(
-        model_name="llama-3.3-70b-versatile",
+    llm = ChatOpenAI(
+        model="gpt-4",
         temperature=0.7
     )
+
 
     parser = JsonOutputParser(pydantic_object={
         "type": "object",
@@ -600,10 +607,11 @@ def check_event(user_input,token):
     formatted_events = schedule(token)
     schedule_list=calendar_events(formatted_events)
     
-    llm = ChatGroq(
-        model_name="llama-3.3-70b-versatile",
+    llm = ChatOpenAI(
+        model="gpt-4",
         temperature=0.7
     )
+
 
     parser = JsonOutputParser(pydantic_object={
         "type": "object",

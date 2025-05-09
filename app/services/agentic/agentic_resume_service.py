@@ -13,6 +13,9 @@ load_dotenv()  # .env 파일 자동 로딩
 from langchain_groq import ChatGroq
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
+# 기존: from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
+
 
 class ResumeConversationState:
     """이력서 생성 대화 상태 관리 클래스"""
@@ -186,9 +189,10 @@ import json
 async def make_pdf(request: str,user_data: str):
 
     llm = ChatGroq(
-    model_name="llama-3.3-70b-versatile",
-    temperature=0.7
+        model_name="llama-3.3-70b-versatile",
+        temperature=0.7
     )
+
     parser = JsonOutputParser(pydantic_object={
         "type": "object",
         "properties": {

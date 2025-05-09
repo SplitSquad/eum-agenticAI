@@ -3,11 +3,9 @@ from enum import Enum
 from loguru import logger
 from app.core.llm_client import get_llm_client
 from app.models.agentic_response import AgentType, ActionType
-
 from langchain_groq import ChatGroq
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-
 from dotenv import load_dotenv
 load_dotenv()  # .env 파일 자동 로딩
 import os
@@ -17,6 +15,8 @@ load_dotenv(dotenv_path)
 # ✅ 환경변수 읽기
 groq_api_key = os.getenv("GROQ_API_KEY")
 import json
+# 기존: from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
 
 class RAGType(str, Enum):
     """RAG 도메인 유형"""
@@ -220,10 +220,11 @@ class AgenticClassifier:
 
 ################################################### LLM을 활용한 기능 유형 분류 구현     
 def Category_Classification(query):
-    llm = ChatGroq(
-        model_name="llama-3.3-70b-versatile",
+    llm = ChatOpenAI(
+        model="gpt-4",
         temperature=0.7
-        )
+    )
+
     parser = JsonOutputParser(pydantic_object={
             "type": "object",
             "properties": {
