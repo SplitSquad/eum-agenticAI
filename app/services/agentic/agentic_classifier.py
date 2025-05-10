@@ -239,544 +239,304 @@ def Category_Classification(query):
     ----------------------- 
     input : 일정 추가해줘  
     output : calendar
-
+    ----------------------- 
     input : 내일 약속 생겼어  
     output : calendar
-
+    ----------------------- 
     input : 오후 3시에 회의 잡아줘  
     output : calendar
-
+    ----------------------- 
     input : 스케줄 등록해줄래?  
     output : calendar
-
+    ----------------------- 
     input : 약속 변경하고 싶어  
     output : calendar
-
+    ----------------------- 
     input : 내일 점심약속 생겼어  
     output : calendar
-
+    ----------------------- 
     input : 이번 주 금요일에 회식 있어  
     output : calendar
-
+    ----------------------- 
     input : 내 스케줄 확인해줘  
     output : calendar
-
+    ----------------------- 
     input : 새로운 일정 추가하고 싶어  
     output : calendar
-
+    ----------------------- 
     input : 오후 일정 정리해줘  
     output : calendar
-    -----------------------
-    input : 이력서 작성 부탁해  
-    output : resume
-
-    input : 경력사항입니다  
-    output : resume
-
-    input : 자기소개는 이렇게 작성했어요  
-    output : resume
-
-    input : 학력 정보 추가해줘  
-    output : resume
-
-    input : 아래 내용 기반으로 이력서 만들어줘  
-    output : resume
-
-    input : 이력서에 기술 스택도 포함해줘  
-    output : resume
-
-    input : 내 경력에 맞춰 이력서 구성해줘  
-    output : resume
-
-    input : 기본 이력서 양식으로 작성해줘  
-    output : resume
-
-    input : 프로젝트 경험을 넣고 싶어  
-    output : resume
-
-    input : 이력서 항목 중 자격증도 추가해줘  
-    output : resume
-    -----------------
-    input : 게시글 작성해줘  
-    output : post
-
-    input : 블로그 글 하나 올리고 싶어  
-    output : post
-
-    input : 새로운 게시물 작성할게  
-    output : post
-
-    input : 글쓰기 시작할게  
-    output : post
-
-    input : 포스트 등록하고 싶어  
-    output : post
-
-    input : 게시판에 글 남길게  
-    output : post
-
-    input : 아래 내용을 게시글로 만들어줘  
-    output : post
-
-    input : 게시판에 올릴 글입니다  
-    output : post
-
-    input : 짧은 글 하나 올릴게요  
-    output : post
-
-    input : 사용자 공지 작성 부탁해  
-    output : post
     ----------------------- 
     input : 일정 추가해줘  
     output : calendar
-
+    ----------------------- 
     input : 내일 약속 생겼어  
     output : calendar
-
+    ----------------------- 
     input : 오후 3시에 회의 잡아줘  
     output : calendar
-
+    ----------------------- 
     input : 스케줄 등록해줄래?  
     output : calendar
-
+    ----------------------- 
     input : 약속 변경하고 싶어  
     output : calendar
-
+    ----------------------- 
     input : 내일 점심약속 생겼어  
     output : calendar
-
+    ----------------------- 
     input : 이번 주 금요일에 회식 있어  
     output : calendar
-
+    ----------------------- 
     input : 내 스케줄 확인해줘  
     output : calendar
-
+    ----------------------- 
     input : 새로운 일정 추가하고 싶어  
     output : calendar
-
+    ----------------------- 
     input : 오후 일정 정리해줘  
     output : calendar
-    -----------------------
-    input : 이력서 작성 부탁해  
-    output : resume
-
-    input : 경력사항입니다  
-    output : resume
-
-    input : 자기소개는 이렇게 작성했어요  
-    output : resume
-
-    input : 학력 정보 추가해줘  
-    output : resume
-
-    input : 아래 내용 기반으로 이력서 만들어줘  
-    output : resume
-
-    input : 이력서에 기술 스택도 포함해줘  
-    output : resume
-
-    input : 내 경력에 맞춰 이력서 구성해줘  
-    output : resume
-
-    input : 기본 이력서 양식으로 작성해줘  
-    output : resume
-
-    input : 프로젝트 경험을 넣고 싶어  
-    output : resume
-
-    input : 이력서 항목 중 자격증도 추가해줘  
-    output : resume
-    -----------------
-    input : 게시글 작성해줘  
-    output : post
-
-    input : 블로그 글 하나 올리고 싶어  
-    output : post
-
-    input : 새로운 게시물 작성할게  
-    output : post
-
-    input : 글쓰기 시작할게  
-    output : post
-
-    input : 포스트 등록하고 싶어  
-    output : post
-
-    input : 게시판에 글 남길게  
-    output : post
-
-    input : 아래 내용을 게시글로 만들어줘  
-    output : post
-
-    input : 게시판에 올릴 글입니다  
-    output : post
-
-    input : 짧은 글 하나 올릴게요  
-    output : post
-
-    input : 사용자 공지 작성 부탁해  
-    output : post
     ----------------------- 
     input : 일정 추가해줘  
     output : calendar
-
+    ----------------------- 
     input : 내일 약속 생겼어  
     output : calendar
-
+    ----------------------- 
     input : 오후 3시에 회의 잡아줘  
     output : calendar
-
+    ----------------------- 
     input : 스케줄 등록해줄래?  
     output : calendar
-
+    ----------------------- 
     input : 약속 변경하고 싶어  
     output : calendar
-
+    ----------------------- 
     input : 내일 점심약속 생겼어  
     output : calendar
-
+    ----------------------- 
     input : 이번 주 금요일에 회식 있어  
     output : calendar
-
+    ----------------------- 
     input : 내 스케줄 확인해줘  
     output : calendar
-
+    ----------------------- 
     input : 새로운 일정 추가하고 싶어  
     output : calendar
-
+    ----------------------- 
     input : 오후 일정 정리해줘  
     output : calendar
-    -----------------------
-    input : 이력서 작성 부탁해  
-    output : resume
-
-    input : 경력사항입니다  
-    output : resume
-
-    input : 자기소개는 이렇게 작성했어요  
-    output : resume
-
-    input : 학력 정보 추가해줘  
-    output : resume
-
-    input : 아래 내용 기반으로 이력서 만들어줘  
-    output : resume
-
-    input : 이력서에 기술 스택도 포함해줘  
-    output : resume
-
-    input : 내 경력에 맞춰 이력서 구성해줘  
-    output : resume
-
-    input : 기본 이력서 양식으로 작성해줘  
-    output : resume
-
-    input : 프로젝트 경험을 넣고 싶어  
-    output : resume
-
-    input : 이력서 항목 중 자격증도 추가해줘  
-    output : resume
-    -----------------
-    input : 게시글 작성해줘  
-    output : post
-
-    input : 블로그 글 하나 올리고 싶어  
-    output : post
-
-    input : 새로운 게시물 작성할게  
-    output : post
-
-    input : 글쓰기 시작할게  
-    output : post
-
-    input : 포스트 등록하고 싶어  
-    output : post
-
-    input : 게시판에 글 남길게  
-    output : post
-
-    input : 아래 내용을 게시글로 만들어줘  
-    output : post
-
-    input : 게시판에 올릴 글입니다  
-    output : post
-
-    input : 짧은 글 하나 올릴게요  
-    output : post
-
-    input : 사용자 공지 작성 부탁해  
-    output : post
     ----------------------- 
     input : 일정 추가해줘  
     output : calendar
-
+    ----------------------- 
     input : 내일 약속 생겼어  
     output : calendar
-
+    ----------------------- 
     input : 오후 3시에 회의 잡아줘  
     output : calendar
-
+    ----------------------- 
     input : 스케줄 등록해줄래?  
     output : calendar
-
+    ----------------------- 
     input : 약속 변경하고 싶어  
     output : calendar
-
+    ----------------------- 
     input : 내일 점심약속 생겼어  
     output : calendar
-
+    ----------------------- 
     input : 이번 주 금요일에 회식 있어  
     output : calendar
-
+    ----------------------- 
     input : 내 스케줄 확인해줘  
     output : calendar
-
+    ----------------------- 
     input : 새로운 일정 추가하고 싶어  
     output : calendar
-
+    ----------------------- 
     input : 오후 일정 정리해줘  
     output : calendar
-    -----------------------
-    input : 이력서 작성 부탁해  
-    output : resume
-
-    input : 경력사항입니다  
-    output : resume
-
-    input : 자기소개는 이렇게 작성했어요  
-    output : resume
-
-    input : 학력 정보 추가해줘  
-    output : resume
-
-    input : 아래 내용 기반으로 이력서 만들어줘  
-    output : resume
-
-    input : 이력서에 기술 스택도 포함해줘  
-    output : resume
-
-    input : 내 경력에 맞춰 이력서 구성해줘  
-    output : resume
-
-    input : 기본 이력서 양식으로 작성해줘  
-    output : resume
-
-    input : 프로젝트 경험을 넣고 싶어  
-    output : resume
-
-    input : 이력서 항목 중 자격증도 추가해줘  
-    output : resume
-    -----------------
-    input : 게시글 작성해줘  
-    output : post
-
-    input : 블로그 글 하나 올리고 싶어  
-    output : post
-
-    input : 새로운 게시물 작성할게  
-    output : post
-
-    input : 글쓰기 시작할게  
-    output : post
-
-    input : 포스트 등록하고 싶어  
-    output : post
-
-    input : 게시판에 글 남길게  
-    output : post
-
-    input : 아래 내용을 게시글로 만들어줘  
-    output : post
-
-    input : 게시판에 올릴 글입니다  
-    output : post
-
-    input : 짧은 글 하나 올릴게요  
-    output : post
-
-    input : 사용자 공지 작성 부탁해  
-    output : post
     ----------------------- 
     input : 일정 추가해줘  
     output : calendar
-
-    input : 내일 약속 생겼어  
-    output : calendar
-
-    input : 오후 3시에 회의 잡아줘  
-    output : calendar
-
-    input : 스케줄 등록해줄래?  
-    output : calendar
-
-    input : 약속 변경하고 싶어  
-    output : calendar
-
-    input : 내일 점심약속 생겼어  
-    output : calendar
-
-    input : 이번 주 금요일에 회식 있어  
-    output : calendar
-
-    input : 내 스케줄 확인해줘  
-    output : calendar
-
-    input : 새로운 일정 추가하고 싶어  
-    output : calendar
-
-    input : 오후 일정 정리해줘  
-    output : calendar
-    -----------------------
-    input : 이력서 작성 부탁해  
-    output : resume
-
-    input : 경력사항입니다  
-    output : resume
-
-    input : 자기소개는 이렇게 작성했어요  
-    output : resume
-
-    input : 학력 정보 추가해줘  
-    output : resume
-
-    input : 아래 내용 기반으로 이력서 만들어줘  
-    output : resume
-
-    input : 이력서에 기술 스택도 포함해줘  
-    output : resume
-
-    input : 내 경력에 맞춰 이력서 구성해줘  
-    output : resume
-
-    input : 기본 이력서 양식으로 작성해줘  
-    output : resume
-
-    input : 프로젝트 경험을 넣고 싶어  
-    output : resume
-
-    input : 이력서 항목 중 자격증도 추가해줘  
-    output : resume
-    -----------------
-    input : 게시글 작성해줘  
-    output : post
-
-    input : 블로그 글 하나 올리고 싶어  
-    output : post
-
-    input : 새로운 게시물 작성할게  
-    output : post
-
-    input : 글쓰기 시작할게  
-    output : post
-
-    input : 포스트 등록하고 싶어  
-    output : post
-
-    input : 게시판에 글 남길게  
-    output : post
-
-    input : 아래 내용을 게시글로 만들어줘  
-    output : post
-
-    input : 게시판에 올릴 글입니다  
-    output : post
-
-    input : 짧은 글 하나 올릴게요  
-    output : post
-
-    input : 사용자 공지 작성 부탁해  
-    output : post                         
     ----------------------- 
-    input : 일정 추가해줘  
-    output : calendar
-
     input : 내일 약속 생겼어  
     output : calendar
-
+    ----------------------- 
     input : 오후 3시에 회의 잡아줘  
     output : calendar
-
+    ----------------------- 
     input : 스케줄 등록해줄래?  
     output : calendar
-
+    ----------------------- 
     input : 약속 변경하고 싶어  
     output : calendar
-
+    ----------------------- 
     input : 내일 점심약속 생겼어  
     output : calendar
-
+    ----------------------- 
     input : 이번 주 금요일에 회식 있어  
     output : calendar
-
+    ----------------------- 
     input : 내 스케줄 확인해줘  
     output : calendar
-
+    ----------------------- 
     input : 새로운 일정 추가하고 싶어  
     output : calendar
-
+    ----------------------- 
     input : 오후 일정 정리해줘  
     output : calendar
-    -----------------------
-    input : 이력서 작성 부탁해  
-    output : resume
-
-    input : 경력사항입니다  
-    output : resume
-
-    input : 자기소개는 이렇게 작성했어요  
-    output : resume
-
-    input : 학력 정보 추가해줘  
-    output : resume
-
-    input : 아래 내용 기반으로 이력서 만들어줘  
-    output : resume
-
-    input : 이력서에 기술 스택도 포함해줘  
-    output : resume
-
-    input : 내 경력에 맞춰 이력서 구성해줘  
-    output : resume
-
-    input : 기본 이력서 양식으로 작성해줘  
-    output : resume
-
-    input : 프로젝트 경험을 넣고 싶어  
-    output : resume
-
-    input : 이력서 항목 중 자격증도 추가해줘  
-    output : resume
-    -----------------
+    ----------------------- 
     input : 게시글 작성해줘  
     output : post
-
+    ----------------------- 
     input : 블로그 글 하나 올리고 싶어  
     output : post
-
+    ----------------------- 
     input : 새로운 게시물 작성할게  
     output : post
-
+    ----------------------- 
     input : 글쓰기 시작할게  
     output : post
-
+    ----------------------- 
     input : 포스트 등록하고 싶어  
     output : post
-
+    ----------------------- 
     input : 게시판에 글 남길게  
     output : post
-
+    ----------------------- 
     input : 아래 내용을 게시글로 만들어줘  
     output : post
-
+    ----------------------- 
     input : 게시판에 올릴 글입니다  
     output : post
-
+    ----------------------- 
     input : 짧은 글 하나 올릴게요  
     output : post
-
+    ----------------------- 
     input : 사용자 공지 작성 부탁해  
     output : post
-    -----------------
+    ----------------------- 
+    input : 게시글 작성해줘  
+    output : post
+    ----------------------- 
+    input : 블로그 글 하나 올리고 싶어  
+    output : post
+    ----------------------- 
+    input : 새로운 게시물 작성할게  
+    output : post
+    ----------------------- 
+    input : 글쓰기 시작할게  
+    output : post
+    ----------------------- 
+    input : 포스트 등록하고 싶어  
+    output : post
+    ----------------------- 
+    input : 게시판에 글 남길게  
+    output : post
+    ----------------------- 
+    input : 아래 내용을 게시글로 만들어줘  
+    output : post
+    ----------------------- 
+    input : 게시판에 올릴 글입니다  
+    output : post
+    ----------------------- 
+    input : 짧은 글 하나 올릴게요  
+    output : post
+    ----------------------- 
+    input : 사용자 공지 작성 부탁해  
+    output : post
+    ----------------------- 
+    input : 게시글 작성해줘  
+    output : post
+    ----------------------- 
+    input : 블로그 글 하나 올리고 싶어  
+    output : post
+    ----------------------- 
+    input : 새로운 게시물 작성할게  
+    output : post
+    ----------------------- 
+    input : 글쓰기 시작할게  
+    output : post
+    ----------------------- 
+    input : 포스트 등록하고 싶어  
+    output : post
+    ----------------------- 
+    input : 게시판에 글 남길게  
+    output : post
+    ----------------------- 
+    input : 아래 내용을 게시글로 만들어줘  
+    output : post
+    ----------------------- 
+    input : 게시판에 올릴 글입니다  
+    output : post
+    ----------------------- 
+    input : 짧은 글 하나 올릴게요  
+    output : post
+    ----------------------- 
+    input : 사용자 공지 작성 부탁해  
+    output : post
+    ----------------------- 
+    input : 게시글 작성해줘  
+    output : post
+    ----------------------- 
+    input : 블로그 글 하나 올리고 싶어  
+    output : post
+    ----------------------- 
+    input : 새로운 게시물 작성할게  
+    output : post
+    ----------------------- 
+    input : 글쓰기 시작할게  
+    output : post
+    ----------------------- 
+    input : 포스트 등록하고 싶어  
+    output : post
+    ----------------------- 
+    input : 게시판에 글 남길게  
+    output : post
+    ----------------------- 
+    input : 아래 내용을 게시글로 만들어줘  
+    output : post
+    ----------------------- 
+    input : 게시판에 올릴 글입니다  
+    output : post
+    ----------------------- 
+    input : 짧은 글 하나 올릴게요  
+    output : post
+    ----------------------- 
+    input : 사용자 공지 작성 부탁해  
+    output : post
+    ----------------------- 
+    input : 게시글 작성해줘  
+    output : post
+    ----------------------- 
+    input : 블로그 글 하나 올리고 싶어  
+    output : post
+    ----------------------- 
+    input : 새로운 게시물 작성할게  
+    output : post
+    ----------------------- 
+    input : 글쓰기 시작할게  
+    output : post
+    ----------------------- 
+    input : 포스트 등록하고 싶어  
+    output : post
+    ----------------------- 
+    input : 게시판에 글 남길게  
+    output : post
+    ----------------------- 
+    input : 아래 내용을 게시글로 만들어줘  
+    output : post
+    ----------------------- 
+    input : 게시판에 올릴 글입니다  
+    output : post
+    ----------------------- 
+    input : 짧은 글 하나 올릴게요  
+    output : post
+    ----------------------- 
+    input : 사용자 공지 작성 부탁해  
+    output : post
+    ----------------------- 
     input : all Other query
     output : general
     -----------------
