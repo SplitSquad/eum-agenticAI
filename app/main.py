@@ -4,6 +4,12 @@ from fastapi import FastAPI
 from app.api.v1 import agentic
 from app.config.logging_config import setup_logging
 from fastapi.middleware.cors import CORSMiddleware
+# main.py (혹은 uvicorn 실행에 사용되는 시작 파일)
+import asyncio
+import sys
+
+if sys.platform.startswith("win"):
+    asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
 
 # Setup logging
 logger = setup_logging()

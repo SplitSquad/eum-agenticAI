@@ -2,12 +2,20 @@ import os
 import tempfile
 from typing import Dict, List, Optional, TypedDict, Any
 import asyncio
-from datetime import datetime
+from datetime import datetime, date
 import httpx
 from fastapi import HTTPException
 from playwright.async_api import async_playwright
 from app.core.llm_client import get_llm_client
 from loguru import logger
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage
+import subprocess
+from pydantic import BaseModel
+
+class ResumeRequest(BaseModel):
+    """이력서 생성 요청 모델"""
+    response: str
 
 class EducationInfo(TypedDict):
     period: str
@@ -42,49 +50,121 @@ REQUIRED_FIELDS = {
     'career': '경력사항'
 }
 
+async def test_resume_generation():
+    """이력서 생성 테스트 함수"""
+    try:
+        # 1. HTML 생성
+        pdf_form = await make_pdf("test", TEST_USER_DATA)
+        
+        # 2. 출력 디렉토리 생성
+        output_dir = "test_output"
+        os.makedirs(output_dir, exist_ok=True)
+        
+        # 3. PDF 저장
+        output_path = os.path.join(output_dir, "test_resume.pdf")
+        await save_html_to_pdf(pdf_form, output_path)
+        
+        logger.info(f"✅ 테스트 이력서가 생성되었습니다: {output_path}")
+        return output_path
+        
+    except Exception as e:
+        logger.error(f"❌ 테스트 중 오류 발생: {str(e)}")
+        raise
+
 class ResumeConversationState:
-    """이력서 생성 대화 상태 관리 클래스"""
+    """이력서 생성 대화 상태 관리 클래스 (대화형)"""
     def __init__(self, user_id: str):
         self.user_id = user_id
-        self.user_data: Dict[str, List[Dict[str, str]]] = {}
-        self.missing_fields: List[str] = []
-        self.current_field: Optional[str] = None
-        self.current_question: Optional[str] = None
+        self.current_step: str = "start"  # start -> edu_cert -> career -> completed
+        self.edu_cert_input: Optional[str] = None
+        self.career_input: Optional[str] = None
+        self.education: Optional[list] = None
+        self.certifications: Optional[list] = None
+        self.career: Optional[list] = None
         self.is_completed: bool = False
-        self.pdf_path: Optional[str] = None
+        self.user_data: Optional[Dict[str, Any]] = None
 
-    def update_user_data(self, field: str, value: Dict[str, str]):
-        """사용자 데이터 업데이트"""
-        if field not in self.user_data:
-            self.user_data[field] = []
-        self.user_data[field].append(value)
-        if field in self.missing_fields:
-            self.missing_fields.remove(field)
-        if not self.missing_fields:
-            self.is_completed = True
+    async def initialize(self, authorization: str, user_email: str, request: ResumeRequest) -> None:
+        """사용자 프로필 정보 초기화"""
+        try:
+            # 사용자 프로필 정보 가져오기
+            logger.info("[ 사용자 프로필 정보 백으로 api 요청중...] ")
+            self.user_data = await get_user_profile(user_email)
+            
+            # 필요한 정보 요청
+            logger.info("[ 필요한 프로필 정보 백으로 api 요청중...] ")
+            missing_fields = await check_missing_info(self.user_data)
+            
+            if missing_fields:
+                for field in missing_fields:
+                    question = await ask_for_missing_info(field)
+                    response = request.response
+                    result = await process_user_response(field, response)
+                    self.user_data[field] = result
+            
+        except Exception as e:
+            logger.error(f"초기화 실패: {str(e)}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"초기화 실패: {str(e)}"
+            )
 
-    def get_next_question(self) -> Optional[str]:
-        """다음 질문 가져오기"""
-        if not self.missing_fields:
-            return None
-        self.current_field = self.missing_fields[0]
-        return self.current_question
+    async def missing_info(self, authorization: str, user_email: str, request: ResumeRequest) -> None:
+        """필요한 정보 요청"""
+        try:
+            # 필요한 정보 요청
+            logger.info("[ 필요한 프로필 정보 백으로 api 요청중...] ")
+            missing_fields = await check_missing_info(self.user_data)
+            
+            if missing_fields:
+                for field in missing_fields:
+                    question = await ask_for_missing_info(field)
+                    response = request.response
+                    result = await process_user_response(field, response)
+                    self.user_data[field] = result
+            
+        except Exception as e:
+            logger.error(f"필요한 정보 요청 실패: {str(e)}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"필요한 정보 요청 실패: {str(e)}"
+            )
 
-    def process_response(self, response: str) -> Dict[str, str]:
-        """사용자 응답 처리"""
-        if not self.current_field:
-            raise ValueError("현재 진행 중인 질문이 없습니다.")
-        
-        # 현재 필드를 missing_fields에서 제거
-        if self.current_field in self.missing_fields:
-            self.missing_fields.remove(self.current_field)
-            if not self.missing_fields:
-                self.is_completed = True
-        
-        return {
-            "response": response,
-            "field": self.current_field
-        }
+async def start_resume_conversation(user_id: str) -> ResumeConversationState:
+    state = ResumeConversationState(user_id)
+    return state
+
+async def get_resume_question(state: ResumeConversationState) -> str:
+    if state.current_step == "start":
+        state.current_step = "edu_cert"
+        return "학력과 자격사항을 한 번에 입력해 주세요.\n예시: 2010-2014 서울대학교 컴퓨터공학과 학사, 2015 정보처리기사(한국산업인력공단) 합격"
+    elif state.current_step == "edu_cert":
+        return "학력과 자격사항을 한 번에 입력해 주세요.\n예시: 2010-2014 서울대학교 컴퓨터공학과 학사, 2015 정보처리기사(한국산업인력공단) 합격"
+    elif state.current_step == "career":
+        return "경력사항을 모두 입력해 주세요.\n예시: 2016-2018 네이버 소프트웨어 엔지니어(검색 엔진 개발), 2018-2020 카카오 시니어 개발자(메시징 플랫폼 개발)"
+    else:
+        return "이력서 정보가 모두 입력되었습니다."
+
+async def process_resume_conversation_response(state: ResumeConversationState, response: str) -> dict:
+    """사용자 응답 처리 및 상태 전이"""
+    if state.current_step == "edu_cert":
+        state.edu_cert_input = response
+        # OpenAI 파싱
+        result = await parse_edu_cert_with_openai(response)
+        state.education = result.get("education", [])
+        state.certifications = result.get("certifications", [])
+        state.current_step = "career"
+        return {"message": "경력사항을 모두 입력해 주세요. 예시: 2016-2018 네이버 소프트웨어 엔지니어(검색 엔진 개발)", "state": state}
+    elif state.current_step == "career":
+        state.career_input = response
+        # OpenAI 파싱
+        result = await parse_career_with_openai(response)
+        state.career = result
+        state.current_step = "completed"
+        state.is_completed = True
+        return {"message": "이력서 정보가 모두 입력되었습니다.", "state": state}
+    else:
+        return {"message": "이미 이력서 정보가 모두 입력되었습니다.", "state": state}
 
 async def get_user_profile(user_id: str) -> Dict[str, str]:
     """실제 백엔드 API를 통해 사용자 프로필 정보를 가져옵니다."""
@@ -167,7 +247,7 @@ async def ask_for_missing_info(field: str) -> str:
     question = await client.generate(prompt)
     return question.strip()
 
-async def process_user_response(field: str, response: str) -> Dict[str, str]:
+async def process_user_response(field: str, response: str) -> Dict[str, Any]:
     """사용자의 응답을 처리하고 구조화된 데이터로 변환합니다."""
     client = get_llm_client(is_lightweight=True)
     
@@ -235,463 +315,155 @@ async def process_user_response(field: str, response: str) -> Dict[str, str]:
         """
     
     try:
-        structured_data = await client.generate(prompt)
-        logger.info(f"📝 LLM 응답: {structured_data}")
+        llm_response = await client.generate(prompt)
+        logger.info(f"📝 LLM 응답: {llm_response}")
         
         # JSON 문자열에서 실제 JSON 부분만 추출
-        import re
-        json_match = re.search(r'\{[^{]*\}', structured_data, re.DOTALL)
+        import re, json
+        json_match = re.search(r'\{[^}]*\}', llm_response, re.DOTALL)
         if json_match:
             json_str = json_match.group(0)
-            # JSON 문자열을 파싱하여 딕셔너리로 변환
-            import json
+            # 작은따옴표를 큰따옴표로 변환
+            json_str = json_str.replace("'", '"')
+            # 줄바꿈과 공백 제거
+            json_str = re.sub(r'\s+', '', json_str)
             try:
-                # 작은따옴표를 큰따옴표로 변환
-                json_str = json_str.replace("'", '"')
                 data = json.loads(json_str)
                 logger.info(f"✅ {field} 데이터 구조화 완료: {data}")
                 return data
             except json.JSONDecodeError as e:
                 logger.error(f"❌ JSON 파싱 오류: {str(e)}")
                 logger.error(f"❌ 원본 JSON 문자열: {json_str}")
-                raise ValueError(f"JSON 파싱 오류: {str(e)}")
+                # 기본값 반환
+                return {field: response}
         else:
-            logger.error(f"❌ JSON 형식의 응답을 찾을 수 없습니다: {structured_data}")
-            raise ValueError("JSON 형식의 응답을 찾을 수 없습니다.")
+            logger.error(f"❌ JSON 형식의 응답을 찾을 수 없음: {llm_response}")
+            # 기본값 반환
+            return {field: response}
     except Exception as e:
         logger.error(f"🚨 응답 처리 중 오류 발생: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"응답 처리 중 오류 발생: {str(e)}"
-        )
+        # 기본값 반환
+        return {field: response}
 
-def get_current_date() -> str:
-    """현재 날짜를 이력서 형식에 맞게 반환합니다."""
-    now = datetime.now()
-    return f"{now.year}년 {now.month}월 {now.day}일"
+########################################################## 이력서 추가정보
 
-# 이력서 생성 프롬프트
-def generate_resume_prompt(user_data: Dict[str, List[Dict[str, str]]]) -> str:
-    """이력서 생성 프롬프트"""
-    # 학력 정보 포맷팅
-    education_info = ""
-    if 'education' in user_data:
-        for edu in user_data['education']:
-            education_info += f"- {edu['period']}: {edu['school']} {edu['major']} ({edu['degree']})\n"
+########################################################## """이력서 생성 대화 시작"""
+async def start_resume_conversation(authotization, user_email, request) -> ResumeConversationState:
     
-    # 병역 정보 포맷팅
-    military_info = ""
-    if 'military_service' in user_data:
-        for mil in user_data['military_service']:
-            military_info += f"- {mil['period']}: {mil['branch']} {mil['rank']} ({mil['discharge']})\n"
-    
-    # 자격사항 정보 포맷팅
-    certification_info = ""
-    if 'certifications' in user_data:
-        for cert in user_data['certifications']:
-            certification_info += f"- {cert['period']}: {cert['name']} ({cert['issuer']}) {cert['grade']}\n"
-    
-    # 경력사항 정보 포맷팅
-    career_info = ""
-    if 'career' in user_data:
-        for career in user_data['career']:
-            career_info += f"- {career['period']}: {career['company']} {career['position']}\n  {career['description']}\n"
-    
-    return f"""
-    다음은 사용자의 이력서 정보입니다.
+    state = ResumeConversationState(user_email)
 
-    [기본 정보]
-    이름: {user_data.get('name', [''])[0]}
-    생년월일: {user_data.get('birth_date', [''])[0]}
-
-    [학력]
-    {education_info}
-
-    [병역]
-    {military_info}
-
-    [자격사항]
-    {certification_info}
-
-    [경력사항]
-    {career_info}
-
-    위 정보를 바탕으로 전문적이고 매력적인 이력서를 작성해주세요.
-    응답은 명확하고 구체적이어야 합니다.
-    """
-
-async def generate_resume_text(user_data: Dict[str, str], max_retries: int = 3) -> str:
-    last_error = None
-    
-    for attempt in range(max_retries):
-        try:
-            client = get_llm_client(is_lightweight=True)
-            prompt = generate_resume_prompt(user_data)
-            
-            logger.info(f"📤 LLM 요청 프롬프트 (시도 {attempt + 1}/{max_retries}):\n{prompt}")
-            
-            resume_text = await client.generate(prompt)
-            
-            if not resume_text or not resume_text.strip():
-                raise ValueError("LLM 응답이 비어있습니다.")
-                
-            logger.info(f"📥 LLM 응답 성공 (처음 500자):\n{resume_text[:500]}...")
-            return resume_text
-            
-        except Exception as e:
-            last_error = e
-            logger.error(f"🚨 이력서 텍스트 생성 실패 (시도 {attempt + 1}/{max_retries}): {str(e)}", exc_info=True)
-            
-            if attempt < max_retries - 1:
-                wait_time = (attempt + 1) * 2  # 지수 백오프: 2초, 4초, 6초...
-                logger.info(f"⏳ {wait_time}초 후 재시도합니다...")
-                await asyncio.sleep(wait_time)
-            else:
-                logger.error(f"❌ 최대 재시도 횟수 ({max_retries}회) 도달")
-                raise ValueError(f"이력서 텍스트 생성 실패 ({max_retries}회 시도): {str(last_error)}")
-
-async def save_resume_pdf(user_data: Dict[str, Any], output_path: str) -> str:
-    """사용자 데이터를 PDF로 저장합니다."""
-    try:
-        # 데이터 로깅
-        logger.info(f"📊 PDF 생성용 사용자 데이터: {user_data}")
-        
-        # HTML 생성
-        html_content = f"""
-        <!DOCTYPE html>
-        <html lang="ko">
-        <head>
-            <meta charset="UTF-8">
-            <style>
-                @page {{
-                    size: A4;
-                    margin: 0;
-                }}
-                body {{
-                    font-family: 'Batang', serif;
-                    margin: 0;
-                    padding: 0;
-                    line-height: 1.5;
-                }}
-                .page {{
-                    width: 210mm;
-                    height: 297mm;
-                    padding: 15mm 20mm;
-                    box-sizing: border-box;
-                }}
-                h1 {{
-                    text-align: center;
-                    font-size: 24px;
-                    margin-bottom: 10px;
-                    letter-spacing: 15px;
-                    font-weight: normal;
-                }}
-                table {{
-                    width: 100%;
-                    border-collapse: collapse;
-                    margin-bottom: 20px;
-                    font-size: 11px;
-                }}
-                th, td {{
-                    border: 1.2px solid black;
-                    padding: 8px 4px;
-                    text-align: center;
-                    vertical-align: middle;
-                    height: 25px;
-                    box-sizing: border-box;
-                }}
-                .photo-cell {{
-                    width: 30mm;
-                    height: 40mm;
-                    text-align: center;
-                    vertical-align: middle;
-                    font-size: 10px;
-                    color: #666;
-                }}
-                .header-table td {{
-                    height: 32px;
-                }}
-                .family-table td {{
-                    height: 28px;
-                }}
-                .period-cell {{
-                    width: 20%;
-                }}
-                .content-cell {{
-                    width: 60%;
-                }}
-                .note-cell {{
-                    width: 20%;
-                }}
-                .footer {{
-                    margin-top: 60px;
-                    text-align: center;
-                    font-size: 12px;
-                }}
-                .date-line {{
-                    margin: 30px 0;
-                    line-height: 2;
-                }}
-            </style>
-        </head>
-        <body>
-            <div class="page">
-                <table class="header-table">
-                    <tr>
-                        <td rowspan="3" class="photo-cell">(사 진)</td>
-                        <td colspan="6"><h1>이 력 서</h1></td>
-                    </tr>
-                    <tr>
-                        <td>성 명</td>
-                        <td colspan="2">{user_data.get('name', '')}</td>
-                        <td colspan="2">생년월일</td>
-                        <td colspan="2">{user_data.get('birth_date', '')}</td>
-                    </tr>
-                    <tr>
-                        <td>전화번호</td>
-                        <td colspan="2">{user_data.get('phone', '')}</td>
-                        <td colspan="2">국적</td>
-                        <td>{user_data.get('nation', '')}</td>
-                    </tr>
-                    <tr>
-                        <td rowspan="4">가족관계</td>
-                        <td>관 계</td>
-                        <td>성 명</td>
-                        <td colspan="2">연 령</td>
-                        <td colspan="2">현재직업</td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td colspan="2"></td>
-                        <td colspan="2"></td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td colspan="2"></td>
-                        <td colspan="2"></td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td colspan="2"></td>
-                        <td colspan="2"></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">현 주 소</td>
-                        <td colspan="5">{user_data.get('address', '')}</td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">이메일</td>
-                        <td colspan="5">{user_data.get('email', '')}</td>
-                    </tr>
-                </table>
-
-                <table>
-                    <tr>
-                        <th class="period-cell">기 간</th>
-                        <th class="content-cell">학 력 · 병 역 · 자 격 사 항</th>
-                        <th class="note-cell">비 고</th>
-                    </tr>
-                    {''.join([
-                        f'''
-                        <tr>
-                            <td class="period-cell">{edu.get('period', '')}</td>
-                            <td class="content-cell">{edu.get('school', '')} {edu.get('major', '')} {edu.get('degree', '')}</td>
-                            <td class="note-cell"></td>
-                        </tr>
-                        ''' for edu in user_data.get('education', [])
-                    ])}
-                    {''.join([
-                        f'''
-                        <tr>
-                            <td class="period-cell">{mil.get('period', '')}</td>
-                            <td class="content-cell">{mil.get('branch', '')} {mil.get('rank', '')} {mil.get('discharge', '')}</td>
-                            <td class="note-cell"></td>
-                        </tr>
-                        ''' for mil in user_data.get('military_service', [])
-                    ])}
-                    {''.join([
-                        f'''
-                        <tr>
-                            <td class="period-cell">{cert.get('period', '')}</td>
-                            <td class="content-cell">{cert.get('name', '')} ({cert.get('issuer', '')}) {cert.get('grade', '')}</td>
-                            <td class="note-cell"></td>
-                        </tr>
-                        ''' for cert in user_data.get('certifications', [])
-                    ])}
-                    <tr><td class="period-cell"></td><td class="content-cell"></td><td class="note-cell"></td></tr>
-                    <tr><td class="period-cell"></td><td class="content-cell"></td><td class="note-cell"></td></tr>
-                    <tr><td class="period-cell"></td><td class="content-cell"></td><td class="note-cell"></td></tr>
-                    <tr><td class="period-cell"></td><td class="content-cell"></td><td class="note-cell"></td></tr>
-                    <tr><td class="period-cell"></td><td class="content-cell"></td><td class="note-cell"></td></tr>
-                </table>
-
-                <table>
-                    <tr>
-                        <th class="period-cell">기 간</th>
-                        <th class="content-cell">경 력 사 항</th>
-                        <th class="note-cell">비 고</th>
-                    </tr>
-                    {''.join([
-                        f'''
-                        <tr>
-                            <td class="period-cell">{career.get('period', '')}</td>
-                            <td class="content-cell">{career.get('company', '')} {career.get('position', '')}</td>
-                            <td class="note-cell">{career.get('description', '')}</td>
-                        </tr>
-                        ''' for career in user_data.get('career', [])
-                    ])}
-                    <tr><td class="period-cell"></td><td class="content-cell"></td><td class="note-cell"></td></tr>
-                    <tr><td class="period-cell"></td><td class="content-cell"></td><td class="note-cell"></td></tr>
-                    <tr><td class="period-cell"></td><td class="content-cell"></td><td class="note-cell"></td></tr>
-                    <tr><td class="period-cell"></td><td class="content-cell"></td><td class="note-cell"></td></tr>
-                    <tr><td class="period-cell"></td><td class="content-cell"></td><td class="note-cell"></td></tr>
-                </table>
-
-                <div class="footer">
-                    <p>위의 기재한 내용이 사실과 다름이 없습니다.</p>
-                    <div class="date-line">
-                        {get_current_date()}
-                    </div>
-                    <p>(인)</p>
-                </div>
-            </div>
-        </body>
-        </html>
-        """
-        
-        # 임시 HTML 파일 생성
-        import tempfile
-        with tempfile.NamedTemporaryFile(suffix='.html', delete=False) as temp_file:
-            temp_file.write(html_content.encode('utf-8'))
-            temp_path = temp_file.name
-        
-        # Playwright를 사용하여 PDF 생성
-        from playwright.async_api import async_playwright
-        async with async_playwright() as p:
-            browser = await p.chromium.launch()
-            page = await browser.new_page()
-            await page.goto(f'file://{temp_path}')
-            await page.pdf(path=output_path)
-            await browser.close()
-        
-        # 임시 파일 삭제
-        import os
-        os.unlink(temp_path)
-        
-        logger.info(f"✅ PDF 생성 완료: {output_path}")
-        return output_path
-        
-    except Exception as e:
-        logger.error(f"🚨 PDF 생성 중 오류 발생: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"PDF 생성 중 오류 발생: {str(e)}"
-        )
-
-async def start_resume_conversation(user_id: str) -> ResumeConversationState:
-    """이력서 생성 대화 시작"""
-    state = ResumeConversationState(user_id)
-    
     # 1. 사용자 프로필 정보 가져오기
-    state.user_data = await get_user_profile(user_id)
-    logger.info(f"📊 사용자 프로필 정보: {state.user_data}")
+    logger.info("[ 사용자 프로필 정보 백으로 api 요청중...] ")
+    await state.initialize(authotization, user_email, request)
+    logger.info(f"[ 📊 사용자 프로필 정보 ] {state.user_data} ")
     
-    # 2. 부족한 정보 확인
-    state.missing_fields = await check_missing_info(state.user_data)
-    if state.missing_fields:
-        logger.info(f"⚠️ 부족한 정보: {state.missing_fields}")
-        # 첫 번째 질문 생성
-        state.current_field = state.missing_fields[0]
-        state.current_question = await ask_for_missing_info(state.current_field)
+    # 2. 필요한 정보 요청
+    logger.info("[ 필요한 프로필 정보 백으로 api 요청중...] ")
+    await state.missing_info(authotization, user_email, request)
+    logger.info(f"[ 📊 추가된 프로필 정보 ] {state.user_data} ")
     
     return state
+########################################################## """이력서 생성 대화 시작"""
 
-async def process_resume_response(state: ResumeConversationState, response: str) -> Dict[str, str]:
-    """사용자 응답 처리 및 다음 단계 진행"""
-    try:
-        # 1. 현재 응답 처리
-        processed_data = await process_user_response(state.current_field, response)
-        logger.info(f"✅ {state.current_field} 정보 업데이트: {processed_data}")
-        
-        # 2. 사용자 데이터 업데이트
-        field_mapping = {
-            '학력': 'education',
-            '병역': 'military_service',
-            '자격사항': 'certifications',
-            '경력사항': 'career'
+########################################################## job_resume조건문
+async def job_resume(query: str, uid: str, state: str, token: str) -> Dict[str, Any]:
+    authotization = token
+    user_email = uid
+    pre_state = state
+    logger.info(f"[job_resume parameter] : {authotization} , {user_email} , {pre_state}")
+
+    ## 첫번째 응답 - 학력/자격사항 질문
+    if pre_state == "first":
+        logger.info("[first_response] - 학력/자격사항 질문")
+        return {
+            "response": "학력과 자격사항을 입력해주세요.\n예시: 2010-2014 서울대학교 컴퓨터공학과 학사, 2015 정보처리기사(한국산업인력공단) 합격",
+            "state": "second"
         }
-        
-        english_field = field_mapping.get(state.current_field)
-        if english_field:
-            if english_field not in state.user_data:
-                state.user_data[english_field] = []
-            state.user_data[english_field].append(processed_data)
-            logger.info(f"📝 업데이트된 사용자 데이터: {state.user_data}")
-        
-        # 3. 현재 필드를 missing_fields에서 제거
-        if state.current_field in state.missing_fields:
-            state.missing_fields.remove(state.current_field)
-            if not state.missing_fields:
-                state.is_completed = True
-        
-        # 4. 다음 질문 생성 또는 이력서 생성
-        if state.is_completed:
-            # 모든 정보 수집 완료 - 이력서 생성
-            resume_text = await generate_resume_text(state.user_data)
+    
+    ## 두번째 응답 - 경력사항 질문
+    elif pre_state == "second":
+        logger.info("[second_response] - 경력사항 질문")
+        request = ResumeRequest(response=query)
+        try:
+            # 이력서 생성 초기화
+            logger.info("[이력서 생성 초기화]")
+            resume_state = await start_resume_conversation(authotization, user_email, request)
             
-            # 임시 디렉토리에 PDF 파일 생성
-            import tempfile
-            import os
-            temp_dir = tempfile.gettempdir()
-            pdf_path = os.path.join(temp_dir, f"{state.user_data.get('name', 'resume')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf")
+            # 학력/자격사항 파싱
+            edu_cert_result = await parse_edu_cert_with_openai(query)
+            resume_state.user_data['education'] = edu_cert_result.get('education', [])
+            resume_state.user_data['certifications'] = edu_cert_result.get('certifications', [])
             
-            await save_resume_pdf(state.user_data, pdf_path)
-            state.pdf_path = pdf_path
+            # 상태 저장
+            conversation_states[user_email] = resume_state
             
             return {
-                'status': 'completed',
-                'message': '이력서가 성공적으로 생성되었습니다.',
-                'pdf_path': pdf_path
+                "response": "경력사항을 입력해주세요.\n예시: 2016-2018 네이버 소프트웨어 엔지니어(검색 엔진 개발), 2018-2020 카카오 시니어 개발자(메시징 플랫폼 개발)",
+                "state": "third"
             }
-        else:
-            # 다음 질문 생성
-            state.current_field = state.missing_fields[0]
-            state.current_question = await ask_for_missing_info(state.current_field)
             
+        except Exception as e:
+            logger.error(f"이력서 생성 시작 실패: {str(e)}")
+            raise HTTPException(
+                status_code=500,
+                detail=str(e)
+            )
+    
+    ## 세번째 응답 - 이력서 생성 및 S3 업로드
+    elif pre_state == "third":
+        logger.info("[third_response] - 이력서 생성 및 S3 업로드")
+        try:
+            # 저장된 상태 가져오기
+            resume_state = conversation_states.get(user_email)
+            if not resume_state:
+                raise HTTPException(
+                    status_code=400,
+                    detail="이력서 생성 세션이 만료되었습니다. 처음부터 다시 시작해주세요."
+                )
+            
+            # 경력사항 파싱
+            career_result = await parse_career_with_openai(query)
+            resume_state.user_data['career'] = career_result
+            
+            # 이력서 PDF 생성
+            logger.info("[AI가 이력서 PDF 만드는중...]")
+            pdf_form = await make_pdf(resume_state, resume_state.user_data)
+
+            output_dir = os.path.join(os.getcwd(), "app/services/agentic/resume")
+            os.makedirs(output_dir, exist_ok=True)
+
+            # 저장할 파일 전체 경로
+            output_path = os.path.join(output_dir, "resume.pdf")
+            await save_html_to_pdf(pdf_form, output_path)
+
+            # S3 업로드
+            logger.info("[upload_to_s3] 파일 업로드 시작")
+            s3_url = upload_to_s3(output_path, "pdfs/resume.pdf")
+            logger.info(f"[S3 업로드] : {s3_url}")
+
+            # 상태 제거
+            del conversation_states[user_email]
+
             return {
-                'status': 'continue',
-                'question': state.current_question,
-                'field': state.current_field
+                "response": "이력서가 생성되었습니다.",
+                "state": "first",
+                "message": "PDF가 업로드되었습니다.",
+                "download_url": s3_url     
             }
             
-    except Exception as e:
-        logger.error(f"🚨 응답 처리 실패: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"응답 처리 중 오류 발생: {str(e)}"
-        )
-
-########################################################## 
-async def job_resume(str,state):
-    state=""
-    if state == "start" :
-        user_id=""
-        start_resume(user_id)
-    elif state == "response" : 
-        request="str"
-        respond_to_resume(str,request)
-    elif state == "check" :
-        user_id=""
-        get_resume_status(user_id)
-    else :
-        print("잘못된 상태입니다.") 
-
-    return await ""
-########################################################## 
-
+        except Exception as e:
+            logger.error(f"이력서 생성 실패: {str(e)}")
+            raise HTTPException(
+                status_code=500,
+                detail=str(e)
+            )
+    else:
+        logger.error("잘못된 상태입니다.")
+        return {
+            "response": "잘못된 상태입니다.",
+            "state": "error"
+        }
+########################################################## job_resume조건문
 
 ########################################################## 이력서 생성 환경설정
 from pydantic import BaseModel    
@@ -703,48 +475,214 @@ class ResumeResponse(BaseModel):
     field: Optional[str] = None
     pdf_path: Optional[str] = None
 
-class ResumeRequest(BaseModel):
-    """이력서 생성 요청 모델"""
-    response: str
-
 # 대화 상태 저장소 (실제 프로덕션에서는 Redis나 DB를 사용해야 함)
 conversation_states: Dict[str, ResumeConversationState] = {}
 ########################################################## 이력서 생성 환경설정
 
 ########################################################## 이력서 작성 시작 API
-async def start_resume(user_id: str) -> ResumeResponse:
+async def start_resume(state: str) -> Dict[str, str]:
     """이력서 생성 대화 시작"""
-    try:
-        # 이미 진행 중인 대화가 있는지 확인
-        if user_id in conversation_states:
-            raise HTTPException(
-                status_code=400,
-                detail="이미 진행 중인 이력서 생성 대화가 있습니다."
-            )
-        
-        # 새로운 대화 상태 생성
-        state = await start_resume_conversation(user_id)
-        conversation_states[user_id] = state
-        
-        return ResumeResponse(
-            status="started",
-            question=state.current_question,
-            field=state.current_field
-        )
-        
-    except Exception as e:
-        logger.error(f"이력서 생성 시작 실패: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail=str(e)
-        )    
+    logger.info("[사용자에게 이력서 요청을 보냄...] ")
+
+    response = "본인을 어필해주세요 (사용 가능한 기술 , 수상경력 , 성격 등 )"
+    new_state = "second"
+
+    return {
+        "response": response,
+        "state": new_state
+    }
+
+    
 ########################################################## 이력서 작성 시작 API
 
 ########################################################## 이력서 작성 중 응답 API
-async def respond_to_resume(
-    user_id: str,
-    request: ResumeRequest
-) -> ResumeResponse:
+async def make_pdf(state: str, user_data: dict):
+    """
+    사용자 데이터를 받아 HTML 이력서 생성 (병역 삭제, 학력/자격/경력 5개 고정, 빈칸 채움)
+    """
+    def get_current_date():
+        today = date.today()
+        return f"{today.year}년 {today.month:02d}월 {today.day:02d}일"
+
+    # 가족사항 3줄 생성 (빈 줄 포함)
+    family_rows = user_data.get('family', [])
+    family_rows = (family_rows + [{}]*3)[:3]  # 최대 3줄로 제한
+    family_html = ''
+    family_html += '''
+        <tr>
+            <td rowspan="4">가족관계</td>
+            <td>관 계</td>
+            <td>성 명</td>
+            <td colspan="2">연 령</td>
+            <td colspan="2">현재직업</td>
+        </tr>
+    '''
+    for row in family_rows:
+        family_html += f'''
+        <tr>
+            <td>{row.get('relation', '')}</td>
+            <td>{row.get('name', '')}</td>
+            <td colspan="2">{row.get('age', '')}</td>
+            <td colspan="2">{row.get('job', '')}</td>
+        </tr>
+        '''
+
+    # 학력/자격사항 5개 row 생성
+    education_rows = user_data.get('education', [])
+    certifications_rows = user_data.get('certifications', [])
+    edu_cert_rows = education_rows + certifications_rows
+    edu_cert_rows = (edu_cert_rows + [{}]*5)[:5]
+    edu_cert_html = ''.join([
+        f'''<tr>\n<td class="period-cell">{row.get('period', '')}</td>\n<td class="content-cell">{row.get('school', row.get('name', ''))} {row.get('major', '')} {row.get('degree', '')} {row.get('issuer', '')} {row.get('grade', '')}</td>\n<td class="note-cell"></td>\n</tr>''' for row in edu_cert_rows
+    ])
+
+    # 경력사항 5개 row 생성
+    career_rows = user_data.get('career', [])
+    career_rows = (career_rows + [{}]*5)[:5]
+    career_html = ''.join([
+        f'''<tr>\n<td class="period-cell">{row.get('period', '')}</td>\n<td class="content-cell">{row.get('company', '')} {row.get('position', '')}</td>\n<td class="note-cell">{row.get('description', '')}</td>\n</tr>''' for row in career_rows
+    ])
+
+    html_content = f"""
+    <!DOCTYPE html>
+    <html lang=\"ko\">
+    <head>
+        <meta charset=\"UTF-8\">
+        <style>
+            @page {{
+                size: A4;
+                margin: 0;
+            }}
+            body {{
+                font-family: 'Batang', serif;
+                margin: 0;
+                padding: 0;
+                line-height: 1.5;
+            }}
+            .page {{
+                width: 210mm;
+                height: 297mm;
+                padding: 15mm 20mm;
+                box-sizing: border-box;
+            }}
+            h1 {{
+                text-align: center;
+                font-size: 24px;
+                margin-bottom: 10px;
+                letter-spacing: 15px;
+                font-weight: normal;
+            }}
+            table {{
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+                font-size: 11px;
+            }}
+            th, td {{
+                border: 1.2px solid black;
+                padding: 8px 4px;
+                text-align: center;
+                vertical-align: middle;
+                height: 25px;
+                box-sizing: border-box;
+            }}
+            .photo-cell {{
+                width: 30mm;
+                height: 40mm;
+                text-align: center;
+                vertical-align: middle;
+                font-size: 10px;
+                color: #666;
+            }}
+            .header-table td {{
+                height: 32px;
+            }}
+            .family-table td {{
+                height: 28px;
+            }}
+            .period-cell {{
+                width: 20%;
+            }}
+            .content-cell {{
+                width: 60%;
+            }}
+            .note-cell {{
+                width: 20%;
+            }}
+            .footer {{
+                margin-top: 60px;
+                text-align: center;
+                font-size: 12px;
+            }}
+            .date-line {{
+                margin: 30px 0;
+                line-height: 2;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class=\"page\">
+            <table class=\"header-table\">
+                <tr>
+                    <td rowspan=\"3\" class=\"photo-cell\">(사 진)</td>
+                    <td colspan=\"6\"><h1>이 력 서</h1></td>
+                </tr>
+                <tr>
+                    <td>성 명</td>
+                    <td colspan=\"2\">{user_data.get('name', '')}</td>
+                    <td colspan=\"2\">생년월일</td>
+                    <td colspan=\"2\">{user_data.get('birth_date', '')}</td>
+                </tr>
+                <tr>
+                    <td>전화번호</td>
+                    <td colspan=\"2\">{user_data.get('phone', '')}</td>
+                    <td colspan=\"2\">국적</td>
+                    <td>{user_data.get('nation', '')}</td>
+                </tr>
+                {family_html}
+                <tr>
+                    <td colspan=\"2\">현 주 소</td>
+                    <td colspan=\"5\">{user_data.get('address', '')}</td>
+                </tr>
+                <tr>
+                    <td colspan=\"2\">이메일</td>
+                    <td colspan=\"5\">{user_data.get('email', '')}</td>
+                </tr>
+            </table>
+
+            <table>
+                <tr>
+                    <th class=\"period-cell\">기 간</th>
+                    <th class=\"content-cell\">학 력 · 자 격 사 항</th>
+                    <th class=\"note-cell\">비 고</th>
+                </tr>
+                {edu_cert_html}
+            </table>
+
+            <table>
+                <tr>
+                    <th class=\"period-cell\">기 간</th>
+                    <th class=\"content-cell\">경 력 사 항</th>
+                    <th class=\"note-cell\">비 고</th>
+                </tr>
+                {career_html}
+            </table>
+
+            <div class=\"footer\">
+                <p>위의 기재한 내용이 사실과 다름이 없습니다.</p>
+                <div class=\"date-line\">
+                    {get_current_date()}
+                </div>
+                <p>(인)</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    return {"html": html_content}
+
+########################################################## 이력서 작성 중 응답 API
+async def respond_to_resume(user_id: str, request: ResumeRequest) -> ResumeResponse:
     """이력서 생성 대화 응답 처리"""
     try:
         # 대화 상태 확인
@@ -755,7 +693,7 @@ async def respond_to_resume(
             )
         
         state = conversation_states[user_id]
-        result = await process_resume_response(state, request.response)
+        result = await process_resume_conversation_response(state, request.response)
         
         # 대화가 완료된 경우 상태 제거
         if result["status"] == "completed":
@@ -788,3 +726,209 @@ async def get_resume_status(user_id: str) -> ResumeResponse:
         missing_fields=state.missing_fields
     )
 ########################################################## 이력서 진행 상태 조회 API
+
+
+
+########################################################## PDF 파일을 S3로 업로드하는 함수
+import boto3
+from botocore.exceptions import NoCredentialsError
+import os
+
+from botocore.exceptions import NoCredentialsError, ClientError
+
+def upload_to_s3(file_path: str, object_name: str) -> str:
+    try:
+        print("[upload_to_s3] 파일 업로드 시작")
+        s3 = boto3.client(
+            's3',
+            aws_access_key_id=os.getenv("S3_ACCESS_KEY"),
+            aws_secret_access_key=os.getenv("S3_SECRET_KEY"),
+            region_name=os.getenv("S3_REGION")
+        )
+        bucket = os.getenv("S3_BUCKET_NAME")
+        if not bucket:
+            raise ValueError("S3_BUCKET_NAME 환경변수가 비어있습니다.")
+
+        logger.info("[upload_to_s3] 파일 업로드 시작")
+        s3.upload_file(file_path, bucket, object_name, ExtraArgs={'ContentType': 'application/pdf'})
+        
+        url = f"https://{bucket}.s3.{os.getenv('S3_REGION')}.amazonaws.com/{object_name}"
+        logger.info(f"[upload_to_s3] 업로드 성공: {url}")
+        return url
+    
+    except (NoCredentialsError, ClientError, Exception) as e:
+        logger.error(f"[upload_to_s3] 업로드 실패: {str(e)}")
+        raise Exception(f"S3 업로드 실패: {str(e)}")
+
+########################################################## PDF 파일을 S3로 업로드하는 함수
+
+
+# 실행 진입전
+class AgenticResume:
+    def __init__(self):
+        pass  # 필요한 초기화가 있다면 여기에
+
+    async def Resume_function( self, query, uid, state, token ) -> Dict[str, Any]:
+        """ 이력서 생성 """
+        response = await job_resume( query, uid, state, token )
+        logger.info(f"[Resume_function] : {response}")
+        print(f"[Resume_function] : {response}")
+        return response
+
+async def ask_edu_cert_question(state: ResumeConversationState) -> str:
+    state.current_step = "edu_cert"
+    return "학력과 자격사항을 한 번에 입력해 주세요.\n예시: 2010-2014 서울대학교 컴퓨터공학과 학사, 2015 정보처리기사(한국산업인력공단) 합격"
+
+async def ask_career_question(state: ResumeConversationState) -> str:
+    state.current_step = "career"
+    return "경력사항을 모두 입력해 주세요.\n예시: 2016-2018 네이버 소프트웨어 엔지니어(검색 엔진 개발), 2018-2020 카카오 시니어 개발자(메시징 플랫폼 개발)"
+
+async def parse_edu_cert_with_openai(user_input: str) -> dict:
+    """OpenAI로 학력/자격사항을 리스트로 파싱 (JSON 파싱 robust)"""
+    prompt = f"""
+    다음 사용자의 입력을 분석하여 학력(education)과 자격사항(certifications)을 각각 리스트로 JSON으로 반환하세요.
+    - 학력: period, school, major, degree
+    - 자격사항: period, name, issuer, grade
+    예시 입력: 2010-2014 서울대학교 컴퓨터공학과 학사, 2015 정보처리기사(한국산업인력공단) 합격
+    반드시 아래와 같은 JSON만 반환:
+    {{
+      "education": [{{"period": "", "school": "", "major": "", "degree": ""}}...],
+      "certifications": [{{"period": "", "name": "", "issuer": "", "grade": ""}}...]
+    }}
+    입력: {user_input}
+    """
+    llm = ChatOpenAI(api_key=os.getenv("HIGH_PERFORMANCE_OPENAI_API_KEY"), model_name=os.getenv("HIGH_PERFORMANCE_OPENAI_MODEL"), timeout=int(os.getenv("HIGH_PERFORMANCE_OPENAI_TIMEOUT")))
+    response = await llm.ainvoke([HumanMessage(content=prompt)])
+    import json, re
+    
+    # 응답에서 JSON 형식 찾기
+    json_match = re.search(r'\{[\s\S]*\}', response.content)
+    if json_match:
+        json_str = json_match.group(0)
+        json_str = json_str.replace("'", '"')  # 작은따옴표를 큰따옴표로 변환
+        try:
+            parsed = json.loads(json_str)
+            if isinstance(parsed, dict):
+                return {
+                    "education": parsed.get("education", []),
+                    "certifications": parsed.get("certifications", [])
+                }
+        except Exception as e:
+            logger.error(f"JSON 파싱 오류: {str(e)}")
+            logger.error(f"원본 JSON 문자열: {json_str}")
+            
+    # 파싱 실패 시 빈 딕셔너리 반환
+    logger.error(f"OpenAI 응답에서 유효한 JSON을 찾을 수 없음: {response.content}")
+    return {"education": [], "certifications": []}
+
+async def parse_career_with_openai(user_input: str) -> list:
+    """OpenAI로 경력사항을 리스트로 파싱"""
+    prompt = f"""
+    다음 경력사항을 JSON 형식으로 변환하세요:
+    입력: {user_input}
+
+    다음과 같은 형식의 JSON으로만 응답하세요:
+    {{
+      "career": [
+        {{
+          "period": "2016-2018",
+          "company": "네이버",
+          "position": "소프트웨어 엔지니어",
+          "description": "검색 엔진 개발"
+        }},
+        {{
+          "period": "2018-2020",
+          "company": "카카오",
+          "position": "시니어 개발자",
+          "description": "메시징 플랫폼 개발"
+        }}
+      ]
+    }}
+    """
+    llm = ChatOpenAI(api_key=os.getenv("HIGH_PERFORMANCE_OPENAI_API_KEY"), model_name=os.getenv("HIGH_PERFORMANCE_OPENAI_MODEL"), timeout=int(os.getenv("HIGH_PERFORMANCE_OPENAI_TIMEOUT")))
+    response = await llm.ainvoke([HumanMessage(content=prompt)])
+    
+    # 응답에서 JSON 형식 찾기
+    import json, re
+    json_match = re.search(r'\{[\s\S]*\}', response.content)
+    if json_match:
+        try:
+            json_str = json_match.group(0)
+            json_str = json_str.replace("'", '"')  # 작은따옴표를 큰따옴표로 변환
+            parsed = json.loads(json_str)
+            if isinstance(parsed, dict) and "career" in parsed and isinstance(parsed["career"], list):
+                logger.info(f"경력사항 파싱 성공: {parsed['career']}")
+                return parsed["career"]
+        except Exception as e:
+            logger.error(f"JSON 파싱 오류: {str(e)}")
+            logger.error(f"원본 JSON 문자열: {json_str}")
+    
+    # 파싱 실패 시 직접 파싱 시도
+    try:
+        career = []
+        items = user_input.split(", ")
+        for item in items:
+            match = re.search(r'(\d{4}-\d{4})\s+(\S+)\s+([^(]+)\(([^)]+)\)', item)
+            if match:
+                career.append({
+                    "period": match.group(1),
+                    "company": match.group(2),
+                    "position": match.group(3).strip(),
+                    "description": match.group(4)
+                })
+        if career:
+            logger.info(f"정규식으로 경력사항 파싱 성공: {career}")
+            return career
+    except Exception as e:
+        logger.error(f"정규식 파싱 오류: {str(e)}")
+    
+    logger.error(f"경력사항 파싱 실패. OpenAI 응답: {response.content}")
+    return []
+
+async def save_html_to_pdf(html_content: dict, output_path: str):
+    """HTML을 PDF로 변환하여 저장"""
+    async with async_playwright() as p:
+        browser = await p.chromium.launch()
+        page = await browser.new_page()
+        await page.set_content(html_content['html'])
+        await page.pdf(path=output_path, format='A4')
+        await browser.close()
+
+async def test_resume_pdf_conversation():
+    """대화형 플로우를 더미 입력으로 자동 진행하고, PDF까지 생성 및 열기"""
+    state = ResumeConversationState("test_user")
+
+    # 1. 학력/자격사항 질문 및 더미 입력
+    print("[Q]", await get_resume_question(state))
+    edu_cert_input = "2010-2014 한국조리사관학교 호텔조리학과 졸업, 2014 한식조리기능사(한국산업인력공단) 합격, 2015 양식조리기능사(한국산업인력공단) 합격"
+    await process_resume_conversation_response(state, edu_cert_input)
+
+    # 2. 경력사항 질문 및 더미 입력
+    print("[Q]", await get_resume_question(state))
+    career_input = "2014-2016 신라호텔 한식당 수석요리사(전통 한식 메뉴 개발 및 조리), 2016-2018 롯데호텔 양식당 부주방장(이탈리안 요리 전문), 2018-2020 그랜드하얏트 호텔 주방장(한식당 총괄 및 메뉴 기획)"
+    await process_resume_conversation_response(state, career_input)
+
+    # 3. PDF 생성
+    user_data = {
+        'name': '김요리',
+        'birth_date': '1992-05-15',
+        'phone': '010-1234-5678',
+        'nation': '대한민국',
+        'address': '서울시 강남구 테헤란로 123',
+        'email': 'chef.kim@example.com',
+        'education': state.education or [],
+        'certifications': state.certifications or [],
+        'career': state.career or []
+    }
+    pdf_form = await make_pdf(state, user_data)
+    output_dir = "test_output"
+    os.makedirs(output_dir, exist_ok=True)
+    output_path = os.path.join(output_dir, "chef_resume.pdf")
+    await save_html_to_pdf(pdf_form, output_path)
+    print(f"[PDF 생성 완료] {output_path}")
+    # PDF 열기 (macOS)
+    subprocess.run(["open", output_path])
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(test_resume_pdf_conversation())

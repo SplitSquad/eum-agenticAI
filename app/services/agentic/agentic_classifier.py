@@ -3,11 +3,9 @@ from enum import Enum
 from loguru import logger
 from app.core.llm_client import get_llm_client
 from app.models.agentic_response import AgentType, ActionType
-
 from langchain_groq import ChatGroq
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-
 from dotenv import load_dotenv
 load_dotenv()  # .env 파일 자동 로딩
 import os
@@ -17,6 +15,8 @@ load_dotenv(dotenv_path)
 # ✅ 환경변수 읽기
 groq_api_key = os.getenv("GROQ_API_KEY")
 import json
+# 기존: from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
 
 class RAGType(str, Enum):
     """RAG 도메인 유형"""
@@ -36,6 +36,7 @@ class AgenticType(str, Enum):
     CALENDAR = "calendar"  # 캘린더 관리
     REMINDER = "reminder"  # 알림 관리
     RESUME = "resume" # 이력서 기능
+    POST = "post" # 게시판기능
 
 class AgentClassifier:
     """에이전트 분류기"""
@@ -219,10 +220,11 @@ class AgenticClassifier:
 
 ################################################### LLM을 활용한 기능 유형 분류 구현     
 def Category_Classification(query):
-    llm = ChatGroq(
-        model_name="llama-3.3-70b-versatile",
+    llm = ChatOpenAI(
+        model="gpt-4-turbo",
         temperature=0.7
-        )
+    )
+
     parser = JsonOutputParser(pydantic_object={
             "type": "object",
             "properties": {
@@ -234,40 +236,382 @@ def Category_Classification(query):
     ("system", """
     1. Its role is to inform the category.
     2. Here is a few-shot example.
-    ----------------------- 
-    input : 일정 추가해줘  
-    output : calendar
-
-    input : 내일 약속 생겼어  
-    output : calendar
-
-    input : 오후 3시에 회의 잡아줘  
-    output : calendar
-
-    input : 스케줄 등록해줄래?  
-    output : calendar
-
-    input : 약속 변경하고 싶어  
-    output : calendar
-     
-    input : 내일 점심약속 생겼어  
-    output : calendar
     -----------------------
-    input : 이력서 작성 부탁해  
-    output : resume
-
-    input : 경력사항입니다  
-    output : resume
-
-    input : 자기소개는 이렇게 작성했어요  
-    output : resume
-
-    input : 학력 정보 추가해줘  
-    output : resume
-
-    input : 아래 내용 기반으로 이력서 만들어줘  
-    output : resume
-    -----------------
+    input : Add an event to my calendar  
+    output : calendar  
+    -----------------------
+    input : I have a plan tomorrow  
+    output : calendar  
+    -----------------------
+    input : Schedule a meeting at 3 PM  
+    output : calendar  
+    -----------------------
+    input : Can you register a schedule for me?  
+    output : calendar  
+    -----------------------
+    input : I want to change my appointment  
+    output : calendar  
+    -----------------------
+    input : I have a lunch appointment tomorrow  
+    output : calendar  
+    -----------------------
+    input : There’s a team dinner this Friday  
+    output : calendar  
+    -----------------------
+    input : Check my schedule  
+    output : calendar  
+    -----------------------
+    input : I’d like to add a new event  
+    output : calendar  
+    -----------------------
+    input : Set up a reminder for next Monday  
+    output : calendar  
+    -----------------------
+    input : Add an event to my calendar  
+    output : calendar  
+    -----------------------
+    input : I have a plan tomorrow  
+    output : calendar  
+    -----------------------
+    input : Schedule a meeting at 3 PM  
+    output : calendar  
+    -----------------------
+    input : Can you register a schedule for me?  
+    output : calendar  
+    -----------------------
+    input : I want to change my appointment  
+    output : calendar  
+    -----------------------
+    input : I have a lunch appointment tomorrow  
+    output : calendar  
+    -----------------------
+    input : There’s a team dinner this Friday  
+    output : calendar  
+    -----------------------
+    input : Check my schedule  
+    output : calendar  
+    -----------------------
+    input : I’d like to add a new event  
+    output : calendar  
+    -----------------------
+    input : Set up a reminder for next Monday  
+    output : calendar  
+    -----------------------
+    input : Add an event to my calendar  
+    output : calendar  
+    -----------------------
+    input : I have a plan tomorrow  
+    output : calendar  
+    -----------------------
+    input : Schedule a meeting at 3 PM  
+    output : calendar  
+    -----------------------
+    input : Can you register a schedule for me?  
+    output : calendar  
+    -----------------------
+    input : I want to change my appointment  
+    output : calendar  
+    -----------------------
+    input : I have a lunch appointment tomorrow  
+    output : calendar  
+    -----------------------
+    input : There’s a team dinner this Friday  
+    output : calendar  
+    -----------------------
+    input : Check my schedule  
+    output : calendar  
+    -----------------------
+    input : I’d like to add a new event  
+    output : calendar  
+    -----------------------
+    input : Set up a reminder for next Monday  
+    output : calendar  
+    -----------------------
+    input : Add an event to my calendar  
+    output : calendar  
+    -----------------------
+    input : I have a plan tomorrow  
+    output : calendar  
+    -----------------------
+    input : Schedule a meeting at 3 PM  
+    output : calendar  
+    -----------------------
+    input : Can you register a schedule for me?  
+    output : calendar  
+    -----------------------
+    input : I want to change my appointment  
+    output : calendar  
+    -----------------------
+    input : I have a lunch appointment tomorrow  
+    output : calendar  
+    -----------------------
+    input : There’s a team dinner this Friday  
+    output : calendar  
+    -----------------------
+    input : Check my schedule  
+    output : calendar  
+    -----------------------
+    input : I’d like to add a new event  
+    output : calendar  
+    -----------------------
+    input : Set up a reminder for next Monday  
+    output : calendar  
+    -----------------------
+    input : Add an event to my calendar  
+    output : calendar  
+    -----------------------
+    input : I have a plan tomorrow  
+    output : calendar  
+    -----------------------
+    input : Schedule a meeting at 3 PM  
+    output : calendar  
+    -----------------------
+    input : Can you register a schedule for me?  
+    output : calendar  
+    -----------------------
+    input : I want to change my appointment  
+    output : calendar  
+    -----------------------
+    input : I have a lunch appointment tomorrow  
+    output : calendar  
+    -----------------------
+    input : There’s a team dinner this Friday  
+    output : calendar  
+    -----------------------
+    input : Check my schedule  
+    output : calendar  
+    -----------------------
+    input : I’d like to add a new event  
+    output : calendar  
+    -----------------------
+    input : Set up a reminder for next Monday  
+    output : calendar  
+    -----------------------
+    input : Add an event to my calendar  
+    output : calendar  
+    -----------------------
+    input : I have a plan tomorrow  
+    output : calendar  
+    -----------------------
+    input : Schedule a meeting at 3 PM  
+    output : calendar  
+    -----------------------
+    input : Can you register a schedule for me?  
+    output : calendar  
+    -----------------------
+    input : I want to change my appointment  
+    output : calendar  
+    -----------------------
+    input : I have a lunch appointment tomorrow  
+    output : calendar  
+    -----------------------
+    input : There’s a team dinner this Friday  
+    output : calendar  
+    -----------------------
+    input : Check my schedule  
+    output : calendar  
+    -----------------------
+    input : I’d like to add a new event  
+    output : calendar  
+    -----------------------
+    input : Set up a reminder for next Monday  
+    output : calendar  
+    ----------------------- 
+    input : I want to write about iMac
+    output : post 
+    -----------------------    
+    input : Create a post for me  
+    output : post  
+    -----------------------
+    input : I want to publish a blog article  
+    output : post  
+    -----------------------
+    input : I’ll write a new post  
+    output : post  
+    -----------------------
+    input : I’m starting to write a post  
+    output : post  
+    -----------------------
+    input : I’d like to upload a post  
+    output : post  
+    -----------------------
+    input : I’ll leave a message on the board  
+    output : post  
+    -----------------------
+    input : Please turn the following into a post  
+    output : post  
+    -----------------------
+    input : Here’s the content for the bulletin board  
+    output : post  
+    -----------------------
+    input : I’m uploading a short post  
+    output : post
+    ----------------------- 
+    input : I want to write about iMac
+    output : post   
+    -----------------------
+    input : Please write a notice for users  
+    output : post  
+    -----------------------
+    input : Create a post for me  
+    output : post  
+    -----------------------
+    input : I want to publish a blog article  
+    output : post  
+    -----------------------
+    input : I’ll write a new post  
+    output : post  
+    -----------------------
+    input : I’m starting to write a post  
+    output : post  
+    -----------------------
+    input : I’d like to upload a post  
+    output : post  
+    ----------------------- 
+    input : I want to write about iMac
+    output : post 
+    -----------------------
+    input : I’ll leave a message on the board  
+    output : post  
+    -----------------------
+    input : Please turn the following into a post  
+    output : post
+    ----------------------- 
+    input : I want to write about iMac
+    output : post   
+    -----------------------
+    input : Here’s the content for the bulletin board  
+    output : post  
+    ----------------------- 
+    input : I want to write about iMac
+    output : post 
+    -----------------------
+    input : I’m uploading a short post  
+    output : post  
+    -----------------------
+    input : Please write a notice for users  
+    output : post  
+    -----------------------
+    input : Create a post for me  
+    output : post  
+    -----------------------
+    input : I want to publish a blog article  
+    output : post  
+    -----------------------
+    input : I’ll write a new post  
+    output : post  
+    -----------------------
+    input : I’m starting to write a post  
+    output : post  
+    -----------------------
+    input : I’d like to upload a post  
+    output : post  
+    -----------------------
+    input : I’ll leave a message on the board  
+    output : post  
+    -----------------------
+    input : Please turn the following into a post  
+    output : post  
+    -----------------------
+    input : Here’s the content for the bulletin board  
+    output : post  
+    -----------------------
+    input : I’m uploading a short post  
+    output : post  
+    -----------------------
+    input : Please write a notice for users  
+    output : post  
+    -----------------------
+    input : Create a post for me  
+    output : post  
+    -----------------------
+    input : I want to publish a blog article  
+    output : post  
+    -----------------------
+    input : I’ll write a new post  
+    output : post  
+    -----------------------
+    input : I’m starting to write a post  
+    output : post  
+    -----------------------
+    input : I’d like to upload a post  
+    output : post  
+    -----------------------
+    input : I’ll leave a message on the board  
+    output : post  
+    -----------------------
+    input : Please turn the following into a post  
+    output : post  
+    -----------------------
+    input : Here’s the content for the bulletin board  
+    output : post  
+    -----------------------
+    input : I’m uploading a short post  
+    output : post  
+    -----------------------
+    input : Please write a notice for users  
+    output : post  
+    -----------------------
+    input : Create a post for me  
+    output : post  
+    -----------------------
+    input : I want to publish a blog article  
+    output : post  
+    -----------------------
+    input : I’ll write a new post  
+    output : post  
+    -----------------------
+    input : I’m starting to write a post  
+    output : post  
+    -----------------------
+    input : I’d like to upload a post  
+    output : post  
+    -----------------------
+    input : I’ll leave a message on the board  
+    output : post  
+    -----------------------
+    input : Please turn the following into a post  
+    output : post  
+    -----------------------
+    input : Here’s the content for the bulletin board  
+    output : post  
+    -----------------------
+    input : I’m uploading a short post  
+    output : post  
+    -----------------------
+    input : Please write a notice for users  
+    output : post  
+    -----------------------
+    input : Create a post for me  
+    output : post  
+    -----------------------
+    input : I want to publish a blog article  
+    output : post  
+    -----------------------
+    input : I’ll write a new post  
+    output : post  
+    -----------------------
+    input : I’m starting to write a post  
+    output : post  
+    -----------------------
+    input : I’d like to upload a post  
+    output : post  
+    -----------------------
+    input : I’ll leave a message on the board  
+    output : post  
+    -----------------------
+    input : Please turn the following into a post  
+    output : post  
+    -----------------------
+    input : Here’s the content for the bulletin board  
+    output : post  
+    -----------------------
+    input : I’m uploading a short post  
+    output : post  
+    -----------------------
+    input : Please write a notice for users  
+    output : post  
+    -----------------------
     input : all Other query
     output : general
     -----------------

@@ -15,6 +15,9 @@ from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from typing import Dict, Any
 from loguru import logger
+from pathlib import Path
+# 기존: from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
 
 ################################################ 캘린더 일정 리스트로 반환
 # 결과 출력 (선택)
@@ -82,11 +85,11 @@ def Calendar_list():
 def schedule(token):
     try:
         logger.info("[구글 켈린더 일정 확인]")
-        url = "http://localhost:8081/calendar"
+        url = "http://af9c53d0f69ea45c793da25cdc041496-1311657830.ap-northeast-2.elb.amazonaws.com/calendar"
         access_token = token
 
         headers = {
-            "Authorization": f"{access_token}",  # ✅ Bearer 꼭 포함
+            "Authorization": access_token,  # ✅ Bearer 꼭 포함
             "Content-Type": "application/json"
         }
 
@@ -166,10 +169,11 @@ def get_credentials():
 ################################################ user input 분류
 def Input_analysis(user_input):
     
-    llm = ChatGroq(
-    model_name="llama-3.3-70b-versatile",
-    temperature=0.7
+    llm = ChatOpenAI(
+        model="gpt-4",
+        temperature=0.7
     )
+
     parser = JsonOutputParser(pydantic_object={
         "type": "object",
         "properties": {
@@ -271,10 +275,11 @@ from pydantic import BaseModel, Field
 now = datetime.now()
 def MakeSchedule(user_input):
 
-    llm = ChatGroq(
-    model_name="llama-3.3-70b-versatile",
-    temperature=0.7
+    llm = ChatOpenAI(
+        model="gpt-4",
+        temperature=0.7
     )
+
     parser = JsonOutputParser(pydantic_object={
         "type": "object",
         "properties": {
@@ -286,7 +291,7 @@ def MakeSchedule(user_input):
         }
     })
     system_prompt = f"""
-    0. Always remember the date : {now}
+    0. today's date : {now}
     1. This is an example of a one-shot. 
     
     "summary": "f< requested by user >",
@@ -328,13 +333,13 @@ def MakeSchedule(user_input):
 def add_event(make_event , token):
     try:
         print("[TOKEN] ",token)
-        url = "http://localhost:8081/calendar"
+        url = "http://af9c53d0f69ea45c793da25cdc041496-1311657830.ap-northeast-2.elb.amazonaws.com/calendar"
         access_token = token
         headers = {
             "Authorization": access_token ,            
             "Content-Type": "application/json"
         }
-
+        print(f" [headers] : { headers} ")
         print("\n📤 보내는 이벤트 JSON:")
         print(json.dumps(make_event, indent=4, ensure_ascii=False))
 
@@ -403,10 +408,11 @@ def delete_event(user_input,token):
     formatted_events = schedule(token)
     schedule_list=calendar_events(formatted_events)
 
-    llm = ChatGroq(
-        model_name="llama-3.3-70b-versatile",
+    llm = ChatOpenAI(
+        model="gpt-4",
         temperature=0.7
     )
+
 
     parser = JsonOutputParser(pydantic_object={
         "type": "object",
@@ -418,7 +424,7 @@ def delete_event(user_input,token):
     
     # 프롬프트 문자열 구성
     system_prompt_template = f"""
-    0. Always remember the date : {now}
+    0. today's date : {now}
     1. I would like to ask you to delete the schedule.
     2. It's a schedule: 
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -459,10 +465,10 @@ def calendar_delete_api(delete_id,token):
 
     print("[schedule_id]",schedule_id)
 
-    print("[URL] " + f"http://localhost:8081/calendar/{schedule_id}")
+    print("[URL] " + f"http://af9c53d0f69ea45c793da25cdc041496-1311657830.ap-northeast-2.elb.amazonaws.com/calendar/{schedule_id}")
     
     try:
-        url = f"http://localhost:8081/calendar/{schedule_id}"
+        url = f"http://af9c53d0f69ea45c793da25cdc041496-1311657830.ap-northeast-2.elb.amazonaws.com/calendar/{schedule_id}"
         access_token = token
 
         headers = {
@@ -495,10 +501,11 @@ def edit_event(user_input,token):
     formatted_events = schedule(token)
     schedule_list=calendar_events(formatted_events)
     
-    llm = ChatGroq(
-        model_name="llama-3.3-70b-versatile",
+    llm = ChatOpenAI(
+        model="gpt-4",
         temperature=0.7
     )
+
 
     parser = JsonOutputParser(pydantic_object={
         "type": "object",
@@ -512,7 +519,7 @@ def edit_event(user_input,token):
 
     # 프롬프트 문자열 구성
     system_prompt_template = f"""
-    0. Always remember the date : {now}
+    0. today's date : {now}
     1. I would like to ask you to change the schedule.
     2. It's a schedule: 
     ##############################################################################################################
@@ -570,7 +577,7 @@ def calendar_edit_api(response,token):
     
 
     try:
-        url = f"http://localhost:8081/calendar/{event_id}"
+        url = f"http://af9c53d0f69ea45c793da25cdc041496-1311657830.ap-northeast-2.elb.amazonaws.com/calendar/{event_id}"
         access_token = token
 
         headers = {
@@ -600,10 +607,11 @@ def check_event(user_input,token):
     formatted_events = schedule(token)
     schedule_list=calendar_events(formatted_events)
     
-    llm = ChatGroq(
-        model_name="llama-3.3-70b-versatile",
+    llm = ChatOpenAI(
+        model="gpt-4",
         temperature=0.7
     )
+
 
     parser = JsonOutputParser(pydantic_object={
         "type": "object",
@@ -616,41 +624,24 @@ def check_event(user_input,token):
     
     # 프롬프트 문자열 구성
     system_prompt_template = f"""
-    0. Always remember the date : {now}
+    0. today's date : {now}
     1. I would like to ask you to check the schedule.
     2. It's a schedule: {schedule_list}
     3. This is an example output 
 
-    "output": 
-        summary: ""
-        description: ""
-        "start":
-            "dateTime": "",
-            "timeZone": ""
-        ,
-        "end":
-            "dateTime": "",
-            "timeZone": ""
-        ,
-        summary: ""
-        description: ""
-        "start":
-            "dateTime": "",
-            "timeZone": ""
-        ,
-        "end":
-            "dateTime": "",
-            "timeZone": ""
-        ,
-        summary: ""
-        description: ""
-        "start":
-            "dateTime": "",
-            "timeZone": ""
-        ,
-        "end":
-            "dateTime": "",
-            "timeZone": ""
+    ----------------
+    "time" : 
+    "title" :
+    "content" : 
+    ----------------
+    "time" : 
+    "title" :
+    "content" : 
+    ----------------
+    "time" : 
+    "title" :
+    "content" : 
+    ----------------
 
     ⚠️ Do NOT include any explanation or message. ONLY return a valid JSON object. No natural language.
     """
@@ -685,9 +676,14 @@ class AgenticCalendar:
     def Calendar_function(self, query: str, token: str) -> Dict[str, Any]:
 
         logger.info("[CATEGORY CLASSIFICATION 초기화]")
+        # # ✅ 최초 로그인 시 token.pickle 없으면 로그인 유도
+        # if not Path("token.pickle").exists():
+        #     print("🔑 Google 로그인이 필요합니다. 브라우저 창이 열립니다.")
+        #     get_credentials()
+
         classification = Input_analysis(query)
         logger.info("[CALENDAR_CATEGORY] ",classification)
-        
+    
         if classification == "add" :
             print("일정 추가")        
             make_event = MakeSchedule(query) ## 이벤트 생성
@@ -699,7 +695,9 @@ class AgenticCalendar:
                     "query": "{query}",
                     "agentic_type": "calendar",
                     "error": ""
-                }
+                },
+                "state" : "first",
+                "url" : "null"
             }
         elif classification == "edit" : 
             print("일정 수정")
@@ -711,7 +709,9 @@ class AgenticCalendar:
                     "query": "{query}",
                     "agentic_type": "calendar",
                     "error": ""
-                }
+                },
+                "state" : "first",
+                "url" : "null"
             }
         elif classification == "delete" : 
             print("일정 삭제")
@@ -723,7 +723,9 @@ class AgenticCalendar:
                     "query": "{query}",
                     "agentic_type": "calendar",
                     "error": ""
-                }
+                },
+                "state" : "first",
+                "url" : "null"
             } 
         elif classification == "check" : 
             print("일정 확인")
@@ -734,7 +736,9 @@ class AgenticCalendar:
                     "query": "{query}",
                     "agentic_type": "calendar",
                     "error": ""
-                }
+                },
+                "state" : "first",
+                "url" : "null"
             } 
         else : 
             print('알 수 없는 명령입니다.')
