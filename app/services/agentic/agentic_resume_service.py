@@ -8,68 +8,46 @@ from fastapi import HTTPException
 from playwright.async_api import async_playwright
 from app.core.llm_client import get_llm_client
 from loguru import logger
-from dotenv import load_dotenv
-load_dotenv()  # .env 파일 자동 로딩
-from langchain_groq import ChatGroq
-from langchain_core.output_parsers import JsonOutputParser
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage
+import subprocess
+from pydantic import BaseModel
 
-# 테스트용 더미 데이터
-TEST_USER_DATA = {
-    'name': '홍길동',
-    'birth_date': '1990-01-01',
-    'phone': '010-1234-5678',
-    'nation': 'KOR',
-    'address': '서울시 강남구 테헤란로 123',
-    'email': 'hong@example.com',
-    'education': [
-        {
-            'period': '2010-2014',
-            'school': '서울대학교',
-            'major': '컴퓨터공학과',
-            'degree': '학사'
-        },
-        {
-            'period': '2014-2016',
-            'school': '서울대학교',
-            'major': '컴퓨터공학과',
-            'degree': '석사'
-        }
-    ],
-    'certifications': [
-        {
-            'period': '2015',
-            'name': '정보처리기사',
-            'issuer': '한국산업인력공단',
-            'grade': '합격'
-        },
-        {
-            'period': '2016',
-            'name': 'AWS 솔루션스 아키텍트',
-            'issuer': 'Amazon',
-            'grade': 'Associate'
-        }
-    ],
-    'career': [
-        {
-            'period': '2016-2018',
-            'company': '네이버',
-            'position': '소프트웨어 엔지니어',
-            'description': '검색 엔진 개발'
-        },
-        {
-            'period': '2018-2020',
-            'company': '카카오',
-            'position': '시니어 개발자',
-            'description': '메시징 플랫폼 개발'
-        },
-        {
-            'period': '2020-현재',
-            'company': '구글',
-            'position': '테크니컬 리드',
-            'description': '클라우드 인프라 설계'
-        }
-    ]
+class ResumeRequest(BaseModel):
+    """이력서 생성 요청 모델"""
+    response: str
+
+class EducationInfo(TypedDict):
+    period: str
+    school: str
+    major: str
+    degree: str
+
+class MilitaryInfo(TypedDict):
+    period: str
+    branch: str
+    rank: str
+    discharge: str
+
+class CertificationInfo(TypedDict):
+    period: str
+    name: str
+    issuer: str
+    grade: str
+
+class CareerInfo(TypedDict):
+    period: str
+    company: str
+    position: str
+    description: str
+
+# 필요한 정보 목록
+REQUIRED_FIELDS = {
+    'birth_date': '생년월일',
+    'education': '학력',
+    'military_service': '병역',
+    'certifications': '자격사항',
+    'career': '경력사항'
 }
 
 async def test_resume_generation():
@@ -94,46 +72,100 @@ async def test_resume_generation():
         raise
 
 class ResumeConversationState:
-    """이력서 생성 대화 상태 관리 클래스"""
+    """이력서 생성 대화 상태 관리 클래스 (대화형)"""
     def __init__(self, user_id: str):
-        self.user_id = user_id         # ✅ 저장
-        self.user_data: Dict[str, List[Dict[str, str]]] = {}
-        self.missing_fields: List[str] = []
-        self.current_field: Optional[str] = None
-        self.current_question: Optional[str] = None
+        self.user_id = user_id
+        self.current_step: str = "start"  # start -> edu_cert -> career -> completed
+        self.edu_cert_input: Optional[str] = None
+        self.career_input: Optional[str] = None
+        self.education: Optional[list] = None
+        self.certifications: Optional[list] = None
+        self.career: Optional[list] = None
         self.is_completed: bool = False
-        self.pdf_path: Optional[str] = None
+        self.user_data: Optional[Dict[str, Any]] = None
 
-    async def initialize(self, authotization, user_email, request):
-        """외부 API로부터 사용자 프로필을 받아 초기화"""
-        logger.info("[API로부터 사용자 프로필을 받아 초기화]")
-        profile = await get_user_profile(self.user_id)
-        self.user_data = {
-            key: [{"value": value}] for key, value in profile.items()
-        }
-        # 예: 기본적으로 name, email, phone만 남겨둠
-        self.missing_fields = [
-            field for field in ["name", "email", "phone", "birth_date", "address"]
-            if field not in profile or not profile[field]
-        ]
+    async def initialize(self, authorization: str, user_email: str, request: ResumeRequest) -> None:
+        """사용자 프로필 정보 초기화"""
+        try:
+            # 사용자 프로필 정보 가져오기
+            logger.info("[ 사용자 프로필 정보 백으로 api 요청중...] ")
+            self.user_data = await get_user_profile(user_email)
+            
+            # 필요한 정보 요청
+            logger.info("[ 필요한 프로필 정보 백으로 api 요청중...] ")
+            missing_fields = await check_missing_info(self.user_data)
+            
+            if missing_fields:
+                for field in missing_fields:
+                    question = await ask_for_missing_info(field)
+                    response = request.response
+                    result = await process_user_response(field, response)
+                    self.user_data[field] = result
+            
+        except Exception as e:
+            logger.error(f"초기화 실패: {str(e)}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"초기화 실패: {str(e)}"
+            )
 
-    async def missing_info(self, authotization, user_email, request):
-        """외부 API로부터 사용자 추가 프로필을 받아 초기화"""
-        profile = await ask_for_missing_info(self)
+    async def missing_info(self, authorization: str, user_email: str, request: ResumeRequest) -> None:
+        """필요한 정보 요청"""
+        try:
+            # 필요한 정보 요청
+            logger.info("[ 필요한 프로필 정보 백으로 api 요청중...] ")
+            missing_fields = await check_missing_info(self.user_data)
+            
+            if missing_fields:
+                for field in missing_fields:
+                    question = await ask_for_missing_info(field)
+                    response = request.response
+                    result = await process_user_response(field, response)
+                    self.user_data[field] = result
+            
+        except Exception as e:
+            logger.error(f"필요한 정보 요청 실패: {str(e)}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"필요한 정보 요청 실패: {str(e)}"
+            )
 
-        # 기존 user_data에 병합
-        for key, value in profile.items():
-            if key not in self.user_data:
-                self.user_data[key] = []
-            self.user_data[key].append({"value": value})
+async def start_resume_conversation(user_id: str) -> ResumeConversationState:
+    state = ResumeConversationState(user_id)
+    return state
 
-        # 예: 기본적으로 name, email, phone만 남겨둠
-        self.missing_fields = [
-            field for field in ["name", "email", "phone", "birth_date", "address"]
-            if field not in profile or not profile[field]
-        ]
+async def get_resume_question(state: ResumeConversationState) -> str:
+    if state.current_step == "start":
+        state.current_step = "edu_cert"
+        return "학력과 자격사항을 한 번에 입력해 주세요.\n예시: 2010-2014 서울대학교 컴퓨터공학과 학사, 2015 정보처리기사(한국산업인력공단) 합격"
+    elif state.current_step == "edu_cert":
+        return "학력과 자격사항을 한 번에 입력해 주세요.\n예시: 2010-2014 서울대학교 컴퓨터공학과 학사, 2015 정보처리기사(한국산업인력공단) 합격"
+    elif state.current_step == "career":
+        return "경력사항을 모두 입력해 주세요.\n예시: 2016-2018 네이버 소프트웨어 엔지니어(검색 엔진 개발), 2018-2020 카카오 시니어 개발자(메시징 플랫폼 개발)"
+    else:
+        return "이력서 정보가 모두 입력되었습니다."
 
-########################################################## 실제 백엔드 API를 통해 사용자 프로필 정보를 가져옵니다.
+async def process_resume_conversation_response(state: ResumeConversationState, response: str) -> dict:
+    """사용자 응답 처리 및 상태 전이"""
+    if state.current_step == "edu_cert":
+        state.edu_cert_input = response
+        # OpenAI 파싱
+        result = await parse_edu_cert_with_openai(response)
+        state.education = result.get("education", [])
+        state.certifications = result.get("certifications", [])
+        state.current_step = "career"
+        return {"message": "경력사항을 모두 입력해 주세요. 예시: 2016-2018 네이버 소프트웨어 엔지니어(검색 엔진 개발)", "state": state}
+    elif state.current_step == "career":
+        state.career_input = response
+        # OpenAI 파싱
+        result = await parse_career_with_openai(response)
+        state.career = result
+        state.current_step = "completed"
+        state.is_completed = True
+        return {"message": "이력서 정보가 모두 입력되었습니다.", "state": state}
+    else:
+        return {"message": "이미 이력서 정보가 모두 입력되었습니다.", "state": state}
+
 async def get_user_profile(user_id: str) -> Dict[str, str]:
     """실제 백엔드 API를 통해 사용자 프로필 정보를 가져옵니다."""
     try:
@@ -141,7 +173,11 @@ async def get_user_profile(user_id: str) -> Dict[str, str]:
         user_data = {
             'userId': 'test123',
             'email': 'test@test.com',
-            'name': '홍길동', 
+            'name': '홍길동',
+            'nation': '대한민국',
+            'gender': '남자',
+            'language': '한국어',
+            'purpose': '취업',
             'birth_date': '1990-01-01',
             'phone': '010-1234-5678',
             'address': '서울시 강남구'
@@ -154,32 +190,161 @@ async def get_user_profile(user_id: str) -> Dict[str, str]:
             status_code=500,
             detail=f"사용자 프로필 조회 중 오류 발생: {str(e)}"
         )
-########################################################## """실제 백엔드 API를 통해 사용자 프로필 정보를 가져옵니다."""
 
-########################################################## 이력서 추가정보
+async def check_missing_info(user_data: Dict[str, str]) -> List[str]:
+    """부족한 정보를 확인합니다."""
+    missing_fields = []
+    for field, description in REQUIRED_FIELDS.items():
+        if not user_data.get(field):
+            missing_fields.append(description)
+    return missing_fields
+
 async def ask_for_missing_info(field: str) -> str:
-    logger.info("[사용자의 자기소개 초기화중 ...]")
+    """AI가 부족한 정보에 대해 질문하고 응답을 받습니다."""
+    client = get_llm_client(is_lightweight=True)
+    
+    field_prompts = {
+        'education': """
+        사용자의 학력 정보가 필요합니다.
+        다음 정보를 순서대로 물어보세요:
+        1. 기간 (입학년월 ~ 졸업년월)
+        2. 학교명
+        3. 전공
+        4. 학위
+        """,
+        'military_service': """
+        사용자의 병역 정보가 필요합니다.
+        다음 정보를 순서대로 물어보세요:
+        1. 기간 (입대년월 ~ 전역년월)
+        2. 군종
+        3. 계급
+        4. 전역사유
+        """,
+        'certifications': """
+        사용자의 자격사항 정보가 필요합니다.
+        다음 정보를 순서대로 물어보세요:
+        1. 취득일
+        2. 자격증명
+        3. 발급기관
+        4. 등급
+        """,
+        'career': """
+        사용자의 경력사항 정보가 필요합니다.
+        다음 정보를 순서대로 물어보세요:
+        1. 기간 (입사년월 ~ 퇴사년월)
+        2. 회사명
+        3. 직위
+        4. 담당업무
+        """
+    }
+    
+    prompt = field_prompts.get(field, f"""
+    사용자의 {field} 정보가 필요합니다.
+    사용자에게 {field}에 대해 자연스럽게 질문해주세요.
+    질문은 한 문장으로 간단하게 작성해주세요.
+    """)
+    
+    question = await client.generate(prompt)
+    return question.strip()
+
+async def process_user_response(field: str, response: str) -> Dict[str, Any]:
+    """사용자의 응답을 처리하고 구조화된 데이터로 변환합니다."""
+    client = get_llm_client(is_lightweight=True)
+    
+    field_prompts = {
+        '학력': f"""
+        다음 응답을 분석하여 JSON 형식으로 변환해주세요:
+        {response}
+
+        다음 JSON 형식으로만 응답해주세요:
+        {{
+            "period": "2018.03 ~ 2022.02",
+            "school": "서울대학교",
+            "major": "컴퓨터공학과",
+            "degree": "학사"
+        }}
+        """,
+        '병역': f"""
+        다음 응답을 분석하여 JSON 형식으로 변환해주세요:
+        {response}
+
+        다음 JSON 형식으로만 응답해주세요:
+        {{
+            "period": "2022.03 ~ 2023.12",
+            "branch": "육군",
+            "rank": "병장",
+            "discharge": "만기제대"
+        }}
+        """,
+        '자격사항': f"""
+        다음 응답을 분석하여 JSON 형식으로 변환해주세요:
+        {response}
+
+        다음 JSON 형식으로만 응답해주세요:
+        {{
+            "period": "2022.03",
+            "name": "정보처리기사",
+            "issuer": "한국산업인력공단",
+            "grade": "합격"
+        }}
+        """,
+        '경력사항': f"""
+        다음 응답을 분석하여 JSON 형식으로 변환해주세요:
+        {response}
+
+        다음 JSON 형식으로만 응답해주세요:
+        {{
+            "period": "2024.01 ~ 현재",
+            "company": "삼성전자",
+            "position": "선임연구원",
+            "description": "AI 알고리즘 개발"
+        }}
+        """
+    }
+    
+    prompt = field_prompts.get(field)
+    if not prompt:
+        prompt = f"""
+        다음 응답을 분석하여 JSON 형식으로 변환해주세요:
+        {response}
+
+        다음 JSON 형식으로만 응답해주세요:
+        {{
+            "{field}": "구조화된 데이터"
+        }}
+        """
     
     try:
-        # 테스트용 데이터 사용
-        user_data = {
-            'languages ': 'kor',
-            'nation': 'jap',
-            'gender': "MALE",
-            'visitPurpose': 'Travel',
-            'period': '1_month',
-
-        }
-        return user_data
-            
+        llm_response = await client.generate(prompt)
+        logger.info(f"📝 LLM 응답: {llm_response}")
+        
+        # JSON 문자열에서 실제 JSON 부분만 추출
+        import re, json
+        json_match = re.search(r'\{[^}]*\}', llm_response, re.DOTALL)
+        if json_match:
+            json_str = json_match.group(0)
+            # 작은따옴표를 큰따옴표로 변환
+            json_str = json_str.replace("'", '"')
+            # 줄바꿈과 공백 제거
+            json_str = re.sub(r'\s+', '', json_str)
+            try:
+                data = json.loads(json_str)
+                logger.info(f"✅ {field} 데이터 구조화 완료: {data}")
+                return data
+            except json.JSONDecodeError as e:
+                logger.error(f"❌ JSON 파싱 오류: {str(e)}")
+                logger.error(f"❌ 원본 JSON 문자열: {json_str}")
+                # 기본값 반환
+                return {field: response}
+        else:
+            logger.error(f"❌ JSON 형식의 응답을 찾을 수 없음: {llm_response}")
+            # 기본값 반환
+            return {field: response}
     except Exception as e:
-        logger.error(f"🚨 사용자 프로필 조회 실패: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"사용자 프로필 조회 중 오류 발생: {str(e)}"
-        )
-    
-    return
+        logger.error(f"🚨 응답 처리 중 오류 발생: {str(e)}")
+        # 기본값 반환
+        return {field: response}
+
 ########################################################## 이력서 추가정보
 
 ########################################################## """이력서 생성 대화 시작"""
@@ -201,29 +366,103 @@ async def start_resume_conversation(authotization, user_email, request) -> Resum
 ########################################################## """이력서 생성 대화 시작"""
 
 ########################################################## job_resume조건문
-async def job_resume(query, uid, state, token):
+async def job_resume(query: str, uid: str, state: str, token: str) -> Dict[str, Any]:
     authotization = token
     user_email = uid
     pre_state = state
     logger.info(f"[job_resume parameter] : {authotization} , {user_email} , {pre_state}")
 
-    ## 첫번째 응답.
-    if pre_state == "first" :
-        print("[first_response]")
-        first_response = await start_resume(state)
-        return first_response
-    ## 두번째 응답.
-    elif pre_state == "second" : 
-        print("[second_response]")
-        request=query
-        second_response = await respond_to_resume(authotization, user_email, request)
-        logger.info(f"[두번째 응답] : {second_response}")
-        print(f"[두번째 응답] : {second_response}")
-        return second_response
-    else :
-        print("잘못된 상태입니다.") 
+    ## 첫번째 응답 - 학력/자격사항 질문
+    if pre_state == "first":
+        logger.info("[first_response] - 학력/자격사항 질문")
+        return {
+            "response": "학력과 자격사항을 입력해주세요.\n예시: 2010-2014 서울대학교 컴퓨터공학과 학사, 2015 정보처리기사(한국산업인력공단) 합격",
+            "state": "second"
+        }
+    
+    ## 두번째 응답 - 경력사항 질문
+    elif pre_state == "second":
+        logger.info("[second_response] - 경력사항 질문")
+        request = ResumeRequest(response=query)
+        try:
+            # 이력서 생성 초기화
+            logger.info("[이력서 생성 초기화]")
+            resume_state = await start_resume_conversation(authotization, user_email, request)
+            
+            # 학력/자격사항 파싱
+            edu_cert_result = await parse_edu_cert_with_openai(query)
+            resume_state.user_data['education'] = edu_cert_result.get('education', [])
+            resume_state.user_data['certifications'] = edu_cert_result.get('certifications', [])
+            
+            # 상태 저장
+            conversation_states[user_email] = resume_state
+            
+            return {
+                "response": "경력사항을 입력해주세요.\n예시: 2016-2018 네이버 소프트웨어 엔지니어(검색 엔진 개발), 2018-2020 카카오 시니어 개발자(메시징 플랫폼 개발)",
+                "state": "third"
+            }
+            
+        except Exception as e:
+            logger.error(f"이력서 생성 시작 실패: {str(e)}")
+            raise HTTPException(
+                status_code=500,
+                detail=str(e)
+            )
+    
+    ## 세번째 응답 - 이력서 생성 및 S3 업로드
+    elif pre_state == "third":
+        logger.info("[third_response] - 이력서 생성 및 S3 업로드")
+        try:
+            # 저장된 상태 가져오기
+            resume_state = conversation_states.get(user_email)
+            if not resume_state:
+                raise HTTPException(
+                    status_code=400,
+                    detail="이력서 생성 세션이 만료되었습니다. 처음부터 다시 시작해주세요."
+                )
+            
+            # 경력사항 파싱
+            career_result = await parse_career_with_openai(query)
+            resume_state.user_data['career'] = career_result
+            
+            # 이력서 PDF 생성
+            logger.info("[AI가 이력서 PDF 만드는중...]")
+            pdf_form = await make_pdf(resume_state, resume_state.user_data)
 
-    return " "
+            output_dir = os.path.join(os.getcwd(), "app/services/agentic/resume")
+            os.makedirs(output_dir, exist_ok=True)
+
+            # 저장할 파일 전체 경로
+            output_path = os.path.join(output_dir, "resume.pdf")
+            await save_html_to_pdf(pdf_form, output_path)
+
+            # S3 업로드
+            logger.info("[upload_to_s3] 파일 업로드 시작")
+            s3_url = upload_to_s3(output_path, "pdfs/resume.pdf")
+            logger.info(f"[S3 업로드] : {s3_url}")
+
+            # 상태 제거
+            del conversation_states[user_email]
+
+            return {
+                "response": "이력서가 생성되었습니다.",
+                "state": "first",
+                "message": "PDF가 업로드되었습니다.",
+                "download_url": s3_url     
+            }
+            
+        except Exception as e:
+            logger.error(f"이력서 생성 실패: {str(e)}")
+            raise HTTPException(
+                status_code=500,
+                detail=str(e)
+            )
+    else:
+        logger.error("잘못된 상태입니다.")
+        return {
+            "response": "잘못된 상태입니다.",
+            "state": "error"
+        }
 ########################################################## job_resume조건문
 
 ########################################################## 이력서 생성 환경설정
@@ -235,10 +474,6 @@ class ResumeResponse(BaseModel):
     question: Optional[str] = None
     field: Optional[str] = None
     pdf_path: Optional[str] = None
-
-class ResumeRequest(BaseModel):
-    """이력서 생성 요청 모델"""
-    response: str
 
 # 대화 상태 저장소 (실제 프로덕션에서는 Redis나 DB를 사용해야 함)
 conversation_states: Dict[str, ResumeConversationState] = {}
@@ -263,7 +498,7 @@ async def start_resume(state: str) -> Dict[str, str]:
 ########################################################## 이력서 작성 중 응답 API
 async def make_pdf(state: str, user_data: dict):
     """
-    사용자 데이터를 받아 HTML 이력서 생성
+    사용자 데이터를 받아 HTML 이력서 생성 (병역 삭제, 학력/자격/경력 5개 고정, 빈칸 채움)
     """
     def get_current_date():
         today = date.today()
@@ -447,86 +682,32 @@ async def make_pdf(state: str, user_data: dict):
     return {"html": html_content}
 
 ########################################################## 이력서 작성 중 응답 API
-async def respond_to_resume(authotization: str, user_email: str,request: ResumeRequest) -> ResumeResponse:
-    try: 
-        logger.info("[이력서 생성 초기화]")
-        # 새로운 대화 상태 생성
-        state = await start_resume_conversation(authotization, user_email, request)
-        print("[user_data]",state.user_data)
-
-        # 이력서 만드는중("[이력서 pdf 생성중...]")
-        logger.info("[AI가 이력서 PDF 만드는중...]")
-        pdf_form = await make_pdf(state, state.user_data)
-
-        output_dir = r"C:\Users\r2com\Documents\eum-agenticAI\app\services\agentic\resume"
-        os.makedirs(output_dir, exist_ok=True)
-
-        # 저장할 파일 전체 경로
-        output_path = os.path.join(output_dir, "resume.pdf")
-
-        print("[pdf_form2] ",pdf_form['html'])
-        await save_html_to_pdf(pdf_form,output_path)
-
-        print("[upload_to_s3] 파일 업로드 시작")
-        # S3 업로드
-        s3_url = upload_to_s3(output_path, "pdfs/resume.pdf")
-        print(f"[S3 업로드] : {s3_url}")
-
-        return {
-            "response": "이력서가 생성되었습니다.",
-            "state": "first",
-            "message": "PDF가 업로드되었습니다.",
-            "download_url": s3_url     
-        }
-    
+async def respond_to_resume(user_id: str, request: ResumeRequest) -> ResumeResponse:
+    """이력서 생성 대화 응답 처리"""
+    try:
+        # 대화 상태 확인
+        if user_id not in conversation_states:
+            raise HTTPException(
+                status_code=400,
+                detail="진행 중인 이력서 생성 대화가 없습니다."
+            )
+        
+        state = conversation_states[user_id]
+        result = await process_resume_conversation_response(state, request.response)
+        
+        # 대화가 완료된 경우 상태 제거
+        if result["status"] == "completed":
+            del conversation_states[user_id]
+        
+        return ResumeResponse(**result)
+        
     except Exception as e:
-        logger.error(f"이력서 생성 시작 실패: {str(e)}")
+        logger.error(f"이력서 생성 응답 처리 실패: {str(e)}")
         raise HTTPException(
             status_code=500,
-            detail=str(e)   
-        )    
+            detail=str(e)
+        )
 ########################################################## 이력서 작성 중 응답 API
-
-########################################################## ✅ PDF 저장 함수 (save_html_to_pdf)
-import os
-import tempfile
-from playwright.async_api import async_playwright
-
-async def save_html_to_pdf(pdr_form: dict, output_path: str) -> str:
-    """
-    HTML 문자열을 PDF로 저장하는 함수
-    :param pdr_form: {"html": "..."} 형태의 HTML 데이터
-    :param output_path: 저장할 PDF 경로 (예: 'output/resume.pdf')
-    :return: 저장된 PDF 경로
-    """
-    html_content = pdr_form.get("html", "")
-    
-    if not html_content:
-        raise ValueError("pdr_form에 'html' 데이터가 없습니다.")
-
-    # 임시 HTML 파일 저장
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".html", mode="w", encoding="utf-8") as temp_file:
-        temp_file.write(html_content)
-        temp_html_path = temp_file.name
-
-    # Playwright 사용해서 PDF 생성
-    async with async_playwright() as p:
-        browser = await p.chromium.launch()
-        page = await browser.new_page()
-        await page.goto(f"file://{temp_html_path}")  # ✅ HTML 파일 열기
-        await page.pdf(path=output_path, format="A4")  # ✅ 지정된 경로에 저장
-        logger.info(f"[output_path] : {output_path}")
-        print((f"[output_path] : {output_path}"))
-        # await browser.close()
-        print((f"[ browser.close()] : {output_path}"))
-
-    # 임시 HTML 삭제
-    print((f"[os.remove(temp_html_path) 1 ] : {output_path}"))
-    os.remove(temp_html_path)
-    print((f"[os.remove(temp_html_path) 2 ] : {output_path}"))
-    return output_path
-
-########################################################## ✅ PDF 저장 함수 (save_html_to_pdf)
 
 ########################################################## 이력서 진행 상태 조회 API
 async def get_resume_status(user_id: str) -> ResumeResponse:
@@ -594,6 +775,160 @@ class AgenticResume:
         print(f"[Resume_function] : {response}")
         return response
 
+async def ask_edu_cert_question(state: ResumeConversationState) -> str:
+    state.current_step = "edu_cert"
+    return "학력과 자격사항을 한 번에 입력해 주세요.\n예시: 2010-2014 서울대학교 컴퓨터공학과 학사, 2015 정보처리기사(한국산업인력공단) 합격"
+
+async def ask_career_question(state: ResumeConversationState) -> str:
+    state.current_step = "career"
+    return "경력사항을 모두 입력해 주세요.\n예시: 2016-2018 네이버 소프트웨어 엔지니어(검색 엔진 개발), 2018-2020 카카오 시니어 개발자(메시징 플랫폼 개발)"
+
+async def parse_edu_cert_with_openai(user_input: str) -> dict:
+    """OpenAI로 학력/자격사항을 리스트로 파싱 (JSON 파싱 robust)"""
+    prompt = f"""
+    다음 사용자의 입력을 분석하여 학력(education)과 자격사항(certifications)을 각각 리스트로 JSON으로 반환하세요.
+    - 학력: period, school, major, degree
+    - 자격사항: period, name, issuer, grade
+    예시 입력: 2010-2014 서울대학교 컴퓨터공학과 학사, 2015 정보처리기사(한국산업인력공단) 합격
+    반드시 아래와 같은 JSON만 반환:
+    {{
+      "education": [{{"period": "", "school": "", "major": "", "degree": ""}}...],
+      "certifications": [{{"period": "", "name": "", "issuer": "", "grade": ""}}...]
+    }}
+    입력: {user_input}
+    """
+    llm = ChatOpenAI(api_key=os.getenv("HIGH_PERFORMANCE_OPENAI_API_KEY"), model_name=os.getenv("HIGH_PERFORMANCE_OPENAI_MODEL"), timeout=int(os.getenv("HIGH_PERFORMANCE_OPENAI_TIMEOUT")))
+    response = await llm.ainvoke([HumanMessage(content=prompt)])
+    import json, re
+    
+    # 응답에서 JSON 형식 찾기
+    json_match = re.search(r'\{[\s\S]*\}', response.content)
+    if json_match:
+        json_str = json_match.group(0)
+        json_str = json_str.replace("'", '"')  # 작은따옴표를 큰따옴표로 변환
+        try:
+            parsed = json.loads(json_str)
+            if isinstance(parsed, dict):
+                return {
+                    "education": parsed.get("education", []),
+                    "certifications": parsed.get("certifications", [])
+                }
+        except Exception as e:
+            logger.error(f"JSON 파싱 오류: {str(e)}")
+            logger.error(f"원본 JSON 문자열: {json_str}")
+            
+    # 파싱 실패 시 빈 딕셔너리 반환
+    logger.error(f"OpenAI 응답에서 유효한 JSON을 찾을 수 없음: {response.content}")
+    return {"education": [], "certifications": []}
+
+async def parse_career_with_openai(user_input: str) -> list:
+    """OpenAI로 경력사항을 리스트로 파싱"""
+    prompt = f"""
+    다음 경력사항을 JSON 형식으로 변환하세요:
+    입력: {user_input}
+
+    다음과 같은 형식의 JSON으로만 응답하세요:
+    {{
+      "career": [
+        {{
+          "period": "2016-2018",
+          "company": "네이버",
+          "position": "소프트웨어 엔지니어",
+          "description": "검색 엔진 개발"
+        }},
+        {{
+          "period": "2018-2020",
+          "company": "카카오",
+          "position": "시니어 개발자",
+          "description": "메시징 플랫폼 개발"
+        }}
+      ]
+    }}
+    """
+    llm = ChatOpenAI(api_key=os.getenv("HIGH_PERFORMANCE_OPENAI_API_KEY"), model_name=os.getenv("HIGH_PERFORMANCE_OPENAI_MODEL"), timeout=int(os.getenv("HIGH_PERFORMANCE_OPENAI_TIMEOUT")))
+    response = await llm.ainvoke([HumanMessage(content=prompt)])
+    
+    # 응답에서 JSON 형식 찾기
+    import json, re
+    json_match = re.search(r'\{[\s\S]*\}', response.content)
+    if json_match:
+        try:
+            json_str = json_match.group(0)
+            json_str = json_str.replace("'", '"')  # 작은따옴표를 큰따옴표로 변환
+            parsed = json.loads(json_str)
+            if isinstance(parsed, dict) and "career" in parsed and isinstance(parsed["career"], list):
+                logger.info(f"경력사항 파싱 성공: {parsed['career']}")
+                return parsed["career"]
+        except Exception as e:
+            logger.error(f"JSON 파싱 오류: {str(e)}")
+            logger.error(f"원본 JSON 문자열: {json_str}")
+    
+    # 파싱 실패 시 직접 파싱 시도
+    try:
+        career = []
+        items = user_input.split(", ")
+        for item in items:
+            match = re.search(r'(\d{4}-\d{4})\s+(\S+)\s+([^(]+)\(([^)]+)\)', item)
+            if match:
+                career.append({
+                    "period": match.group(1),
+                    "company": match.group(2),
+                    "position": match.group(3).strip(),
+                    "description": match.group(4)
+                })
+        if career:
+            logger.info(f"정규식으로 경력사항 파싱 성공: {career}")
+            return career
+    except Exception as e:
+        logger.error(f"정규식 파싱 오류: {str(e)}")
+    
+    logger.error(f"경력사항 파싱 실패. OpenAI 응답: {response.content}")
+    return []
+
+async def save_html_to_pdf(html_content: dict, output_path: str):
+    """HTML을 PDF로 변환하여 저장"""
+    async with async_playwright() as p:
+        browser = await p.chromium.launch()
+        page = await browser.new_page()
+        await page.set_content(html_content['html'])
+        await page.pdf(path=output_path, format='A4')
+        await browser.close()
+
+async def test_resume_pdf_conversation():
+    """대화형 플로우를 더미 입력으로 자동 진행하고, PDF까지 생성 및 열기"""
+    state = ResumeConversationState("test_user")
+
+    # 1. 학력/자격사항 질문 및 더미 입력
+    print("[Q]", await get_resume_question(state))
+    edu_cert_input = "2010-2014 한국조리사관학교 호텔조리학과 졸업, 2014 한식조리기능사(한국산업인력공단) 합격, 2015 양식조리기능사(한국산업인력공단) 합격"
+    await process_resume_conversation_response(state, edu_cert_input)
+
+    # 2. 경력사항 질문 및 더미 입력
+    print("[Q]", await get_resume_question(state))
+    career_input = "2014-2016 신라호텔 한식당 수석요리사(전통 한식 메뉴 개발 및 조리), 2016-2018 롯데호텔 양식당 부주방장(이탈리안 요리 전문), 2018-2020 그랜드하얏트 호텔 주방장(한식당 총괄 및 메뉴 기획)"
+    await process_resume_conversation_response(state, career_input)
+
+    # 3. PDF 생성
+    user_data = {
+        'name': '김요리',
+        'birth_date': '1992-05-15',
+        'phone': '010-1234-5678',
+        'nation': '대한민국',
+        'address': '서울시 강남구 테헤란로 123',
+        'email': 'chef.kim@example.com',
+        'education': state.education or [],
+        'certifications': state.certifications or [],
+        'career': state.career or []
+    }
+    pdf_form = await make_pdf(state, user_data)
+    output_dir = "test_output"
+    os.makedirs(output_dir, exist_ok=True)
+    output_path = os.path.join(output_dir, "chef_resume.pdf")
+    await save_html_to_pdf(pdf_form, output_path)
+    print(f"[PDF 생성 완료] {output_path}")
+    # PDF 열기 (macOS)
+    subprocess.run(["open", output_path])
+
 if __name__ == "__main__":
-    # 테스트 실행
-    asyncio.run(test_resume_generation())
+    import asyncio
+    asyncio.run(test_resume_pdf_conversation())

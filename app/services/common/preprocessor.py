@@ -134,7 +134,7 @@ def translate_query(query) :
     ⚠️ Do NOT include any explanation or message. ONLY return a valid JSON object. No natural language.
     """
 
-    print("[TRANSTRATE SYSTEM PROMPT] ",system_prompt_template)
+    # print("[TRANSTRATE SYSTEM PROMPT] ",system_prompt_template)
 
     prompt = ChatPromptTemplate.from_messages([
         ("system", system_prompt_template ),

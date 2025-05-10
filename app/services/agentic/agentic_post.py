@@ -6,6 +6,7 @@ from langchain_core.prompts import ChatPromptTemplate
 import json
 import re
 import requests
+from app.core.llm_prompt import Prompt
 # 기존: from langchain_groq import ChatGroq
 from langchain_openai import ChatOpenAI
 
@@ -30,328 +31,13 @@ class AgenticPost:
                 "title": {"type":"string"},
             }
         })
-        system_prompt = f"""
-        1. Please return the title and tags
-        2. Types of titles and tags. 
-        3. Please select something related to user_input.
-        4. Please choose one title and one tags 
-        (!! you have to choose from below, Do not include your opinion! )
-        (!! you have to choose from below, Do not include your opinion! )
-        (!! you have to choose from below, Do not include your opinion! )
-        ------------------------
-        title : 여행
-        tags : 
-            식도락/맛집
-        ------------------------
-        title : 여행
-        tags : 
-            교통/이동
-        ------------------------
-        title : 여행
-        tags : 
-            숙소/지역정보
-        ------------------------
-        title : 여행
-        tags : 
-            대사관/응급
-        ------------------------
-        title : 여행
-        tags : 
-            식도락/맛집
-        ------------------------
-        title : 여행
-        tags : 
-            교통/이동
-        ------------------------
-        title : 여행
-        tags : 
-            숙소/지역정보
-        ------------------------
-        title : 여행
-        tags : 
-            대사관/응급
-        ------------------------
-        ------------------------
-        title : 여행
-        tags : 
-            식도락/맛집
-        ------------------------
-        title : 여행
-        tags : 
-            교통/이동
-        ------------------------
-        title : 여행
-        tags : 
-            숙소/지역정보
-        ------------------------
-        title : 여행
-        tags : 
-            대사관/응급
-        ------------------------
-        ------------------------
-        title : 여행
-        tags : 
-            식도락/맛집
-        ------------------------
-        title : 여행
-        tags : 
-            교통/이동
-        ------------------------
-        title : 여행
-        tags : 
-            숙소/지역정보
-        ------------------------
-        title : 여행
-        tags : 
-            대사관/응급
-        ------------------------
-        title : 주거
-        tags :
-            부동산/계약
-        ------------------------
-        title : 주거
-        tags :
-            생활환경/편의
-        ------------------------
-        title : 주거
-        tags :
-            문화/생활
-        ------------------------
-        title : 주거
-        tags :
-            주거지 관리/유지
-         ------------------------
-        title : 주거
-        tags :
-            부동산/계약
-        ------------------------
-        title : 주거
-        tags :
-            생활환경/편의
-        ------------------------
-        title : 주거
-        tags :
-            문화/생활
-        ------------------------
-        title : 주거
-        tags :
-            주거지 관리/유지
-         ------------------------
-        title : 주거
-        tags :
-            부동산/계약
-        ------------------------
-        title : 주거
-        tags :
-            생활환경/편의
-        ------------------------
-        title : 주거
-        tags :
-            문화/생활
-        ------------------------
-        title : 주거
-        tags :
-            주거지 관리/유지
-         ------------------------
-        title : 주거
-        tags :
-            부동산/계약
-        ------------------------
-        title : 주거
-        tags :
-            생활환경/편의
-        ------------------------
-        title : 주거
-        tags :
-            문화/생활
-        ------------------------
-        title : 주거
-        tags :
-            주거지 관리/유지
-         ------------------------
-        title : 주거
-        tags :
-            부동산/계약
-        ------------------------
-        title : 주거
-        tags :
-            생활환경/편의
-        ------------------------
-        title : 주거
-        tags :
-            문화/생활
-        ------------------------
-        title : 주거
-        tags :
-            주거지 관리/유지
-         ------------------------
-        title : 주거
-        tags :
-            부동산/계약
-        ------------------------
-        title : 주거
-        tags :
-            생활환경/편의
-        ------------------------
-        title : 주거
-        tags :
-            문화/생활
-        ------------------------
-        title : 주거
-        tags :
-            주거지 관리/유지
-        ------------------------
-        title : 유학
-        tags :
-            학사/캠퍼스
-        ------------------------
-        title : 유학
-        tags :
-            학업지원/시설
-        ------------------------
-        title : 유학
-        tags :
-            행정/비자/서류
-        ------------------------
-        title : 유학
-        tags :
-            기숙사/주거
-        ------------------------
-        title : 유학
-        tags :
-            학사/캠퍼스
-        ------------------------
-        title : 유학
-        tags :
-            학업지원/시설
-        ------------------------
-        title : 유학
-        tags :
-            행정/비자/서류
-        ------------------------
-        title : 유학
-        tags :
-            기숙사/주거
-        ------------------------
-        title : 유학
-        tags :
-            학사/캠퍼스
-        ------------------------
-        title : 유학
-        tags :
-            학업지원/시설
-        ------------------------
-        title : 유학
-        tags :
-            행정/비자/서류
-        ------------------------
-        title : 유학
-        tags :
-            기숙사/주거
-        ------------------------
-        title : 유학
-        tags :
-            학사/캠퍼스
-        ------------------------
-        title : 유학
-        tags :
-            학업지원/시설
-        ------------------------
-        title : 유학
-        tags :
-            행정/비자/서류
-        ------------------------
-        title : 유학
-        tags :
-            기숙사/주거
-        ------------------------
-        title : 취업
-        tags :
-            이력/채용준비
-        ------------------------
-        title : 취업
-        tags :
-            비자/법률/노동
-        ------------------------
-        title : 취업
-        tags :
-            잡페어/네트워킹
-        ------------------------
-        title : 취업
-        tags :
-            알바/파트타임
-        ------------------------
-        title : 취업
-        tags :
-            이력/채용준비
-        ------------------------
-        title : 취업
-        tags :
-            비자/법률/노동
-        ------------------------
-        title : 취업
-        tags :
-            잡페어/네트워킹
-        ------------------------
-        title : 취업
-        tags :
-            알바/파트타임
-        ------------------------
-        title : 취업
-        tags :
-            이력/채용준비
-        ------------------------
-        title : 취업
-        tags :
-            비자/법률/노동
-        ------------------------
-        title : 취업
-        tags :
-            잡페어/네트워킹
-        ------------------------
-        title : 취업
-        tags :
-            알바/파트타임
-        ------------------------
-        title : 취업
-        tags :
-            이력/채용준비
-        ------------------------
-        title : 취업
-        tags :
-            비자/법률/노동
-        ------------------------
-        title : 취업
-        tags :
-            잡페어/네트워킹
-        ------------------------
-        title : 취업
-        tags :
-            알바/파트타임
-        ------------------------
-        title : 취업
-        tags :
-            이력/채용준비
-        ------------------------
-        title : 취업
-        tags :
-            비자/법률/노동
-        ------------------------
-        title : 취업
-        tags :
-            잡페어/네트워킹
-        ------------------------
-        title : 취업
-        tags :
-            알바/파트타임
-        ------------------------
-        ⚠️ Do NOT include any explanation or message. ONLY return a valid JSON object. No natural language.
-        """
 
-        prompt=system_prompt
+        system_prompt = Prompt.post_prompt()
+
+        print(" [system_prompt] ",system_prompt)
 
         prompt = ChatPromptTemplate.from_messages([
-            ("system", prompt),
+            ("system", system_prompt),
             ("user", "{input}")
         ])
 
@@ -396,8 +82,7 @@ class AgenticPost:
 
         @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         !!! if postType is "자유" then address is "자유"
-        category example : ["관광/체험"] , [식도락/맛집] , ["관광/체험"] , ["교통/이동"] , ["대사관/응급"]
-        tags example : {"KO", "EN", "JA", "ZH", "DE", "FR", "ES", "RU"}
+        language example : {"KO", "EN", "JA", "ZH", "DE", "FR", "ES", "RU"}
         ----------------------------------------------------------------------------------------------------
         input : I want to create a post recommending tourist attractions in Jeju Island. , "category": "여행" , "tags": [관광/체험]
         output :  
@@ -454,6 +139,40 @@ class AgenticPost:
                 "postType": "자유",  
                 "address": "자유"  
         ----------------------------------------------------------------------------------------------------
+        input : Je veux partager des conseils pour utiliser le métro à Séoul. , "category": "여행" , "tags": [교통/이동]
+        output :  
+            "post":  
+                "title": "Se déplacer à Séoul en métro",  
+                "content": "Découvrez comment utiliser facilement le métro de Séoul, acheter une carte T-money, et naviguer entre les lignes principales.",  
+                "category": "여행",  
+                "language": "FR",  
+                "tags": ["교통/이동"],  
+                "postType": "자유",  
+                "address": "Corée du Sud, Séoul"  
+        ----------------------------------------------------------------------------------------------------
+        input : Quiero escribir una publicación sobre mi experiencia gastronómica en México. , "category": "여행" , "tags": [식도락/맛집]
+        output :  
+            "post":  
+                "title": "Comida callejera que debes probar en México",  
+                "content": "Desde tacos y elotes hasta tamales y aguas frescas, comparto mis experiencias y lugares favoritos en la Ciudad de México.",  
+                "category": "여행",  
+                "language": "ES",  
+                "tags": ["식도락/맛집"],  
+                "postType": "자유",  
+                "address": "Ciudad de México, México"  
+        ----------------------------------------------------------------------------------------------------
+        input : Хочу поделиться местами, которые стоит посетить в Санкт-Петербурге. , "category": "여행" , "tags": [관광/체험]
+        output :  
+            "post":  
+                "title": "Лучшие туристические места Санкт-Петербурга",  
+                "content": "Эрмитаж, Исаакиевский собор и прогулки по Неве — вот что обязательно стоит включить в свой маршрут!",  
+                "category": "여행",  
+                "language": "RU",  
+                "tags": ["관광/체험"],  
+                "postType": "자유",  
+                "address": "Россия, Санкт-Петербург"  
+        ----------------------------------------------------------------------------------------------------
+
         @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
                 

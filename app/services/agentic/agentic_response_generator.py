@@ -48,7 +48,7 @@ class AgenticResponseGenerator:
             }
             elif agentic_type == AgenticType.POST:
                 logger.info("[1. 사용자 질문 받음]")  
-                Post_Response = await self._generate_post_response(token, original_query , state)
+                Post_Response = await self._generate_post_response(token,original_query, query , state)
                 "게시판기능"
                 logger.info(f"[Post_Response 받음] : {Post_Response}")  
                 logger.info(f"[Post_Response DATA - TYPE] : {type(Post_Response)}")  
@@ -163,7 +163,7 @@ class AgenticResponseGenerator:
         return await self._generate_general_response(query) 
 ############################################################################# 게시판 생성 기능  
 
-    async def _generate_post_response(self, token, query , state) -> Dict[str,Any]:
+    async def _generate_post_response(self, token, original_query , query , state) -> Dict[str,Any]:
         logger.info("[2. 어디 단계인지 확인] (ex_ 카테고리 반환 단계 , 게시판 생성단계)")
         """ 게시판 생성 기능 """
         state="first"
@@ -188,7 +188,7 @@ class AgenticResponseGenerator:
 
         if state == "second" : 
             logger.info(f"[post_second 필요한정보] : {title} {tags} {state}")
-            post_second_response = await self.post_agent.second_query(token , query , state, title, tags)
+            post_second_response = await self.post_agent.second_query(token , original_query , state, title, tags)
             logger.info(f"[post_second_response] : {post_second_response}")
             return post_second_response
         
