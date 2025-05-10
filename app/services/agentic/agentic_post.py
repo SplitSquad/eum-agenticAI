@@ -11,7 +11,7 @@ from langchain_openai import ChatOpenAI
 
 class AgenticPost:
     def __init__(self):
-        logger.info("[게시글 에이전트 초기회]")
+        logger.info("[게시글 에이전트 초기화]")
         
     # 단계에 맞는 함수 생성
     async def first_query(self, token , query , state) : 
@@ -32,61 +32,319 @@ class AgenticPost:
         })
         system_prompt = f"""
         1. Please return the title and tags
-        2. Types of titles and tags.
+        2. Types of titles and tags. 
+        3. Please select something related to user_input.
+        4. Please choose one title and one tags 
+        (!! you have to choose from below, Do not include your opinion! )
+        (!! you have to choose from below, Do not include your opinion! )
+        (!! you have to choose from below, Do not include your opinion! )
         ------------------------
         title : 여행
         tags : 
             식도락/맛집
+        ------------------------
+        title : 여행
+        tags : 
             교통/이동
+        ------------------------
+        title : 여행
+        tags : 
             숙소/지역정보
+        ------------------------
+        title : 여행
+        tags : 
+            대사관/응급
+        ------------------------
+        title : 여행
+        tags : 
+            식도락/맛집
+        ------------------------
+        title : 여행
+        tags : 
+            교통/이동
+        ------------------------
+        title : 여행
+        tags : 
+            숙소/지역정보
+        ------------------------
+        title : 여행
+        tags : 
+            대사관/응급
+        ------------------------
+        ------------------------
+        title : 여행
+        tags : 
+            식도락/맛집
+        ------------------------
+        title : 여행
+        tags : 
+            교통/이동
+        ------------------------
+        title : 여행
+        tags : 
+            숙소/지역정보
+        ------------------------
+        title : 여행
+        tags : 
+            대사관/응급
+        ------------------------
+        ------------------------
+        title : 여행
+        tags : 
+            식도락/맛집
+        ------------------------
+        title : 여행
+        tags : 
+            교통/이동
+        ------------------------
+        title : 여행
+        tags : 
+            숙소/지역정보
+        ------------------------
+        title : 여행
+        tags : 
             대사관/응급
         ------------------------
         title : 주거
         tags :
             부동산/계약
+        ------------------------
+        title : 주거
+        tags :
             생활환경/편의
+        ------------------------
+        title : 주거
+        tags :
             문화/생활
+        ------------------------
+        title : 주거
+        tags :
+            주거지 관리/유지
+         ------------------------
+        title : 주거
+        tags :
+            부동산/계약
+        ------------------------
+        title : 주거
+        tags :
+            생활환경/편의
+        ------------------------
+        title : 주거
+        tags :
+            문화/생활
+        ------------------------
+        title : 주거
+        tags :
+            주거지 관리/유지
+         ------------------------
+        title : 주거
+        tags :
+            부동산/계약
+        ------------------------
+        title : 주거
+        tags :
+            생활환경/편의
+        ------------------------
+        title : 주거
+        tags :
+            문화/생활
+        ------------------------
+        title : 주거
+        tags :
+            주거지 관리/유지
+         ------------------------
+        title : 주거
+        tags :
+            부동산/계약
+        ------------------------
+        title : 주거
+        tags :
+            생활환경/편의
+        ------------------------
+        title : 주거
+        tags :
+            문화/생활
+        ------------------------
+        title : 주거
+        tags :
+            주거지 관리/유지
+         ------------------------
+        title : 주거
+        tags :
+            부동산/계약
+        ------------------------
+        title : 주거
+        tags :
+            생활환경/편의
+        ------------------------
+        title : 주거
+        tags :
+            문화/생활
+        ------------------------
+        title : 주거
+        tags :
+            주거지 관리/유지
+         ------------------------
+        title : 주거
+        tags :
+            부동산/계약
+        ------------------------
+        title : 주거
+        tags :
+            생활환경/편의
+        ------------------------
+        title : 주거
+        tags :
+            문화/생활
+        ------------------------
+        title : 주거
+        tags :
             주거지 관리/유지
         ------------------------
         title : 유학
         tags :
             학사/캠퍼스
+        ------------------------
+        title : 유학
+        tags :
             학업지원/시설
+        ------------------------
+        title : 유학
+        tags :
             행정/비자/서류
+        ------------------------
+        title : 유학
+        tags :
+            기숙사/주거
+        ------------------------
+        title : 유학
+        tags :
+            학사/캠퍼스
+        ------------------------
+        title : 유학
+        tags :
+            학업지원/시설
+        ------------------------
+        title : 유학
+        tags :
+            행정/비자/서류
+        ------------------------
+        title : 유학
+        tags :
+            기숙사/주거
+        ------------------------
+        title : 유학
+        tags :
+            학사/캠퍼스
+        ------------------------
+        title : 유학
+        tags :
+            학업지원/시설
+        ------------------------
+        title : 유학
+        tags :
+            행정/비자/서류
+        ------------------------
+        title : 유학
+        tags :
+            기숙사/주거
+        ------------------------
+        title : 유학
+        tags :
+            학사/캠퍼스
+        ------------------------
+        title : 유학
+        tags :
+            학업지원/시설
+        ------------------------
+        title : 유학
+        tags :
+            행정/비자/서류
+        ------------------------
+        title : 유학
+        tags :
             기숙사/주거
         ------------------------
         title : 취업
         tags :
             이력/채용준비
+        ------------------------
+        title : 취업
+        tags :
             비자/법률/노동
+        ------------------------
+        title : 취업
+        tags :
             잡페어/네트워킹
+        ------------------------
+        title : 취업
+        tags :
             알바/파트타임
-
-        3. fewshot example
-        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@     
-        
-
-        output:
-            title: 취업
-            tags: 이력/채용준비
-
-        output:
-            title: 유학
-            tags: 학업지원/시설
-
-        output:
-            title: 주거
-            tags: 부동산/계약
-
-        output
-            title : 여행
-            tags : 식도락/맛집    
-
-        
-        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        
-        ⚠️ Do NOT include any explanation or message. ONLY return a valid JSON object. No natural language.
-        ⚠️ Do NOT include any explanation or message. ONLY return a valid JSON object. No natural language.
+        ------------------------
+        title : 취업
+        tags :
+            이력/채용준비
+        ------------------------
+        title : 취업
+        tags :
+            비자/법률/노동
+        ------------------------
+        title : 취업
+        tags :
+            잡페어/네트워킹
+        ------------------------
+        title : 취업
+        tags :
+            알바/파트타임
+        ------------------------
+        title : 취업
+        tags :
+            이력/채용준비
+        ------------------------
+        title : 취업
+        tags :
+            비자/법률/노동
+        ------------------------
+        title : 취업
+        tags :
+            잡페어/네트워킹
+        ------------------------
+        title : 취업
+        tags :
+            알바/파트타임
+        ------------------------
+        title : 취업
+        tags :
+            이력/채용준비
+        ------------------------
+        title : 취업
+        tags :
+            비자/법률/노동
+        ------------------------
+        title : 취업
+        tags :
+            잡페어/네트워킹
+        ------------------------
+        title : 취업
+        tags :
+            알바/파트타임
+        ------------------------
+        title : 취업
+        tags :
+            이력/채용준비
+        ------------------------
+        title : 취업
+        tags :
+            비자/법률/노동
+        ------------------------
+        title : 취업
+        tags :
+            잡페어/네트워킹
+        ------------------------
+        title : 취업
+        tags :
+            알바/파트타임
+        ------------------------
         ⚠️ Do NOT include any explanation or message. ONLY return a valid JSON object. No natural language.
         """
 
@@ -117,7 +375,7 @@ class AgenticPost:
         logger.info("[게시판 생성 단계]")
         category = title
         llm = ChatOpenAI(
-            model="gpt-4",
+            model="gpt-4-turbo",
             temperature=0.7
         )
         parser = JsonOutputParser(pydantic_object={
