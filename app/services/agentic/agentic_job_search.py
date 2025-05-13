@@ -7,6 +7,7 @@ import logging
 import sys
 from pathlib import Path
 
+# 21
 # 로깅 설정
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
