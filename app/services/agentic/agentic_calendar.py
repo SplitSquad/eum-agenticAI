@@ -16,6 +16,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from typing import Dict, Any
 from loguru import logger
 
+###21
 ################################################ 캘린더 일정 리스트로 반환
 # 결과 출력 (선택)
 def Output_organization(formatted_events) -> str:
