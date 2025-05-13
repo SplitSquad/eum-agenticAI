@@ -18,6 +18,8 @@ class Agentic:
     async def get_response(self, query: str, uid: str, token: Optional[str] = None) -> Dict[str, Any]:
         """질의에 대한 응답을 생성합니다."""
         try:
+            original_query=query
+            
             logger.info(f"[WORKFLOW] ====== Starting agentic workflow for user {uid} ======")
             logger.info(f"[WORKFLOW] Original query: {query}")
             
@@ -26,16 +28,18 @@ class Agentic:
             translation_result = translate_query(query)
             source_lang = translation_result["lang_code"]
             english_query = translation_result["translated_query"]
-            logger.info(f"[에이전트] 언어 감지 완료 - 소스 언어: {source_lang}, 영어 번역: {english_query}")
+            keyword = translation_result["keyword"]
+            intention = translation_result["intention"]
+            logger.info(f"[에이전트] 언어 감지 완료 - 소스 언어: {source_lang}, 영어 번역: {english_query}, 키워드: {keyword}, 의도 :{intention}")
             
             # 2. 기능 분류
             logger.info(f"[WORKFLOW] Step 2: Classification")
-            agentic_type = await self.classifier.classify(english_query)
+            agentic_type = await self.classifier.classify(english_query,intention)
             logger.info(f"[에이전트] 에이전틱 유형: {agentic_type.value}")
             
             # 3. 응답 생성
             logger.info(f"[WORKFLOW] Step 3: Response generation")
-            result = await self.response_generator.generate_response(english_query, agentic_type, uid, token)
+            result = await self.response_generator.generate_response(original_query,english_query, agentic_type, uid, token, state, keyword,intention)
             logger.info("[에이전트] 응답 생성 완료")
             
             # 4. 후처리 (원문 언어로 번역)
