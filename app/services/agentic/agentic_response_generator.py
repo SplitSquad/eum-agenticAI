@@ -33,25 +33,13 @@ class AgenticResponseGenerator:
                 agentic_calendar = self._generate_calendar_response(original_query,uid,token,intention)
                 return await agentic_calendar
             elif agentic_type == AgenticType.RESUME:
-                logger.info(f"[RESUME 기능 초기화중] ")
-                agentic_resume =await self._generate_resume_response(query, uid, state, token)
-                print(f"[agentic_resume]: {agentic_resume}")
-                return {
-                "response": agentic_resume['response'],
-                "state": agentic_resume['state'],
-                "metadata": {
-                    "query": query,
-                    "agentic_type": "RESUME",
-                    "error": ""
-                },
-                "url":agentic_resume['download_url']
-            }
+                self._generate_resume_response(query,uid,token,state)
+
+
+                return 
             elif agentic_type == AgenticType.POST:
                 logger.info("[1. 사용자 질문 받음]")  
                 Post_Response = await self._generate_post_response(token,original_query, query , state, keyword)
-                "게시판기능"
-                logger.info(f"[Post_Response 받음] : {Post_Response}")  
-                logger.info(f"[Post_Response DATA - TYPE] : {type(Post_Response)}")  
                 Post_Response = json.loads(Post_Response)
                 return {
                     "response": f""" 제목 : {Post_Response['title']} 
@@ -139,22 +127,21 @@ class AgenticResponseGenerator:
                 "state" : "error"
             }
         
-    async def _generate_resume_response(self, query: str, uid: str, state: str, token: str) -> Dict[str, Any]:
+    async def _generate_resume_response(self, query:str , uid:str , token:str , state:str) -> Dict[str, Any]:
         """이력서 응답을 생성합니다."""
-        try:
-            logger.info(f" [RESUME 기능 초기화중] ")
-            response = await self.resume_agent.Resume_function( query, uid, state, token  )
-            logger.info(f"[RESUME response]  { response }")
-            return response
-        except Exception as e:
-            logger.error(f"캘린더 관리 응답 생성 중 오류 발생: {str(e)}")
-            return {
-                "response": "죄송합니다. 캘린더 기능 처리 중 오류가 발생했습니다.",
+        logger.info("[이력서 기능을 수행하는 중입니다...]")
+        step_result = await self.resume_agent.collect_user_input(query, state, uid)
+
+
+        return {
+                "response": "이력서 기능 개발중",
                 "metadata": {
                     "query": query,
                     "agentic_type": AgenticType.CALENDAR.value,
                     "error": str(e)
-                }
+                },
+                "state" : "error",
+                "url" : "null"
             }
     
     async def _generate_reminder_response(self, query: str) -> Dict[str, Any]:
