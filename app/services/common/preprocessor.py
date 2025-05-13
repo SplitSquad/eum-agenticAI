@@ -6,14 +6,9 @@ import json
 from langchain_openai import ChatOpenAI
 from app.core.llm_client import get_langchain_llm
 
-def translate_query(query) : 
-    llm = get_langchain_llm(is_lightweight=False)
 
 def translate_query(query) : 
-    llm = ChatGroq(
-            model_name="llama-3.3-70b-versatile",
-            temperature=0.7
-        )
+    llm = get_langchain_llm(is_lightweight=False)
 
     parser = JsonOutputParser(pydantic_object={
         "type": "object",

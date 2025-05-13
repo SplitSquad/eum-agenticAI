@@ -18,6 +18,8 @@ class Agentic:
     async def get_response(self, query: str, uid: str, token: Optional[str] = None) -> Dict[str, Any]:
         """질의에 대한 응답을 생성합니다."""
         try:
+            original_query=query
+            
             logger.info(f"[WORKFLOW] ====== Starting agentic workflow for user {uid} ======")
             logger.info(f"[WORKFLOW] Original query: {query}")
             
