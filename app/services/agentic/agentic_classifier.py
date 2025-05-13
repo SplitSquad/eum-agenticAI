@@ -1,14 +1,17 @@
 from typing import Dict, Any, Tuple
 from enum import Enum
 from loguru import logger
-from app.core.llm_client import get_llm_client
+from app.core.llm_client import get_llm_client,get_langchain_llm
 from app.models.agentic_response import AgentType, ActionType
 from langchain_groq import ChatGroq
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from dotenv import load_dotenv
+from app.core.llm_post_prompt import Prompt
 load_dotenv()  # .env 파일 자동 로딩
 import os
+
+
 # ✅ .env 파일의 절대 경로 지정
 dotenv_path = os.path.join(os.path.dirname(__file__), '../../../.env')
 load_dotenv(dotenv_path)
@@ -178,7 +181,7 @@ class AgenticClassifier:
         self.llm_client = get_llm_client(is_lightweight=True)
         logger.info(f"[에이전틱 분류] 경량 모델 사용: {self.llm_client.model}")
     
-    async def classify(self, query: str) -> AgenticType:
+    async def classify(self, query: str,intention: str) -> AgenticType:
         """
         질의를 분류합니다.
         
@@ -192,7 +195,7 @@ class AgenticClassifier:
             logger.info(f"[에이전틱 분류] 질의 분류 시작: {query}")
             
             # 질의 유형 분류
-            agentic_type = await self._classify_agentic_type(query)
+            agentic_type = await self._classify_agentic_type(query,intention)
             logger.info(f"[에이전틱 분류] 기능 유형: {agentic_type.value}")
             
             return agentic_type
@@ -201,13 +204,13 @@ class AgenticClassifier:
             logger.error(f"분류 중 오류 발생: {str(e)}")
             return AgenticType.GENERAL
     
-    async def _classify_agentic_type(self, query: str) -> AgenticType:
+    async def _classify_agentic_type(self, query: str, intention: str) -> AgenticType:
         """에이전틱 기능 유형을 분류합니다."""
         try:
             # TODO: LLM을 활용한 기능 유형 분류 구현
             # 임시로 모든 질의를 일반 대화로 분류
             # LLM을 통해 카테고리 분류
-            category_json = Category_Classification(query)
+            category_json = Category_Classification(query, intention)
             category_dict = json.loads(category_json)  # JSON 문자열을 dict로 변환
             category = category_dict["output"]  # output 필드 추출
             
@@ -219,11 +222,8 @@ class AgenticClassifier:
             return AgenticType.GENERAL 
 
 ################################################### LLM을 활용한 기능 유형 분류 구현     
-def Category_Classification(query):
-    llm = ChatOpenAI(
-        model="gpt-4-turbo",
-        temperature=0.7
-    )
+def Category_Classification(query, intention):
+    llm = get_langchain_llm(is_lightweight=False)
 
     parser = JsonOutputParser(pydantic_object={
             "type": "object",
@@ -232,397 +232,9 @@ def Category_Classification(query):
                 "output": {"type": "string"},
             }
     })
+    system_prompt = Prompt.agentic_classifier_prompt()
     prompt = ChatPromptTemplate.from_messages([
-    ("system", """
-    1. Its role is to inform the category.
-    2. Here is a few-shot example.
-    -----------------------
-    input : Add an event to my calendar  
-    output : calendar  
-    -----------------------
-    input : I have a plan tomorrow  
-    output : calendar  
-    -----------------------
-    input : Schedule a meeting at 3 PM  
-    output : calendar  
-    -----------------------
-    input : Can you register a schedule for me?  
-    output : calendar  
-    -----------------------
-    input : I want to change my appointment  
-    output : calendar  
-    -----------------------
-    input : I have a lunch appointment tomorrow  
-    output : calendar  
-    -----------------------
-    input : There’s a team dinner this Friday  
-    output : calendar  
-    -----------------------
-    input : Check my schedule  
-    output : calendar  
-    -----------------------
-    input : I’d like to add a new event  
-    output : calendar  
-    -----------------------
-    input : Set up a reminder for next Monday  
-    output : calendar  
-    -----------------------
-    input : Add an event to my calendar  
-    output : calendar  
-    -----------------------
-    input : I have a plan tomorrow  
-    output : calendar  
-    -----------------------
-    input : Schedule a meeting at 3 PM  
-    output : calendar  
-    -----------------------
-    input : Can you register a schedule for me?  
-    output : calendar  
-    -----------------------
-    input : I want to change my appointment  
-    output : calendar  
-    -----------------------
-    input : I have a lunch appointment tomorrow  
-    output : calendar  
-    -----------------------
-    input : There’s a team dinner this Friday  
-    output : calendar  
-    -----------------------
-    input : Check my schedule  
-    output : calendar  
-    -----------------------
-    input : I’d like to add a new event  
-    output : calendar  
-    -----------------------
-    input : Set up a reminder for next Monday  
-    output : calendar  
-    -----------------------
-    input : Add an event to my calendar  
-    output : calendar  
-    -----------------------
-    input : I have a plan tomorrow  
-    output : calendar  
-    -----------------------
-    input : Schedule a meeting at 3 PM  
-    output : calendar  
-    -----------------------
-    input : Can you register a schedule for me?  
-    output : calendar  
-    -----------------------
-    input : I want to change my appointment  
-    output : calendar  
-    -----------------------
-    input : I have a lunch appointment tomorrow  
-    output : calendar  
-    -----------------------
-    input : There’s a team dinner this Friday  
-    output : calendar  
-    -----------------------
-    input : Check my schedule  
-    output : calendar  
-    -----------------------
-    input : I’d like to add a new event  
-    output : calendar  
-    -----------------------
-    input : Set up a reminder for next Monday  
-    output : calendar  
-    -----------------------
-    input : Add an event to my calendar  
-    output : calendar  
-    -----------------------
-    input : I have a plan tomorrow  
-    output : calendar  
-    -----------------------
-    input : Schedule a meeting at 3 PM  
-    output : calendar  
-    -----------------------
-    input : Can you register a schedule for me?  
-    output : calendar  
-    -----------------------
-    input : I want to change my appointment  
-    output : calendar  
-    -----------------------
-    input : I have a lunch appointment tomorrow  
-    output : calendar  
-    -----------------------
-    input : There’s a team dinner this Friday  
-    output : calendar  
-    -----------------------
-    input : Check my schedule  
-    output : calendar  
-    -----------------------
-    input : I’d like to add a new event  
-    output : calendar  
-    -----------------------
-    input : Set up a reminder for next Monday  
-    output : calendar  
-    -----------------------
-    input : Add an event to my calendar  
-    output : calendar  
-    -----------------------
-    input : I have a plan tomorrow  
-    output : calendar  
-    -----------------------
-    input : Schedule a meeting at 3 PM  
-    output : calendar  
-    -----------------------
-    input : Can you register a schedule for me?  
-    output : calendar  
-    -----------------------
-    input : I want to change my appointment  
-    output : calendar  
-    -----------------------
-    input : I have a lunch appointment tomorrow  
-    output : calendar  
-    -----------------------
-    input : There’s a team dinner this Friday  
-    output : calendar  
-    -----------------------
-    input : Check my schedule  
-    output : calendar  
-    -----------------------
-    input : I’d like to add a new event  
-    output : calendar  
-    -----------------------
-    input : Set up a reminder for next Monday  
-    output : calendar  
-    -----------------------
-    input : Add an event to my calendar  
-    output : calendar  
-    -----------------------
-    input : I have a plan tomorrow  
-    output : calendar  
-    -----------------------
-    input : Schedule a meeting at 3 PM  
-    output : calendar  
-    -----------------------
-    input : Can you register a schedule for me?  
-    output : calendar  
-    -----------------------
-    input : I want to change my appointment  
-    output : calendar  
-    -----------------------
-    input : I have a lunch appointment tomorrow  
-    output : calendar  
-    -----------------------
-    input : There’s a team dinner this Friday  
-    output : calendar  
-    -----------------------
-    input : Check my schedule  
-    output : calendar  
-    -----------------------
-    input : I’d like to add a new event  
-    output : calendar  
-    -----------------------
-    input : Set up a reminder for next Monday  
-    output : calendar  
-    ----------------------- 
-    input : I want to write about iMac
-    output : post 
-    -----------------------    
-    input : Create a post for me  
-    output : post  
-    -----------------------
-    input : I want to publish a blog article  
-    output : post  
-    -----------------------
-    input : I’ll write a new post  
-    output : post  
-    -----------------------
-    input : I’m starting to write a post  
-    output : post  
-    -----------------------
-    input : I’d like to upload a post  
-    output : post  
-    -----------------------
-    input : I’ll leave a message on the board  
-    output : post  
-    -----------------------
-    input : Please turn the following into a post  
-    output : post  
-    -----------------------
-    input : Here’s the content for the bulletin board  
-    output : post  
-    -----------------------
-    input : I’m uploading a short post  
-    output : post
-    ----------------------- 
-    input : I want to write about iMac
-    output : post   
-    -----------------------
-    input : Please write a notice for users  
-    output : post  
-    -----------------------
-    input : Create a post for me  
-    output : post  
-    -----------------------
-    input : I want to publish a blog article  
-    output : post  
-    -----------------------
-    input : I’ll write a new post  
-    output : post  
-    -----------------------
-    input : I’m starting to write a post  
-    output : post  
-    -----------------------
-    input : I’d like to upload a post  
-    output : post  
-    ----------------------- 
-    input : I want to write about iMac
-    output : post 
-    -----------------------
-    input : I’ll leave a message on the board  
-    output : post  
-    -----------------------
-    input : Please turn the following into a post  
-    output : post
-    ----------------------- 
-    input : I want to write about iMac
-    output : post   
-    -----------------------
-    input : Here’s the content for the bulletin board  
-    output : post  
-    ----------------------- 
-    input : I want to write about iMac
-    output : post 
-    -----------------------
-    input : I’m uploading a short post  
-    output : post  
-    -----------------------
-    input : Please write a notice for users  
-    output : post  
-    -----------------------
-    input : Create a post for me  
-    output : post  
-    -----------------------
-    input : I want to publish a blog article  
-    output : post  
-    -----------------------
-    input : I’ll write a new post  
-    output : post  
-    -----------------------
-    input : I’m starting to write a post  
-    output : post  
-    -----------------------
-    input : I’d like to upload a post  
-    output : post  
-    -----------------------
-    input : I’ll leave a message on the board  
-    output : post  
-    -----------------------
-    input : Please turn the following into a post  
-    output : post  
-    -----------------------
-    input : Here’s the content for the bulletin board  
-    output : post  
-    -----------------------
-    input : I’m uploading a short post  
-    output : post  
-    -----------------------
-    input : Please write a notice for users  
-    output : post  
-    -----------------------
-    input : Create a post for me  
-    output : post  
-    -----------------------
-    input : I want to publish a blog article  
-    output : post  
-    -----------------------
-    input : I’ll write a new post  
-    output : post  
-    -----------------------
-    input : I’m starting to write a post  
-    output : post  
-    -----------------------
-    input : I’d like to upload a post  
-    output : post  
-    -----------------------
-    input : I’ll leave a message on the board  
-    output : post  
-    -----------------------
-    input : Please turn the following into a post  
-    output : post  
-    -----------------------
-    input : Here’s the content for the bulletin board  
-    output : post  
-    -----------------------
-    input : I’m uploading a short post  
-    output : post  
-    -----------------------
-    input : Please write a notice for users  
-    output : post  
-    -----------------------
-    input : Create a post for me  
-    output : post  
-    -----------------------
-    input : I want to publish a blog article  
-    output : post  
-    -----------------------
-    input : I’ll write a new post  
-    output : post  
-    -----------------------
-    input : I’m starting to write a post  
-    output : post  
-    -----------------------
-    input : I’d like to upload a post  
-    output : post  
-    -----------------------
-    input : I’ll leave a message on the board  
-    output : post  
-    -----------------------
-    input : Please turn the following into a post  
-    output : post  
-    -----------------------
-    input : Here’s the content for the bulletin board  
-    output : post  
-    -----------------------
-    input : I’m uploading a short post  
-    output : post  
-    -----------------------
-    input : Please write a notice for users  
-    output : post  
-    -----------------------
-    input : Create a post for me  
-    output : post  
-    -----------------------
-    input : I want to publish a blog article  
-    output : post  
-    -----------------------
-    input : I’ll write a new post  
-    output : post  
-    -----------------------
-    input : I’m starting to write a post  
-    output : post  
-    -----------------------
-    input : I’d like to upload a post  
-    output : post  
-    -----------------------
-    input : I’ll leave a message on the board  
-    output : post  
-    -----------------------
-    input : Please turn the following into a post  
-    output : post  
-    -----------------------
-    input : Here’s the content for the bulletin board  
-    output : post  
-    -----------------------
-    input : I’m uploading a short post  
-    output : post  
-    -----------------------
-    input : Please write a notice for users  
-    output : post  
-    -----------------------
-    input : all Other query
-    output : general
-    -----------------
-     
-    3. Please output it like output
-
-
-
-    default.Respond only in JSON format
-    
-    """),
+    ("system", system_prompt ),
         ("user", "{input}")
     ])
 
@@ -634,7 +246,8 @@ def Category_Classification(query):
     
 
     chain = prompt | llm | parser
-    Category = parse_product(query)
+    input_prompt =f"query:{query} intention:{intention}"
+    Category = parse_product(input_prompt)
     print("[Category] ",Category)
     return Category
 ################################################### LLM을 활용한 기능 유형 분류 구현

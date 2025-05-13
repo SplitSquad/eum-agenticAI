@@ -23,14 +23,14 @@ class AgenticResponseGenerator:
         self.user_states = {}
         logger.info(f"[에이전틱 응답] 고성능 모델 사용: {self.llm_client.model}")
     
-    async def generate_response(self,original_query:str, query: str, agentic_type: AgenticType, uid: str, token: str, state: str) -> Dict[str, Any]:
+    async def generate_response(self,original_query:str, query: str, agentic_type: AgenticType, uid: str, token: str, state: str, keyword:str,intention:str) -> Dict[str, Any]:
         """응답을 생성합니다."""
         try:
             if agentic_type == AgenticType.GENERAL:
                 return await self._generate_general_response(query)
             elif agentic_type == AgenticType.CALENDAR:
                 logger.info(f"[CALENDAR 기능 초기화중] : CALENDAR")
-                agentic_calendar = self._generate_calendar_response(original_query,uid,token)
+                agentic_calendar = self._generate_calendar_response(original_query,uid,token,intention)
                 return await agentic_calendar
             elif agentic_type == AgenticType.RESUME:
                 logger.info(f"[RESUME 기능 초기화중] ")
@@ -48,7 +48,7 @@ class AgenticResponseGenerator:
             }
             elif agentic_type == AgenticType.POST:
                 logger.info("[1. 사용자 질문 받음]")  
-                Post_Response = await self._generate_post_response(token,original_query, query , state)
+                Post_Response = await self._generate_post_response(token,original_query, query , state, keyword)
                 "게시판기능"
                 logger.info(f"[Post_Response 받음] : {Post_Response}")  
                 logger.info(f"[Post_Response DATA - TYPE] : {type(Post_Response)}")  
@@ -120,11 +120,11 @@ class AgenticResponseGenerator:
         # TODO: 메모 관리 기능 구현
         return await self._generate_general_response(query)
     
-    async def _generate_calendar_response(self, query: str, uid: str, token: str) -> Dict[str, Any]:
+    async def _generate_calendar_response(self, query: str, uid: str, token: str,intention:str) -> Dict[str, Any]:
         """캘린더 관리 응답을 생성합니다."""
         try:
             logger.info(f"[CALENDAR 응답] : CALENDAR")
-            response = self.calendar_agent.Calendar_function(query,token)
+            response = self.calendar_agent.Calendar_function(query,token,intention)
             logger.info(f"[CALENDAR response]  { response }")
             return response
         except Exception as e:
@@ -163,12 +163,12 @@ class AgenticResponseGenerator:
         return await self._generate_general_response(query) 
 ############################################################################# 게시판 생성 기능  
 
-    async def _generate_post_response(self, token, original_query , query , state) -> Dict[str,Any]:
+    async def _generate_post_response(self, token, original_query , query , state, keyword) -> Dict[str,Any]:
         logger.info("[2. 어디 단계인지 확인] (ex_ 카테고리 반환 단계 , 게시판 생성단계)")
         """ 게시판 생성 기능 """
         state="first"
         if state == "first" : 
-            post_first_response = await self.post_agent.first_query(token , query , state)
+            post_first_response = await self.post_agent.first_query(token , query , state, keyword)
             
             if post_first_response['title'] is None or post_first_response['tags'] is None:
                 return {
