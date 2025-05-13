@@ -1,4 +1,3 @@
-
 # app/api/v1/agentic.py
 
 from fastapi import APIRouter, HTTPException, Request, Body, Header
@@ -250,16 +249,28 @@ async def get_job_search_status(user_id: str) -> JobSearchResponse:
         message="구직 정보 검색이 진행 중입니다."
     )
 
-@router.post("/cover-letter/start")
-async def start_cover_letter(
-    request: CoverLetterStartRequest
-):
-    """자기소개서 생성 대화 시작"""
-    state = await start_cover_letter_conversation(request.user_id)
-    return {
-        "message": "자기소개서 작성을 도와드리겠습니다. 어떤 분야에서 일하고 싶으신가요?",
-        "state": state
-    }
+@router.post(
+    "/cover-letter/start/{user_id}",
+    response_model=CoverLetterResponse,
+    summary="자기소개서 생성 시작",
+    description="자기소개서 생성을 시작합니다."
+)
+async def start_cover_letter(user_id: str) -> CoverLetterResponse:
+    """자기소개서 생성 시작"""
+    try:
+        # 대화 상태 초기화
+        state = await start_cover_letter_conversation(user_id)
+        
+        return CoverLetterResponse(
+            message="자기소개서 생성을 시작합니다. 지원하시려는 직무에 대해 말씀해 주세요.",
+            state=state
+        )
+    except Exception as e:
+        logger.error(f"자기소개서 생성 시작 실패: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
 
 @router.post(
     "/cover-letter/response",
@@ -272,8 +283,15 @@ async def process_cover_letter(
 ) -> CoverLetterResponse:
     """자기소개서 응답 처리"""
     try:
+        # 응답 처리
         result = await process_cover_letter_response(request.state, request.response)
-        return CoverLetterResponse(**result)
+        
+        return CoverLetterResponse(
+            message=result["message"],
+            state=result["state"],
+            cover_letter=result.get("cover_letter"),
+            pdf_path=result.get("pdf_path")
+        )
     except Exception as e:
         logger.error(f"자기소개서 응답 처리 실패: {str(e)}")
         raise HTTPException(

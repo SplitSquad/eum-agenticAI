@@ -682,31 +682,60 @@ async def make_pdf(state: str, user_data: dict):
     return {"html": html_content}
 
 ########################################################## 이력서 작성 중 응답 API
-async def respond_to_resume(user_id: str, request: ResumeRequest) -> ResumeResponse:
-    """이력서 생성 대화 응답 처리"""
+async def process_resume_response(state: ResumeConversationState, response: str) -> Dict[str, Any]:
+    """이력서 생성 응답 처리"""
     try:
-        # 대화 상태 확인
-        if user_id not in conversation_states:
-            raise HTTPException(
-                status_code=400,
-                detail="진행 중인 이력서 생성 대화가 없습니다."
-            )
-        
-        state = conversation_states[user_id]
-        result = await process_resume_conversation_response(state, request.response)
-        
-        # 대화가 완료된 경우 상태 제거
-        if result["status"] == "completed":
-            del conversation_states[user_id]
-        
-        return ResumeResponse(**result)
-        
+        if state.current_step == "start":
+            # 첫 응답에서는 학력/자격사항 정보를 저장
+            state.edu_cert_input = response
+            result = await parse_edu_cert_with_openai(response)
+            state.education = result.get("education", [])
+            state.certifications = result.get("certifications", [])
+            state.current_step = "career"
+            return {
+                "status": "in_progress",
+                "message": "경력사항을 입력해주세요.",
+                "question": "경력사항을 모두 입력해 주세요.\n예시: 2016-2018 네이버 소프트웨어 엔지니어(검색 엔진 개발), 2018-2020 카카오 시니어 개발자(메시징 플랫폼 개발)",
+                "state": state
+            }
+        elif state.current_step == "career":
+            # 경력사항 정보를 받고 이력서 생성
+            state.career_input = response
+            result = await parse_career_with_openai(response)
+            state.career = result
+            state.current_step = "completed"
+            state.is_completed = True
+            
+            # 이력서 PDF 생성
+            pdf_form = await make_pdf(state, state.user_data)
+            output_dir = os.path.join(os.getcwd(), "app/services/agentic/resume")
+            os.makedirs(output_dir, exist_ok=True)
+            output_path = os.path.join(output_dir, "resume.pdf")
+            await save_html_to_pdf(pdf_form, output_path)
+            
+            # S3 업로드
+            s3_url = upload_to_s3(output_path, "pdfs/resume.pdf")
+            
+            return {
+                "status": "completed",
+                "message": "이력서가 생성되었습니다.",
+                "pdf_path": output_path,
+                "s3_url": s3_url,
+                "state": state
+            }
+        else:
+            return {
+                "status": "error",
+                "message": "이미 이력서가 생성되었습니다.",
+                "state": state
+            }
     except Exception as e:
         logger.error(f"이력서 생성 응답 처리 실패: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail=str(e)
-        )
+        return {
+            "status": "error",
+            "message": f"이력서 생성 중 오류가 발생했습니다: {str(e)}",
+            "state": state
+        }
 ########################################################## 이력서 작성 중 응답 API
 
 ########################################################## 이력서 진행 상태 조회 API
