@@ -167,7 +167,7 @@ def get_credentials():
 ################################################ 구글 켈린더 엑세스
 
 ################################################ user input 분류
-def Input_analysis(user_input):
+def Input_analysis(user_input,intention):
     
     llm = ChatOpenAI(
         model="gpt-4",
@@ -255,7 +255,7 @@ def Input_analysis(user_input):
 
         return json.dumps(result, indent=2)
         
-    description = user_input
+    description = f"user_input:{user_input} intention:{intention}"
     response = parse_product(description)
     response = json.loads(response)  # 문자열 → 딕셔너리
 
@@ -673,7 +673,7 @@ class AgenticCalendar:
     def __init__(self):
         pass  # 필요한 초기화가 있다면 여기에
 
-    def Calendar_function(self, query: str, token: str) -> Dict[str, Any]:
+    def Calendar_function(self, query: str, token: str,intention:str) -> Dict[str, Any]:
 
         logger.info("[CATEGORY CLASSIFICATION 초기화]")
         # # ✅ 최초 로그인 시 token.pickle 없으면 로그인 유도
@@ -681,7 +681,7 @@ class AgenticCalendar:
         #     print("🔑 Google 로그인이 필요합니다. 브라우저 창이 열립니다.")
         #     get_credentials()
 
-        classification = Input_analysis(query)
+        classification = Input_analysis(query,intention)
         logger.info("[CALENDAR_CATEGORY] ",classification)
     
         if classification == "add" :
