@@ -34,13 +34,14 @@ class AgenticRequest(BaseModel):
     """에이전틱 요청 모델"""
     query: str
     uid: str   
-    # state_variable : str
+    state : str
 
 class AgenticResponse(BaseModel):
     """에이전틱 응답 모델"""
     response: str
     metadata: Dict[str, Any]
-    # state_variable : str
+    state : Optional[str] = None  # ✅ None 허용
+    url: Optional[str] = None  # ✅ None 허용
 
 class ResumeResponse(BaseModel):
     """이력서 생성 응답 모델"""
@@ -120,8 +121,10 @@ async def agentic_handler(request: AgenticRequest, authorization: Optional[str] 
         logger.info(f"[TOKEN] Extracted token: {token}")
         
 
-        # 에이전트 응답 생성
-        result = await agentic.get_response(request.query, request.uid, token)
+         # 에이전트 응답 생성
+        result = await agentic.get_response(request.query, request.uid, token, request.state)
+
+        logger.info(f"[에이전트 응답] : {result}")
         
         # 구직 정보 검색이 필요한지 확인
         if "구직" in request.query or "일자리" in request.query or "채용" in request.query:
@@ -129,10 +132,12 @@ async def agentic_handler(request: AgenticRequest, authorization: Optional[str] 
             job_search_result = await start_job_search(request.uid)
             result["metadata"]["job_search"] = job_search_result.dict()
         
-        # 응답 반환
+       # 응답 반환
         return AgenticResponse(
             response=result["response"],
-            metadata=result["metadata"]
+            metadata=result["metadata"],
+            state=result["state"],
+            url=result["url"]
         )
     except Exception as e:
         logger.error(f"에이전틱 처리 중 오류 발생: {str(e)}")
