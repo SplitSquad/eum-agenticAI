@@ -26,11 +26,13 @@ class Agentic:
             translation_result = translate_query(query)
             source_lang = translation_result["lang_code"]
             english_query = translation_result["translated_query"]
-            logger.info(f"[에이전트] 언어 감지 완료 - 소스 언어: {source_lang}, 영어 번역: {english_query}")
+            keyword = translation_result["keyword"]
+            intention = translation_result["intention"]
+            logger.info(f"[에이전트] 언어 감지 완료 - 소스 언어: {source_lang}, 영어 번역: {english_query}, 키워드: {keyword}, 의도 :{intention}")
             
             # 2. 기능 분류
             logger.info(f"[WORKFLOW] Step 2: Classification")
-            agentic_type = await self.classifier.classify(english_query)
+            agentic_type = await self.classifier.classify(english_query,intention)
             logger.info(f"[에이전트] 에이전틱 유형: {agentic_type.value}")
             
             # 3. 응답 생성

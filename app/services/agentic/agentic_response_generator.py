@@ -104,11 +104,11 @@ class AgenticResponseGenerator:
         # TODO: 메모 관리 기능 구현
         return await self._generate_general_response(query)
     
-    async def _generate_calendar_response(self, query: str, uid: str, token: str) -> Dict[str, Any]:
+    async def _generate_calendar_response(self, query: str, uid: str, token: str,intention:str) -> Dict[str, Any]:
         """캘린더 관리 응답을 생성합니다."""
         try:
             logger.info(f"[CALENDAR 응답] : CALENDAR")
-            response = self.calendar_agent.Calendar_function(query,token)
+            response = self.calendar_agent.Calendar_function(query,token,intention)
             logger.info(f"[CALENDAR response]  { response }")
             return response
         except Exception as e:

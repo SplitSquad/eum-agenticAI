@@ -1,7 +1,7 @@
 from typing import Dict, Any, Tuple
 from enum import Enum
 from loguru import logger
-from app.core.llm_client import get_llm_client
+from app.core.llm_client import get_llm_client,get_langchain_llm
 from app.models.agentic_response import AgentType, ActionType
 
 from langchain_groq import ChatGroq
@@ -9,8 +9,11 @@ from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 
 from dotenv import load_dotenv
+from app.core.llm_post_prompt import Prompt
 load_dotenv()  # .env 파일 자동 로딩
 import os
+
+
 # ✅ .env 파일의 절대 경로 지정
 dotenv_path = os.path.join(os.path.dirname(__file__), '../../../.env')
 load_dotenv(dotenv_path)
@@ -177,7 +180,7 @@ class AgenticClassifier:
         self.llm_client = get_llm_client(is_lightweight=True)
         logger.info(f"[에이전틱 분류] 경량 모델 사용: {self.llm_client.model}")
     
-    async def classify(self, query: str) -> AgenticType:
+    async def classify(self, query: str,intention: str) -> AgenticType:
         """
         질의를 분류합니다.
         
@@ -191,7 +194,7 @@ class AgenticClassifier:
             logger.info(f"[에이전틱 분류] 질의 분류 시작: {query}")
             
             # 질의 유형 분류
-            agentic_type = await self._classify_agentic_type(query)
+            agentic_type = await self._classify_agentic_type(query,intention)
             logger.info(f"[에이전틱 분류] 기능 유형: {agentic_type.value}")
             
             return agentic_type
@@ -200,13 +203,13 @@ class AgenticClassifier:
             logger.error(f"분류 중 오류 발생: {str(e)}")
             return AgenticType.GENERAL
     
-    async def _classify_agentic_type(self, query: str) -> AgenticType:
+    async def _classify_agentic_type(self, query: str, intention: str) -> AgenticType:
         """에이전틱 기능 유형을 분류합니다."""
         try:
             # TODO: LLM을 활용한 기능 유형 분류 구현
             # 임시로 모든 질의를 일반 대화로 분류
             # LLM을 통해 카테고리 분류
-            category_json = Category_Classification(query)
+            category_json = Category_Classification(query, intention)
             category_dict = json.loads(category_json)  # JSON 문자열을 dict로 변환
             category = category_dict["output"]  # output 필드 추출
             
@@ -228,6 +231,7 @@ def Category_Classification(query, intention):
                 "output": {"type": "string"},
             }
     })
+    system_prompt = Prompt.agentic_classifier_prompt()
     prompt = ChatPromptTemplate.from_messages([
     ("system", system_prompt ),
         ("user", "{input}")
@@ -241,7 +245,8 @@ def Category_Classification(query, intention):
     
 
     chain = prompt | llm | parser
-    Category = parse_product(query)
+    input_prompt =f"query:{query} intention:{intention}"
+    Category = parse_product(input_prompt)
     print("[Category] ",Category)
     return Category
 ################################################### LLM을 활용한 기능 유형 분류 구현
