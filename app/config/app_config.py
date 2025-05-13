@@ -101,3 +101,4 @@ settings = Settings(
 
 # 디버깅을 위한 설정 로그 출력
 print(f"Loaded settings from .env: LIGHTWEIGHT_LLM_PROVIDER={settings.LIGHTWEIGHT_LLM_PROVIDER}") 
+print("[DEBUG] Loaded GROQ_API_KEY:", settings.GROQ_API_KEY)
