@@ -13,6 +13,7 @@ from langchain_core.messages import HumanMessage
 import subprocess
 from pydantic import BaseModel
 
+# 수정 필요
 class ResumeRequest(BaseModel):
     """이력서 생성 요청 모델"""
     response: str

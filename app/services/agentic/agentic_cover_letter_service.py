@@ -227,7 +227,7 @@ async def generate_cover_letter(job_keywords: str, experience: str, motivation: 
     logger.info(f"AI가 생성한 자기소개서: {response.content[:200]}...")
     return response.content
 
-# 테스트를 위한 더미 데이터
+# 테스트를 위한 더미 데이터 data
 TEST_DATA = {
     "job_keywords": "소프트웨어 엔지니어 (백엔드)",
     "experience": "2020-2023 네이버에서 검색 엔진 개발 및 최적화 프로젝트를 주도했습니다. Java와 Spring Boot를 사용하여 마이크로서비스 아키텍처를 설계하고 구현했으며, 시스템 성능을 40% 개선했습니다.",
