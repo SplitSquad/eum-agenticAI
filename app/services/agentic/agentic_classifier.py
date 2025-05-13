@@ -219,10 +219,8 @@ class AgenticClassifier:
 
 ################################################### LLM을 활용한 기능 유형 분류 구현     
 def Category_Classification(query):
-    llm = ChatGroq(
-        model_name="llama-3.3-70b-versatile",
-        temperature=0.7
-        )
+    llm = get_langchain_llm(is_lightweight=False)
+
     parser = JsonOutputParser(pydantic_object={
             "type": "object",
             "properties": {
@@ -231,54 +229,7 @@ def Category_Classification(query):
             }
     })
     prompt = ChatPromptTemplate.from_messages([
-    ("system", """
-    1. Its role is to inform the category.
-    2. Here is a few-shot example.
-    ----------------------- 
-    input : 일정 추가해줘  
-    output : calendar
-
-    input : 내일 약속 생겼어  
-    output : calendar
-
-    input : 오후 3시에 회의 잡아줘  
-    output : calendar
-
-    input : 스케줄 등록해줄래?  
-    output : calendar
-
-    input : 약속 변경하고 싶어  
-    output : calendar
-     
-    input : 내일 점심약속 생겼어  
-    output : calendar
-    -----------------------
-    input : 이력서 작성 부탁해  
-    output : resume
-
-    input : 경력사항입니다  
-    output : resume
-
-    input : 자기소개는 이렇게 작성했어요  
-    output : resume
-
-    input : 학력 정보 추가해줘  
-    output : resume
-
-    input : 아래 내용 기반으로 이력서 만들어줘  
-    output : resume
-    -----------------
-    input : all Other query
-    output : general
-    -----------------
-     
-    3. Please output it like output
-
-
-
-    default.Respond only in JSON format
-    
-    """),
+    ("system", system_prompt ),
         ("user", "{input}")
     ])
 

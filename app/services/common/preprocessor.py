@@ -3,6 +3,11 @@ from langchain_groq import ChatGroq
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 import json
+from langchain_openai import ChatOpenAI
+from app.core.llm_client import get_langchain_llm
+
+def translate_query(query) : 
+    llm = get_langchain_llm(is_lightweight=False)
 
 def translate_query(query) : 
     llm = ChatGroq(
