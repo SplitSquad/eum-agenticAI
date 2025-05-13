@@ -218,7 +218,7 @@ class AgenticClassifier:
             return AgenticType.GENERAL 
 
 ################################################### LLM을 활용한 기능 유형 분류 구현     
-def Category_Classification(query):
+def Category_Classification(query, intention):
     llm = get_langchain_llm(is_lightweight=False)
 
     parser = JsonOutputParser(pydantic_object={
