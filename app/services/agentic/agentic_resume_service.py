@@ -61,8 +61,18 @@ class AgenticResume():
         data = self.user_data[uid]
 
         ### 학력 및 자격사항 수집 (최대 5개)
-        if state.startswith("ask_edu_"):
-            idx = int(state.split("_")[-1])
+        if state.startswith("ask_edu"):
+            state = "ask_edu_0"
+            try:
+                idx_str = state.split("_")[-1]
+                idx = int(idx_str)
+            except ValueError:
+                logger.error(f"[STATE 파싱 실패] state: '{state}' → 인덱스를 추출할 수 없습니다.")
+                return {
+                    "response": "상태 정보에 문제가 발생했습니다. 다시 시도해 주세요.",
+                    "state": "error",
+                }
+
             if "education" not in data:
                 data["education"] = []
 
@@ -106,7 +116,16 @@ class AgenticResume():
 
         ### 경력사항 수집 (최대 5개)
         elif state.startswith("ask_career_"):
-            idx = int(state.split("_")[-1])
+            try:
+                idx_str = state.split("_")[-1]
+                idx = int(idx_str)
+            except ValueError:
+                logger.error(f"[STATE 파싱 실패] state: '{state}' → 인덱스를 추출할 수 없습니다.")
+                return {
+                    "response": "상태 정보에 문제가 발생했습니다. 다시 시도해 주세요.",
+                    "state": "error",
+                }
+
             if "career" not in data:
                 data["career"] = []
 
@@ -140,10 +159,15 @@ class AgenticResume():
                         message = "입력해주셔서 감사합니다. 이력서를 생성 중입니다."
 
         else:
+            logger.error(f"[STATE 오류] 잘못된 state가 전달되었습니다: {state}")
             return {
                 "response": "상태 오류입니다. 다시 시도해 주세요.",
                 "state": "error",
+                "data": data,
+                "url": None
             }
+
+
 
         logger.info(f"[현재까지 저장된 데이터 for {uid}] : {json.dumps(data, ensure_ascii=False, indent=2)}")
 
@@ -151,7 +175,9 @@ class AgenticResume():
             "response": message,
             "state": next_state,
             "data": data,
+            "url": None  # 혹은 "" 로 해도 무방
         }
+
     
         
 

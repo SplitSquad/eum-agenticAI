@@ -32,11 +32,11 @@ class AgenticResponseGenerator:
                 logger.info(f"[CALENDAR 기능 초기화중] : CALENDAR")
                 agentic_calendar = self._generate_calendar_response(original_query,uid,token,intention)
                 return await agentic_calendar
-            elif agentic_type == AgenticType.RESUME:
-                self._generate_resume_response(query,uid,token,state)
+            
+            # elif agentic_type == AgenticType.RESUME:
+            #     await self._generate_resume_response(query,uid,token,state)
+            #     return 
 
-
-                return 
             elif agentic_type == AgenticType.POST:
                 logger.info("[1. 사용자 질문 받음]")  
                 Post_Response = await self._generate_post_response(token,original_query, query , state, keyword)
@@ -138,10 +138,10 @@ class AgenticResponseGenerator:
                 "metadata": {
                     "query": query,
                     "agentic_type": AgenticType.CALENDAR.value,
-                    "error": str(e)
+                    "error": ""
                 },
                 "state" : "error",
-                "url" : "null"
+                "url" : " "
             }
     
     async def _generate_reminder_response(self, query: str) -> Dict[str, Any]:

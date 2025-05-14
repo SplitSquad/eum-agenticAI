@@ -6,10 +6,10 @@ from pydantic import BaseModel
 from typing import Dict, Any, Optional
 from loguru import logger
 from app.services.agentic.agentic import Agentic
-from app.services.agentic.agentic_resume_service import (
-    ResumeConversationState,
-    start_resume_conversation,
-)
+# from app.services.agentic.agentic_resume_service import (
+#     ResumeConversationState,
+#     start_resume_conversation,
+# )
 
 router = APIRouter(
     prefix="/agentic",
@@ -48,8 +48,8 @@ class ResumeRequest(BaseModel):
 # 에이전트 인스턴스 생성 (애플리케이션 시작 시 한 번만 초기화)
 agentic = Agentic()
 
-# 대화 상태 저장소 (실제 프로덕션에서는 Redis나 DB를 사용해야 함)
-conversation_states: Dict[str, ResumeConversationState] = {}
+# # 대화 상태 저장소 (실제 프로덕션에서는 Redis나 DB를 사용해야 함)
+# conversation_states: Dict[str, ResumeConversationState] = {}
 
 @router.post(
     "",
