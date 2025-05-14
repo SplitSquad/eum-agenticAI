@@ -107,7 +107,7 @@ class ResumeConversationState:
             logger.error(f"초기화 실패: {str(e)}")
             raise HTTPException(
                 status_code=500,
-                detail=f"초기화 실패: {str(e)}"x
+                detail=f"초기화 실패: {str(e)}"
             )
 
     async def missing_info(self, authorization: str, user_email: str, request: ResumeRequest) -> None:
