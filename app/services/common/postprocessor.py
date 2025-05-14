@@ -14,6 +14,44 @@ LANGUAGE_CODE_MAP = {
     "ru": "Russian"
 }
 
+# Global postprocessor instance
+_postprocessor = None
+
+def get_postprocessor():
+    """Get or create a global postprocessor instance"""
+    global _postprocessor
+    if _postprocessor is None:
+        _postprocessor = Postprocessor()
+    return _postprocessor
+
+async def translate_response(response: str, original_query: str) -> str:
+    """
+    Translate the response back to the original query's language.
+    
+    Args:
+        response: Response to translate
+        original_query: Original query to determine the target language
+        
+    Returns:
+        str: Translated response
+    """
+    try:
+        # Detect language of original query
+        source_lang = "ko"  # Default to Korean for now
+        if all(ord(c) < 128 for c in original_query):  # If all characters are ASCII
+            source_lang = "en"
+            
+        # Get postprocessor instance
+        postprocessor = get_postprocessor()
+        
+        # Process the response
+        result = await postprocessor.postprocess(response, source_lang, "none")
+        return result["response"]
+        
+    except Exception as e:
+        logger.error(f"[Translate] Error during translation: {str(e)}")
+        return response  # Return original response if translation fails
+
 class Postprocessor:
     """Post-processing service"""
     

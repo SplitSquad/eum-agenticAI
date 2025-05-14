@@ -20,6 +20,8 @@ class Agentic:
         """질의에 대한 응답을 생성합니다."""
         try:
             original_query = query
+            agentic_type = AgenticType.GENERAL  # 기본값 설정
+            translation_result = {"lang_code": "ko", "translated_query": query, "is_english": False}  # 기본값 설정
             
             logger.info("=" * 80)
             logger.info(f"[WORKFLOW START] User: {uid}")
@@ -37,12 +39,14 @@ class Agentic:
             translation_result = await translate_query(query)
             source_lang = translation_result["lang_code"]
             english_query = translation_result["translated_query"]
+            is_english = translation_result.get("is_english", False)
             
             logger.info("[LLM OUTPUT] Translation Result:")
             logger.info(f"  - Source Language: {source_lang}")
             logger.info(f"  - Translated Query: {english_query}")
+            logger.info(f"  - Is English: {is_english}")
             
-            # 2. 기능 분류
+            # 2. 기능 분류 (영어로 된 쿼리 사용)
             logger.info("\n" + "=" * 40)
             logger.info("[STEP 2] Query Classification")
             logger.info(f"[LLM INPUT] Query for classification: {english_query}")
@@ -52,7 +56,7 @@ class Agentic:
             logger.info("[LLM OUTPUT] Classification Result:")
             logger.info(f"  - Agentic Type: {agentic_type.value}")
             
-            # 3. 응답 생성
+            # 3. 응답 생성 (영어로 된 쿼리 사용)
             logger.info("\n" + "=" * 40)
             logger.info("[STEP 3] Response Generation")
             logger.info("[LLM INPUT] Parameters for response generation:")
@@ -61,7 +65,7 @@ class Agentic:
             logger.info(f"  - Agentic Type: {agentic_type.value}")
             
             result = await self.response_generator.generate_response(
-                original_query=original_query,
+                original_query=original_query if is_english else english_query,  # 영어면 원본, 아니면 번역된 쿼리 사용
                 english_query=english_query,
                 agentic_type=agentic_type,
                 uid=uid,
@@ -74,7 +78,7 @@ class Agentic:
             logger.info(f"  - Metadata: {json.dumps(result.get('metadata', {}), indent=2, ensure_ascii=False)}")
             
             # 4. 후처리 (원문 언어로 번역)
-            if source_lang != "en":
+            if not is_english and source_lang != "en":
                 logger.info("\n" + "=" * 40)
                 logger.info("[STEP 4] Postprocessing - Translation Back to Original Language")
                 logger.info(f"[LLM INPUT] Text for translation: {result['response'][:200]}...")
@@ -90,12 +94,13 @@ class Agentic:
             response_data = {
                 "response": result["response"],
                 "metadata": {
-                    "query": query,
+                    "query": original_query,  # 원본 쿼리 사용
                     "english_query": english_query,
                     "source_lang": source_lang,
                     "agentic_type": agentic_type.value,
                     "uid": uid,
-                    "state": result.get("metadata", {}).get("state", "general")
+                    "state": result.get("metadata", {}).get("state", "general"),
+                    "is_english": is_english
                 }
             }
             
@@ -121,9 +126,13 @@ class Agentic:
             return {
                 "response": "죄송합니다. 응답을 생성하는 중에 오류가 발생했습니다.",
                 "metadata": {
-                    "query": query,
-                    "state": "error",
+                    "query": original_query,  # 원본 쿼리 사용
+                    "english_query": translation_result.get("translated_query", query),
+                    "source_lang": translation_result.get("lang_code", "ko"),
+                    "agentic_type": agentic_type.value,  # 분류된 타입 유지
                     "uid": uid,
-                    "error": str(e)
+                    "state": "error",
+                    "error": str(e),
+                    "is_english": translation_result.get("is_english", False)
                 }
             } 
