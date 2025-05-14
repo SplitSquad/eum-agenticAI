@@ -65,7 +65,7 @@ class Agentic:
             logger.info(f"  - Agentic Type: {agentic_type.value}")
             
             result = await self.response_generator.generate_response(
-                original_query=original_query if is_english else english_query,  # 영어면 원본, 아니면 번역된 쿼리 사용
+                original_query=original_query,  # 항상 원본 쿼리 사용
                 english_query=english_query,
                 agentic_type=agentic_type,
                 uid=uid,

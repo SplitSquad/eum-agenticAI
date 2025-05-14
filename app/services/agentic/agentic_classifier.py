@@ -34,12 +34,9 @@ class RAGType(str, Enum):
 class AgenticType(str, Enum):
     """에이전틱 기능 유형"""
     GENERAL = "general"  # 일반 대화
-    SCHEDULE = "schedule"  # 일정 관리
-    TODO = "todo"  # 할 일 관리
-    MEMO = "memo"  # 메모 관리
     CALENDAR = "calendar"  # 캘린더 관리
-    REMINDER = "reminder"  # 알림 관리
     RESUME = "resume" # 이력서 기능
+    COVERLETTER = "coverletter" # 자소서 기능
     POST = "post" # 게시판 기능
 
 class AgenticClassifier:
@@ -90,24 +87,28 @@ class AgenticClassifier:
     async def _classify_agentic_type(self, query: str) -> AgenticType:
         """에이전틱 기능 유형을 분류합니다."""
         prompt = f"""
-        다음 질문을 처리하기 위해 어떤 유형의 기능이 필요한지 판단해주세요.
-        질문: {query}
-        
-        다음 중 하나만 답변해주세요:
-        - general: 일반 대화나 질문
-        - schedule: 일정 관리 (약속 잡기, 일정 확인 등)
-        - todo: 할 일 관리 (할 일 추가, 삭제, 확인 등)
-        - memo: 메모 관리 (메모 작성, 조회 등)
-        - calendar: 캘린더 관리 (일정 등록, 조회 등)
-        - reminder: 알림 관리 (알림 설정, 확인 등)
-        - resume: 이력서 관련 (이력서 작성, 수정 등)
-        - post: 게시글 관련 (게시글 작성, 조회, 모임/스터디 구하기 등)
+        You are a function classifier. Your job is to determine the most suitable function type for the user's query.
 
-        주의사항:
-        - 모임이나 스터디를 구하는 내용은 'post'로 분류하세요
-        - 게시글 작성 요청은 'post'로 분류하세요
-        - 단순 일정 관리는 'schedule'로 분류하세요
+        Query: {query}
+
+        Respond with **only one** of the following categories:
+        - general: General small talk or questions that do not match any of the specific categories below
+        - calendar: Calendar management (e.g., add/view events)
+        - resume: Resume-related tasks (e.g., create or edit a resume)
+        - post: Post-related tasks (e.g., write or view posts, find or organize study groups or meetups)
+        - coverletter: Cover letter-related tasks (e.g., write or edit a cover letter)
+
+        🟡 Important classification guidelines:
+        - If the query is about **community, study groups, or meetups**, classify it as `post`
+        - If the query asks to **write or view a post**, classify it as `post`
+        - If the user wants to **add an event to a calendar**, classify it as `calendar`
+        - If the query mentions **resumes**, classify it as `resume`
+        - If the query is about **cover letters**, classify it as `coverletter`
+        - Only choose `general` if the query **clearly does not belong** to any of the categories above
+
+        ⚠️ Do not choose `general` unless you are certain that no other category fits.
         """
+
         
         try:
             logger.info(f"[에이전틱 분류] 기능 유형 분류 시작")

@@ -31,157 +31,159 @@ class AgenticResponseGenerator:
     ) -> Dict[str, Any]:
         """응답을 생성합니다."""
         try:
+            logger.info(f"[에이전틱 응답] {agentic_type.value} 기능 처리 시작")
+            
+            # 기본 응답 형식
+            response_data = {
+                "metadata": {
+                    "query": original_query,
+                    "english_query": english_query,
+                    "agentic_type": agentic_type.value,
+                    "state": state or "general"
+                }
+            }
+
+            # 에이전트 타입별 라우팅
             if agentic_type == AgenticType.GENERAL:
-                return await self._generate_general_response(english_query, original_query)
+                logger.info("[에이전틱 응답] 일반 대화 처리")
+                response_data["response"] = "tmp general response"
+            
             elif agentic_type == AgenticType.CALENDAR:
-                logger.info(f"[CALENDAR 기능 초기화중] : CALENDAR")
-                return await self._generate_calendar_response(original_query, uid, token)
+                logger.info("[에이전틱 응답] 캘린더 기능 처리")
+                response_data["response"] = "tmp calendar response"
+            
             elif agentic_type == AgenticType.RESUME:
-                logger.info(f"[RESUME 기능 초기화중] : RESUME")
-                return await self._generate_resume_response(original_query, uid, state, token)
+                logger.info("[에이전틱 응답] 이력서 기능 처리")
+                response_data["response"] = "tmp resume response"
+            
+            elif agentic_type == AgenticType.COVERLETTER:
+                logger.info("[에이전틱 응답] 자소서 기능 처리")
+                response_data["response"] = "tmp coverletter response"
+            
             elif agentic_type == AgenticType.POST:
-                logger.info("[1. 사용자 질문 받음]")
-                post_response = await self._generate_post_response(
-                    token=token,
-                    original_query=original_query,
-                    query=english_query,
-                    state=state
-                )
-                if isinstance(post_response, str):
-                    error_msg = await translate_response("게시글 생성 중 오류가 발생했습니다.", original_query)
-                    return {
-                        "response": error_msg,
-                        "metadata": {
-                            "query": english_query,
-                            "agentic_type": "POST",
-                            "error": post_response
-                        }
-                    }
-                return post_response
+                logger.info("[에이전틱 응답] 게시판 기능 처리")
+                response_data["response"] = "tmp post response"
+                response_data["url"] = "null"
+            
             else:
-                return await self._generate_general_response(english_query, original_query)
+                logger.warning(f"[에이전틱 응답] 알 수 없는 에이전트 타입: {agentic_type.value}")
+                response_data["response"] = "tmp unknown response"
+            
+            logger.info(f"[에이전틱 응답] 응답 생성 완료: {response_data}")
+            return response_data
                 
         except Exception as e:
+            logger.error(f"[에이전틱 응답] 오류 발생: {str(e)}")
             error_msg = await translate_response("죄송합니다. 응답을 생성하는 중에 오류가 발생했습니다.", original_query)
             return {
                 "response": error_msg,
                 "metadata": {
-                    "query": english_query,
-                    "agentic_type": "error",
+                    "query": original_query,
+                    "english_query": english_query,
+                    "agentic_type": agentic_type.value,
+                    "state": "error",
                     "error": str(e)
                 }
             }
-    
-    async def _generate_general_response(self, query: str, original_query: str) -> Dict[str, Any]:
-        """일반 응답을 생성합니다."""
-        try:
-            response = await self.llm_client.generate(query)
-            translated_response = await translate_response(response, original_query)
-            return {
-                "response": translated_response,
-                "metadata": {
-                    "query": query,
-                    "agentic_type": AgenticType.GENERAL.value
-                }
-            }
-        except Exception as e:
-            error_msg = await translate_response("죄송합니다. 응답을 생성하는 중에 오류가 발생했습니다.", original_query)
-            return {
-                "response": error_msg,
-                "metadata": {
-                    "query": query,
-                    "agentic_type": AgenticType.GENERAL.value,
-                    "error": str(e)
-                }
-            }
-    
-    async def _generate_calendar_response(self, query: str, uid: str, token: str) -> Dict[str, Any]:
-        """캘린더 관리 응답을 생성합니다."""
-        try:
-            logger.info(f"[CALENDAR 응답] : CALENDAR")
-            response = self.calendar_agent.Calendar_function(query, token)
-            logger.info(f"[CALENDAR response]  { response }")
-            return response
-        except Exception as e:
-            error_msg = await translate_response("죄송합니다. 캘린더 기능 처리 중 오류가 발생했습니다.", query)
-            return {
-                "response": error_msg,
-                "metadata": {
-                    "query": query,
-                    "agentic_type": AgenticType.CALENDAR.value,
-                    "error": str(e)
-                }
-            }
-    
-    async def _generate_resume_response(self, query: str, uid: str, state: str, token: str) -> Dict[str, Any]:
-        """이력서 관리 응답을 생성합니다."""
-        try:
-            logger.info(f"[RESUME 응답] : RESUME")
-            response = await self.resume_agent.collect_user_input(query, state, uid)
-            logger.info(f"[RESUME response] {response}")
-            return response
-        except Exception as e:
-            error_msg = await translate_response("죄송합니다. 이력서 기능 처리 중 오류가 발생했습니다.", query)
-            return {
-                "response": error_msg,
-                "metadata": {
-                    "query": query,
-                    "agentic_type": AgenticType.RESUME.value,
-                    "error": str(e)
-                }
-            }
-    
-    async def _generate_reminder_response(self, query: str) -> Dict[str, Any]:
-        """알림 관리 응답을 생성합니다."""
-        # TODO: 알림 관리 기능 구현
-        return await self._generate_general_response(query) 
-############################################################################# 게시판 생성 기능  
 
-    async def _generate_post_response(self, token, original_query, query, state) -> Dict[str,Any]:
-        logger.info("[2. 어디 단계인지 확인] (ex_ 카테고리 반환 단계 , 게시판 생성단계)")
-        """ 게시판 생성 기능 """
-        # 기존 코드 주석 처리
-        """
-        state="first"
-        if state == "first" : 
-            post_first_response = await self.post_agent.first_query(token , query , state)
-            
-            if post_first_response['title'] is None or post_first_response['tags'] is None:
-                error_msg = await translate_response("작성하려는 게시물에 대한 정보를 좀 더 자세하게 입력해주세요 ( 만드려는 게시물의 카테고리등 )", original_query)
-                return {
-                    "response": error_msg,
-                    "state": "first",
-                    "metadata": {
-                        "query": query,
-                        "agentic_type": "POST",
-                        "error": ""
-                    },
-                    "url": "null"
-                }
-            
-            title = post_first_response['title']
-            tags = post_first_response['tags']
-            state= "second"
-
-        if state == "second" : 
-            logger.info(f"[post_second 필요한정보] : {title} {tags} {state}")
-            post_second_response = await self.post_agent.second_query(token , original_query , state, title, tags)
-            logger.info(f"[post_second_response] : {post_second_response}")
-            return post_second_response
-        
-        else :
-            return "error"
-        """
-        
-        # 임시 응답 반환
+# 이전 코드 참고용 주석 (각 기능별 상세 구현)
+'''
+[일반 대화 처리]
+async def _generate_general_response(self, query: str, original_query: str) -> Dict[str, Any]:
+    """일반 응답을 생성합니다."""
+    try:
+        response = await self.llm_client.generate(query)
+        translated_response = await translate_response(response, original_query)
         return {
-            "response": "tmp post response",
+            "response": translated_response,
             "metadata": {
                 "query": original_query,
-                "agentic_type": "post",
-                "state": state
+                "english_query": query,
+                "agentic_type": AgenticType.GENERAL.value
             }
         }
+    except Exception as e:
+        error_msg = await translate_response("죄송합니다. 응답을 생성하는 중에 오류가 발생했습니다.", original_query)
+        return {
+            "response": error_msg,
+            "metadata": {
+                "query": original_query,
+                "english_query": query,
+                "agentic_type": AgenticType.GENERAL.value,
+                "error": str(e)
+            }
+        }
+
+[캘린더 처리]
+async def _generate_calendar_response(self, query: str, uid: str, token: str) -> Dict[str, Any]:
+    """캘린더 관리 응답을 생성합니다."""
+    try:
+        logger.info(f"[CALENDAR 응답] : CALENDAR")
+        response = self.calendar_agent.Calendar_function(query, token)
+        logger.info(f"[CALENDAR response]  { response }")
+        return response
+    except Exception as e:
+        error_msg = await translate_response("죄송합니다. 캘린더 기능 처리 중 오류가 발생했습니다.", query)
+        return {
+            "response": error_msg,
+            "metadata": {
+                "query": query,
+                "agentic_type": AgenticType.CALENDAR.value,
+                "error": str(e)
+            }
+        }
+
+[이력서 처리]
+async def _generate_resume_response(self, query: str, uid: str, state: str, token: str) -> Dict[str, Any]:
+    """이력서 관리 응답을 생성합니다."""
+    try:
+        logger.info(f"[RESUME 응답] : RESUME")
+        response = await self.resume_agent.collect_user_input(query, state, uid)
+        logger.info(f"[RESUME response] {response}")
+        return response
+    except Exception as e:
+        error_msg = await translate_response("죄송합니다. 이력서 기능 처리 중 오류가 발생했습니다.", query)
+        return {
+            "response": error_msg,
+            "metadata": {
+                "query": query,
+                "agentic_type": AgenticType.RESUME.value,
+                "error": str(e)
+            }
+        }
+
+[게시판 처리]
+async def _generate_post_response(self, token, original_query, english_query, state) -> Dict[str,Any]:
+    """게시판 생성 기능"""
+    state="first"
+    if state == "first" : 
+        post_first_response = await self.post_agent.first_query(token , query , state)
+        
+        if post_first_response['title'] is None or post_first_response['tags'] is None:
+            error_msg = await translate_response("작성하려는 게시물에 대한 정보를 좀 더 자세하게 입력해주세요 ( 만드려는 게시물의 카테고리등 )", original_query)
+            return {
+                "response": error_msg,
+                "state": "first",
+                "metadata": {
+                    "query": query,
+                    "agentic_type": "POST",
+                    "error": ""
+                },
+                "url": "null"
+            }
+        
+        title = post_first_response['title']
+        tags = post_first_response['tags']
+        state= "second"
+
+    if state == "second" : 
+        logger.info(f"[post_second 필요한정보] : {title} {tags} {state}")
+        post_second_response = await self.post_agent.second_query(token , original_query , state, title, tags)
+        logger.info(f"[post_second_response] : {post_second_response}")
+        return post_second_response
     
+    else :
+        return "error"
+'''
 
 ############################################################################# 게시판 생성 기능    

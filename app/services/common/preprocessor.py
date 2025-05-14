@@ -12,19 +12,27 @@ SYSTEM_PROMPT = """You are a language detection and translation expert. You MUST
 2. Use the exact format specified
 3. Never include any other text or explanation
 4. Never use markdown formatting or code blocks
-5. Always translate non-English text to English
-6. If input is English, return it as is"""
+5. ALWAYS translate non-English text to English accurately
+6. If input is English, return it as is without any changes
+7. For Korean text about post/board creation, translate naturally to English
+8. Preserve proper nouns like brand names (e.g., 'Lotteria')"""
 
 USER_PROMPT = """Detect the language of this query and translate it to English if it's not English.
+For Korean text, provide a natural English translation that preserves the meaning.
 
 Input query: "{query}"
 
 Return ONLY this JSON structure:
 {{
-  "translated_query": "query in English (keep as is if already English)",
+  "translated_query": "English translation (if input is Korean) or original query (if input is English)",
   "lang_code": "two-letter code (ko/en/ja/zh)",
   "is_english": true/false
-}}"""
+}}
+
+Example translations:
+- "롯데리아 같이 갈 사람 구하는 게시글 작성해줘" -> "Write a post to find people to go to Lotteria together"
+- "스터디 모집 게시글 작성해줘" -> "Create a post to recruit study group members"
+"""
 
 async def translate_query(query: str) -> Dict[str, str]:
     """
