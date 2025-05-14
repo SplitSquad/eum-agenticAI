@@ -1758,3 +1758,240 @@ class Prompt():
         """
 
         return prompt
+    
+    @staticmethod
+    def make_html_ai_prompt():
+        prompt = f""" 
+        1. Please fill in the user information accordingly.
+        2. ⚠️ Do NOT include any explanation or message. ONLY return a valid JSON object. No natural language..
+
+        default. Please return 
+        "html" : html
+        
+        [java script]
+        -----------
+        today = date.today()
+        today_str = f" today.year 년  today.month:02d 월  today.day:02d 일"
+
+        # 가족사항 3줄 생성 (빈 줄 포함)
+        family_rows = user_data.get('family', [])
+        family_rows = (family_rows + [] * 3)[:3]  # 최대 3줄로 제한
+        family_html = ''
+        family_html += '''
+            <tr>
+                <td rowspan="4">가족관계</td>
+                <td>관 계</td>
+                <td>성 명</td>
+                <td colspan="2">연 령</td>
+                <td colspan="2">현재직업</td>
+            </tr>
+        '''
+        for row in family_rows:
+            family_html += f'''	
+            <tr>
+                <td>row.get('relation', '')</td>
+                <td>row.get('name', '')</td>
+                <td colspan="2">row.get('age', '')</td>
+                <td colspan="2">row.get('job', '')</td>
+            </tr>
+            '''
+
+        # 학력/자격사항 5개 row 생성
+        education_rows = user_data.get('education', [])
+        certifications_rows = user_data.get('certifications', [])
+        edu_cert_rows = education_rows + certifications_rows
+        edu_cert_rows = (edu_cert_rows + [] * 5)[:5]
+        edu_cert_html = ''.join([
+            f'''<tr>\n<td class="period-cell">row.get('period', '')</td>\n<td class="content-cell">row.get('school', row.get('name', '')) row.get('major', '') row.get('degree', '') row.get('issuer', '') row.get('grade', '')</td>\n<td class="note-cell"></td>\n</tr>''' for row in edu_cert_rows
+        ])
+
+        # 경력사항 5개 row 생성
+        career_rows = user_data.get('career', [])
+        career_rows = (career_rows + [] * 5)[:5]
+        career_html = ''.join([
+            f'''<tr>\n<td class="period-cell">row.get('period', '')</td>\n<td class="content-cell">row.get('company', '') row.get('position', '')</td>\n<td class="note-cell">row.get('description', '')</td>\n</tr>''' for row in career_rows
+        ])
+
+        [HTML FORM]
+        -------------------
+        <!DOCTYPE html>
+        <html lang="ko">
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                @page
+                    size: A4;
+                    margin: 0;
+
+                body
+                    font-family: 'Batang', serif;
+                    margin: 0;
+                    padding: 0;
+                    line-height: 1.5;
+
+                .page
+                    width: 210mm;
+                    height: 297mm;
+                    padding: 15mm 20mm;
+                    box-sizing: border-box;
+
+                h1
+                    text-align: center;
+                    font-size: 24px;
+                    margin-bottom: 10px;
+                    letter-spacing: 15px;
+                    font-weight: normal;
+
+                table
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-bottom: 20px;
+                    font-size: 11px;
+
+                th, td
+                    border: 1.2px solid black;
+                    padding: 8px 4px;
+                    text-align: center;
+                    vertical-align: middle;
+                    height: 25px;
+                    box-sizing: border-box;
+
+                .photo-cell
+                    width: 30mm;
+                    height: 40mm;
+                    text-align: center;
+                    vertical-align: middle;
+                    font-size: 10px;
+                    color: #666;
+
+                .header-table td
+                    height: 32px;
+
+                .family-table td
+                    height: 28px;
+
+                .period-cell
+                    width: 20%;
+
+                .content-cell
+                    width: 60%;
+
+                .note-cell
+                    width: 20%;
+
+                .footer
+                    margin-top: 60px;
+                    text-align: center;
+                    font-size: 12px;
+
+                .date-line
+                    margin: 30px 0;
+                    line-height: 2;
+            </style>
+        </head>
+        <body>
+            <div class="page">
+                <table class="header-table">
+                    <tr>
+                        <td rowspan="3" class="photo-cell">(사 진)</td>
+                        <td colspan="6"><h1>이 력 서</h1></td>
+                    </tr>
+                    <tr>
+                        <td>성 명</td>
+                        <td colspan="2">홍길동</td>
+                        <td colspan="2">생년월일</td>
+                        <td colspan="2">1990-01-01</td>
+                    </tr>
+                    <tr>
+                        <td>전화번호</td>
+                        <td colspan="2">010-1234-5678</td>
+                        <td colspan="2">국적</td>
+                        <td>대한민국</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="4">가족관계</td>
+                        <td>관 계</td>
+                        <td>성 명</td>
+                        <td colspan="2">연 령</td>
+                        <td colspan="2">현재직업</td>
+                    </tr>
+                    <tr>
+                        <td>부</td>
+                        <td>홍아버지</td>
+                        <td colspan="2">65</td>
+                        <td colspan="2">자영업</td>
+                    </tr>
+                    <tr>
+                        <td>모</td>
+                        <td>홍어머니</td>
+                        <td colspan="2">60</td>
+                        <td colspan="2">주부</td>
+                    </tr>
+                    <tr>
+                        <td>형제</td>
+                        <td>홍동생</td>
+                        <td colspan="2">30</td>
+                        <td colspan="2">회사원</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">현 주 소</td>
+                        <td colspan="5">서울시 강남구</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">이메일</td>
+                        <td colspan="5">hong@example.com</td>
+                    </tr>
+                </table>
+
+                <table>
+                    <tr>
+                        <th class="period-cell">기 간</th>
+                        <th class="content-cell">학 력 · 자 격 사 항</th>
+                        <th class="note-cell">비 고</th>
+                    </tr>
+                    <tr>
+                        <td>2010-2014</td>
+                        <td>서울대학교 컴퓨터공학과 학사</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>2015</td>
+                        <td>정보처리기사 자격증</td>
+                        <td></td>
+                    </tr>
+                </table>
+
+                <table>
+                    <tr>
+                        <th class="period-cell">기 간</th>
+                        <th class="content-cell">경 력 사 항</th>
+                        <th class="note-cell">비 고</th>
+                    </tr>
+                    <tr>
+                        <td>2016-2018</td>
+                        <td>네이버 소프트웨어 엔지니어</td>
+                        <td>검색 엔진 개발</td>
+                    </tr>
+                    <tr>
+                        <td>2018-2023</td>
+                        <td>카카오 시니어 개발자</td>
+                        <td>메시징 플랫폼 개발</td>
+                    </tr>
+                </table>
+
+                <div class="footer">
+                    <p>위의 기재한 내용이 사실과 다름이 없습니다.</p>
+                    <div class="date-line">
+                        2025년 05월 14일
+                    </div>
+                    <p>(인)</p>
+                </div>
+            </div>
+        </body>
+        </html>
+
+
+        """
+       
+
+        return prompt
