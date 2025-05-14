@@ -5,6 +5,7 @@ from app.services.agentic.agentic_response_generator import AgenticResponseGener
 from app.services.common.postprocessor import Postprocessor
 from app.services.common.preprocessor import translate_query
 from typing import Optional
+import json
 
 class Agentic:
     """에이전트 클래스 - 워크플로우 관리"""
@@ -18,36 +19,72 @@ class Agentic:
     async def get_response(self, query: str, uid: str, token: Optional[str] = None, state: Optional[str] = None) -> Dict[str, Any]:
         """질의에 대한 응답을 생성합니다."""
         try:
-            original_query=query
+            original_query = query
             
-            logger.info(f"[WORKFLOW] ====== Starting agentic workflow for user {uid} ======")
-            logger.info(f"[WORKFLOW] Original query: {query}")
+            logger.info("=" * 80)
+            logger.info(f"[WORKFLOW START] User: {uid}")
+            logger.info(f"[INPUT] Original Query: {query}")
+            if token:
+                masked_token = token[:6] + "..." + token[-4:]
+                logger.info(f"[AUTH] Token: {masked_token}")
+            logger.info(f"[STATE] Current State: {state}")
             
             # 1. 전처리 (언어 감지 및 번역)
-            logger.info(f"[WORKFLOW] Step 1: Preprocessing (language detection and translation)")
-            translation_result = translate_query(query)
+            logger.info("\n" + "=" * 40)
+            logger.info("[STEP 1] Preprocessing - Language Detection & Translation")
+            logger.info(f"[LLM INPUT] Query for translation: {query}")
+            
+            translation_result = await translate_query(query)
             source_lang = translation_result["lang_code"]
             english_query = translation_result["translated_query"]
-            keyword = translation_result["keyword"]
-            intention = translation_result["intention"]
-            logger.info(f"[에이전트] 언어 감지 완료 - 소스 언어: {source_lang}, 영어 번역: {english_query}, 키워드: {keyword}, 의도 :{intention}")
+            
+            logger.info("[LLM OUTPUT] Translation Result:")
+            logger.info(f"  - Source Language: {source_lang}")
+            logger.info(f"  - Translated Query: {english_query}")
             
             # 2. 기능 분류
-            logger.info(f"[WORKFLOW] Step 2: Classification")
-            agentic_type = await self.classifier.classify(english_query,intention)
-            logger.info(f"[에이전트] 에이전틱 유형: {agentic_type.value}")
+            logger.info("\n" + "=" * 40)
+            logger.info("[STEP 2] Query Classification")
+            logger.info(f"[LLM INPUT] Query for classification: {english_query}")
+            
+            agentic_type = await self.classifier.classify(english_query)
+            
+            logger.info("[LLM OUTPUT] Classification Result:")
+            logger.info(f"  - Agentic Type: {agentic_type.value}")
             
             # 3. 응답 생성
-            logger.info(f"[WORKFLOW] Step 3: Response generation")
-            result = await self.response_generator.generate_response(original_query,english_query, agentic_type, uid, token, state, keyword,intention)
-            logger.info("[에이전트] 응답 생성 완료")
+            logger.info("\n" + "=" * 40)
+            logger.info("[STEP 3] Response Generation")
+            logger.info("[LLM INPUT] Parameters for response generation:")
+            logger.info(f"  - Original Query: {original_query}")
+            logger.info(f"  - English Query: {english_query}")
+            logger.info(f"  - Agentic Type: {agentic_type.value}")
+            
+            result = await self.response_generator.generate_response(
+                original_query=original_query,
+                english_query=english_query,
+                agentic_type=agentic_type,
+                uid=uid,
+                token=token,
+                state=state
+            )
+            
+            logger.info("[LLM OUTPUT] Generated Response:")
+            logger.info(f"  - Response: {result['response'][:200]}..." if len(result['response']) > 200 else f"  - Response: {result['response']}")
+            logger.info(f"  - Metadata: {json.dumps(result.get('metadata', {}), indent=2, ensure_ascii=False)}")
             
             # 4. 후처리 (원문 언어로 번역)
-            logger.info(f"[WORKFLOW] Step 4: Postprocessing (translation back to original language)")
             if source_lang != "en":
+                logger.info("\n" + "=" * 40)
+                logger.info("[STEP 4] Postprocessing - Translation Back to Original Language")
+                logger.info(f"[LLM INPUT] Text for translation: {result['response'][:200]}...")
+                
                 processed_response = await self.postprocessor.postprocess(result["response"], source_lang, "general")
                 result["response"] = processed_response["response"]
                 result["metadata"]["translated"] = True
+                
+                logger.info("[LLM OUTPUT] Final Translated Response:")
+                logger.info(f"  - Response: {result['response'][:200]}...")
             
             # 5. 응답 데이터 구성
             response_data = {
@@ -65,13 +102,22 @@ class Agentic:
             # 메타데이터에 추가 정보가 있으면 병합
             if "metadata" in result:
                 response_data["metadata"].update(result["metadata"])
-                
-            logger.info(f"[WORKFLOW] ====== Agentic workflow completed for user {uid} ======")
+            
+            logger.info("\n" + "=" * 40)
+            logger.info("[WORKFLOW COMPLETE] Response ready for delivery")
+            logger.info("=" * 80 + "\n")
+            
             return response_data
             
         except Exception as e:
-            logger.error(f"응답 생성 중 오류 발생: {str(e)}")
-            logger.error(f"[WORKFLOW] ====== Error in agentic workflow: {str(e)} ======")
+            logger.error("\n" + "=" * 40)
+            logger.error(f"[ERROR] Error in agentic workflow")
+            logger.error(f"  - Error Type: {type(e).__name__}")
+            logger.error(f"  - Error Message: {str(e)}")
+            logger.error(f"  - Query: {query}")
+            logger.error(f"  - User ID: {uid}")
+            logger.error("=" * 80 + "\n")
+            
             return {
                 "response": "죄송합니다. 응답을 생성하는 중에 오류가 발생했습니다.",
                 "metadata": {

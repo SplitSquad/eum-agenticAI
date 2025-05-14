@@ -181,7 +181,7 @@ class AgenticClassifier:
         self.llm_client = get_llm_client(is_lightweight=True)
         logger.info(f"[에이전틱 분류] 경량 모델 사용: {self.llm_client.model}")
     
-    async def classify(self, query: str,intention: str) -> AgenticType:
+    async def classify(self, query: str) -> AgenticType:
         """
         질의를 분류합니다.
         
@@ -195,22 +195,22 @@ class AgenticClassifier:
             logger.info(f"[에이전틱 분류] 질의 분류 시작: {query}")
             
             # 질의 유형 분류
-            agentic_type = await self._classify_agentic_type(query,intention)
+            agentic_type = await self._classify_agentic_type(query)
             logger.info(f"[에이전틱 분류] 기능 유형: {agentic_type.value}")
             
             return agentic_type
             
         except Exception as e:
-            logger.error(f"분류 중 오류 발생: {str(e)}")
-            return AgenticType.GENERAL
+            logger.error(f"[에이전틱 분류] 오류 발생: {str(e)}")
+            return AgenticType.GENERAL  # 오류 발생 시 기본값 반환
     
-    async def _classify_agentic_type(self, query: str, intention: str) -> AgenticType:
+    async def _classify_agentic_type(self, query: str) -> AgenticType:
         """에이전틱 기능 유형을 분류합니다."""
         try:
             # TODO: LLM을 활용한 기능 유형 분류 구현
             # 임시로 모든 질의를 일반 대화로 분류
             # LLM을 통해 카테고리 분류
-            category_json = Category_Classification(query, intention)
+            category_json = Category_Classification(query)
             category_dict = json.loads(category_json)  # JSON 문자열을 dict로 변환
             category = category_dict["output"]  # output 필드 추출
             
@@ -222,7 +222,7 @@ class AgenticClassifier:
             return AgenticType.GENERAL 
 
 ################################################### LLM을 활용한 기능 유형 분류 구현     
-def Category_Classification(query, intention):
+def Category_Classification(query):
     llm = get_langchain_llm(is_lightweight=False)
 
     parser = JsonOutputParser(pydantic_object={
@@ -246,7 +246,7 @@ def Category_Classification(query, intention):
     
 
     chain = prompt | llm | parser
-    input_prompt =f"query:{query} intention:{intention}"
+    input_prompt =f"query:{query}"
     Category = parse_product(input_prompt)
     print("[Category] ",Category)
     return Category
