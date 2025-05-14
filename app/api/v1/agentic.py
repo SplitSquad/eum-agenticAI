@@ -35,15 +35,15 @@ router = APIRouter(
 class AgenticRequest(BaseModel):
     """에이전틱 요청 모델"""
     query: str
-    uid: str   
-    state : str
+    uid: str
+    state: Optional[str] = None
 
 class AgenticResponse(BaseModel):
     """에이전틱 응답 모델"""
     response: str
     metadata: Dict[str, Any]
-    state : Optional[str] = None  # ✅ None 허용
-    url: Optional[str] = None  # ✅ None 허용
+    state: Optional[str] = None
+    url: Optional[str] = None
 
 class ResumeResponse(BaseModel):
     """이력서 생성 응답 모델"""
@@ -84,7 +84,7 @@ class CoverLetterResponse(BaseModel):
     cover_letter: Optional[str] = None
     pdf_path: Optional[str] = None
 
-# 에이전트 인스턴스 생성 (애플리케이션 시작 시 한 번만 초기화)
+# 에이전트 인스턴스 생성
 agentic = Agentic()
 
 # # 대화 상태 저장소 (실제 프로덕션에서는 Redis나 DB를 사용해야 함)
@@ -96,15 +96,16 @@ job_search_states: Dict[str, JobSearchState] = {}
 @router.post(
     "",
     response_model=AgenticResponse,
-    summary="에이전틱 응답 생성",
-    description="사용자 질의에 대한 에이전틱 응답을 생성합니다."
+    summary="에이전틱 통합 엔드포인트",
+    description="모든 에이전틱 기능을 처리하는 통합 엔드포인트입니다."
 )
 async def agentic_handler(request: AgenticRequest, authorization: Optional[str] = Header(None)) -> AgenticResponse:
     """
-    에이전틱 핸들러
+    에이전틱 통합 핸들러
     
     Args:
         request: 에이전틱 요청
+        authorization: 인증 토큰
         
     Returns:
         AgenticResponse: 에이전틱 응답
@@ -113,34 +114,32 @@ async def agentic_handler(request: AgenticRequest, authorization: Optional[str] 
         HTTPException: 처리 중 오류가 발생한 경우
     """
     try:
-        logger.info(f"[TOKEN] Authorization header: {authorization}")  # 로그 확인용
+        logger.info(f"[TOKEN] Authorization header: {authorization}")
         
-        if authorization.startswith("Bearer "):
+        if authorization and authorization.startswith("Bearer "):
             token = authorization.split(" ")[1]
         else:
             token = authorization
 
         logger.info(f"[TOKEN] Extracted token: {token}")
         
-
-         # 에이전트 응답 생성
-        result = await agentic.get_response(request.query, request.uid, token, request.state)
-
+        # 에이전트 응답 생성
+        result = await agentic.get_response(
+            query=request.query,
+            uid=request.uid,
+            token=token
+        )
+        
         logger.info(f"[에이전트 응답] : {result}")
         
-        # 구직 정보 검색이 필요한지 확인
-        if "구직" in request.query or "일자리" in request.query or "채용" in request.query:
-            # 구직 정보 검색 시작
-            job_search_result = await start_job_search(request.uid)
-            result["metadata"]["job_search"] = job_search_result.dict()
-        
-       # 응답 반환
+        # 응답 반환
         return AgenticResponse(
             response=result["response"],
             metadata=result["metadata"],
-            state="complete",
-            url=None  
+            state=result.get("state"),
+            url=result.get("url")
         )
+        
     except Exception as e:
         logger.error(f"에이전틱 처리 중 오류 발생: {str(e)}")
         raise HTTPException(
