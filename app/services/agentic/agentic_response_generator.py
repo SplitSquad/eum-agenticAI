@@ -36,9 +36,6 @@ class AgenticResponseGenerator:
             elif agentic_type == AgenticType.POST:
                 logger.info("[1. 사용자 질문 받음]")  
                 Post_Response = await self._generate_post_response(token,original_query, query , state, keyword)
-                "게시판기능"
-                logger.info(f"[Post_Response 받음] : {Post_Response}")  
-                logger.info(f"[Post_Response DATA - TYPE] : {type(Post_Response)}")  
                 Post_Response = json.loads(Post_Response)
                 return {
                     "response": f""" 제목 : {Post_Response['title']} 
