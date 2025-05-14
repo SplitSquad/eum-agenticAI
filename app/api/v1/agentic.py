@@ -138,8 +138,8 @@ async def agentic_handler(request: AgenticRequest, authorization: Optional[str] 
         return AgenticResponse(
             response=result["response"],
             metadata=result["metadata"],
-            state=result["state"],
-            url=result["url"]
+            state="complete",
+            url=None  
         )
     except Exception as e:
         logger.error(f"에이전틱 처리 중 오류 발생: {str(e)}")
