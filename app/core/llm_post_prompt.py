@@ -1624,7 +1624,6 @@ class Prompt():
         input : I need to update my resume for a job application  
         output : resume  
         ---------------
-        -----------------
         input : I want to create my resume  
         output : resume  
         ----------------

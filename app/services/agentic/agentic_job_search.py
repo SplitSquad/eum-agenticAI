@@ -30,7 +30,7 @@ logger.addHandler(file_handler)
 
 # 환경 변수 로드
 project_root = Path(__file__).parent.parent.parent.parent
-env_path = project_root / '.eee'
+env_path = project_root / '.env'
 logger.info(f"환경 변수 파일 경로: {env_path}")
 load_dotenv(dotenv_path=env_path)
 
