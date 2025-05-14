@@ -290,7 +290,7 @@ def get_llm_client(is_lightweight: bool = True) -> BaseLLMClient:
     
 def get_langchain_llm(is_lightweight: bool = True):
     """LangChain LLM 인스턴스를 반환합니다."""
-    provider = settings.LLM_PROVIDER
+    provider = settings.LIGHTWEIGHT_LLM_PROVIDER if is_lightweight else settings.HIGH_PERFORMANCE_LLM_PROVIDER
     
     if provider == LLMProvider.OPENAI:
         if is_lightweight:

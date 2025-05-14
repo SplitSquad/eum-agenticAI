@@ -81,8 +81,79 @@ class AgenticResponseGenerator:
             
             elif agentic_type == AgenticType.POST:
                 logger.info("[에이전틱 응답] 게시판 기능 처리")
-                response_data["response"] = "tmp post response"
-                response_data["url"] = "null"
+                try:
+                    # 상태에 따른 처리
+                    if state == "first":
+                        # 첫 번째 단계: 카테고리 및 태그 추출
+                        post_first_response = await self.post_agent.first_query(
+                            token=token,
+                            query=original_query,
+                            state=state,
+                            keyword=english_query
+                        )
+                        
+                        # 필수 정보가 없는 경우 또는 other 카테고리인 경우
+                        if not post_first_response or not post_first_response.get("title") or post_first_response.get("title") == "other":
+                            response_data.update({
+                                "response": "작성하려는 게시물에 대한 정보를 좀 더 자세하게 입력해주세요 (만드려는 게시물의 카테고리등)",
+                                "state": "first",
+                                "url": "null"
+                            })
+                            return response_data
+
+                        # 다음 단계로 진행
+                        response_data.update({
+                            "response": "게시물 작성을 위한 카테고리가 선택되었습니다. 게시물 내용을 작성해주세요.",
+                            "state": "second",
+                            "metadata": {
+                                "title": post_first_response["title"],
+                                "query": original_query,
+                                "agentic_type": "POST"
+                            },
+                            "url": "null"
+                        })
+                        return response_data
+                        
+                    elif state == "second":
+                        # 두 번째 단계: 게시물 작성
+                        logger.info(f"[게시물 작성] 제목: {response_data['metadata'].get('title')}")
+                        post_second_response = await self.post_agent.second_query(
+                            token=token,
+                            query=original_query,
+                            state=state,
+                            title=response_data["metadata"].get("title"),
+                            tags=""  # 태그는 옵션
+                        )
+                        
+                        response_data.update({
+                            "response": "게시물이 성공적으로 작성되었습니다.",
+                            "state": "complete",
+                            "url": "null"  # API 응답에서 URL을 받아올 수 있다면 업데이트
+                        })
+                        return response_data
+                    
+                    else:
+                        response_data.update({
+                            "response": "알 수 없는 상태입니다.",
+                            "state": "error",
+                            "url": "null"
+                        })
+                        return response_data
+
+                except Exception as e:
+                    logger.error(f"[에이전틱 응답] 게시판 처리 중 오류: {str(e)}")
+                    error_msg = await translate_response("죄송합니다. 게시판 기능 처리 중 오류가 발생했습니다.", original_query)
+                    response_data.update({
+                        "response": error_msg,
+                        "state": "error",
+                        "metadata": {
+                            "query": original_query,
+                            "agentic_type": "POST",
+                            "error": str(e)
+                        },
+                        "url": "null"
+                    })
+                    return response_data
             
             else:
                 logger.warning(f"[에이전틱 응답] 알 수 없는 에이전트 타입: {agentic_type.value}")
