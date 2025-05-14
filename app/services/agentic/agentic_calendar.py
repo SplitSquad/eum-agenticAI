@@ -13,7 +13,7 @@ load_dotenv()  # .env 파일 자동 로딩
 from langchain_groq import ChatGroq
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from loguru import logger
 from pathlib import Path
 # 기존: from langchain_groq import ChatGroq
@@ -181,72 +181,50 @@ def Input_analysis(user_input,intention):
             "output": {"type": "string"},
         }
     })
+    from langchain.prompts import ChatPromptTemplate
+
     prompt = ChatPromptTemplate.from_messages([
-    ("system", """You're a scheduling assistant.
+        ("system", """
+    You are a scheduling assistant.
 
-    Classify the user's sentence into one of the following three categories:
-    - Add (new schedule)
-    - Delete (remove schedule)
-    - Edit (modify schedule)
-    - Check (Check schedule)
+    Your task is to classify the user's input into one of the following schedule-related actions:
+    - add: Add a new schedule
+    - delete: Remove an existing schedule
+    - edit: Modify or update an existing schedule
+    - check: Check or view a schedule
 
-    Return the result as JSON like:
-    {{
-    "input": "...",
-    "output": "add"  // or "delete" or "edit"
-    }}
+    ⚠️ Return your answer in the following **exact JSON format**:
+    {
+    "input": "...", 
+    "output": "add"  // or "delete", "edit", "check"
+    }
 
-    Examples:
-    # ✅ ADD
-    {{"input": "오늘 오후에 영화 보자", "output": "add"}},
-    {{"input": "5월 3일에 생일 파티 일정 추가해줘", "output": "add"}},
-    {{"input": "이번 주 금요일에 미용실 예약 좀 넣어줘", "output": "add"}},
-    {{"input": "4월 20일에 친구랑 저녁 약속 있어", "output": "add"}},
-    {{"input": "모레 점심 먹자", "output": "add"}},
-    {{"input": "내일 오전 9시에 회의 있어", "output": "add"}},
-    {{"input": "주말에 등산 일정 잡아줘", "output": "add"}},
-    {{"input": "다음주 화요일에 프로젝트 발표 있어", "output": "add"}},
-    {{"input": "오늘 밤에 헬스장 갈 거야", "output": "add"}},
-    {{"input": "7시에 엄마랑 전화하기 일정 넣어줘", "output": "add"}},
+    Use the examples below as guidance.
 
-    # ✅ DELETE
-    {{"input": "오늘 저녁 약속 취소해줘", "output": "delete"}},
-    {{"input": "5시 회의 일정 없애줘", "output": "delete"}},
-    {{"input": "내일 생일 파티 취소됐어", "output": "delete"}},
-    {{"input": "친구 만나는 일정 지워줘", "output": "delete"}},
-    {{"input": "방금 넣은 일정 삭제해줘", "output": "delete"}},
-    {{"input": "이번 주말 일정 취소할래", "output": "delete"}},
-    {{"input": "3시에 예약한 거 없애줘", "output": "delete"}},
-    {{"input": "다음주 월요일 약속 취소해줘", "output": "delete"}},
-    {{"input": "쇼핑 일정 삭제해줘", "output": "delete"}},
-    {{"input": "헬스장 안 가기로 했어", "output": "delete"}},
+    ### ADD Examples:
+    {"input": "오늘 오후에 영화 보자", "output": "add"}
+    {"input": "5월 3일에 생일 파티 일정 추가해줘", "output": "add"}
+    {"input": "이번 주 금요일에 미용실 예약 좀 넣어줘", "output": "add"}
+    {"input": "내일 오전 9시에 회의 있어", "output": "add"}
 
-    # ✅ EDIT
-    {{"input": "내일 회의 시간 바꿔줘", "output": "edit"}},
-    {{"input": "오늘 약속 3시로 변경해줘", "output": "edit"}},
-    {{"input": "저녁 6시 약속 7시로 옮겨줘", "output": "edit"}},
-    {{"input": "생일 파티 장소 바뀌었어", "output": "edit"}},
-    {{"input": "오후 회의 Zoom 링크로 수정해줘", "output": "edit"}},
-    {{"input": "영화 시간 2시로 바꿔줘", "output": "edit"}},
-    {{"input": "점심 시간 다시 조정해줘", "output": "edit"}},
-    {{"input": "오늘 일정 제목 바꿔줘", "output": "edit"}},
-    {{"input": "내일 약속 위치 바뀜", "output": "edit"}},
-    {{"input": "저녁 약속 시간 변경해줘", "output": "edit"}}
-     
-    # ✅ CHECK
-    {{"input": "이번 주 내 일정 알려줘", "output": "check"}},
-    {{"input": "내일 일정 확인해줘", "output": "check"}},
-    {{"input": "5월 3일에 무슨 일정 있었지?", "output": "check"}},
-    {{"input": "다음주 금요일 스케줄 알려줘", "output": "check"}},
-    {{"input": "내가 이번 달에 뭐 있지?", "output": "check"}},
-    {{"input": "오늘 약속 뭐 있나?", "output": "check"}},
-    {{"input": "이번 주말에 일정 있어?", "output": "check"}},
-    {{"input": "다음주 일정 좀 볼 수 있을까?", "output": "check"}},
-    {{"input": "지금 예정된 일정이 뭐야?", "output": "check"}},
-    {{"input": "남은 이번 달 스케줄 보여줘", "output": "check"}}
+    ### DELETE Examples:
+    {"input": "오늘 저녁 약속 취소해줘", "output": "delete"}
+    {"input": "5시 회의 일정 없애줘", "output": "delete"}
+    {"input": "방금 넣은 일정 삭제해줘", "output": "delete"}
+
+    ### EDIT Examples:
+    {"input": "오늘 약속 3시로 변경해줘", "output": "edit"}
+    {"input": "오후 회의 Zoom 링크로 수정해줘", "output": "edit"}
+    {"input": "내일 약속 위치 바뀜", "output": "edit"}
+
+    ### CHECK Examples:
+    {"input": "이번 주 내 일정 알려줘", "output": "check"}
+    {"input": "5월 3일에 무슨 일정 있었지?", "output": "check"}
+    {"input": "지금 예정된 일정이 뭐야?", "output": "check"}
     """),
         ("user", "{input}")
     ])
+
 
     chain = prompt | llm | parser
 
@@ -670,78 +648,352 @@ def check_event(user_input,token):
 ################################################ 일정 확인
 # 실행 진입전
 class AgenticCalendar:
-    def __init__(self):
-        pass  # 필요한 초기화가 있다면 여기에
-
-    def Calendar_function(self, query: str, token: str,intention:str) -> Dict[str, Any]:
-
-        logger.info("[CATEGORY CLASSIFICATION 초기화]")
-        # # ✅ 최초 로그인 시 token.pickle 없으면 로그인 유도
-        # if not Path("token.pickle").exists():
-        #     print("🔑 Google 로그인이 필요합니다. 브라우저 창이 열립니다.")
-        #     get_credentials()
-
-        classification = Input_analysis(query,intention)
-        logger.info("[CALENDAR_CATEGORY] ",classification)
+    """
+    구글 캘린더 기능을 처리하는 에이전트 클래스
     
-        if classification == "add" :
-            print("일정 추가")        
-            make_event = MakeSchedule(query) ## 이벤트 생성
-            logger.info(f"[MAKED_EVENT] {make_event}")
-            add_event( make_event , token ) ## 이벤트 추가
-            return {
-                "response": "일정이 추가되었습니다.",
-                "metadata": {
-                    "query": "{query}",
-                    "agentic_type": "calendar",
-                    "error": ""
-                },
-                "state" : "first",
-                "url" : "null"
-            }
-        elif classification == "edit" : 
-            print("일정 수정")
-            make_event = edit_event(query,token) 
-            calendar_edit_api(make_event, token)
-            return {
-                "response": "일정이 수정되었습니다.",
-                "metadata": {
-                    "query": "{query}",
-                    "agentic_type": "calendar",
-                    "error": ""
-                },
-                "state" : "first",
-                "url" : "null"
-            }
-        elif classification == "delete" : 
-            print("일정 삭제")
-            make_event = delete_event(query,token)
-            calendar_delete_api(make_event,token)
-            return  {
-                "response": "일정이 삭제되었습니다.",
-                "metadata": {
-                    "query": "{query}",
-                    "agentic_type": "calendar",
-                    "error": ""
-                },
-                "state" : "first",
-                "url" : "null"
-            } 
-        elif classification == "check" : 
-            print("일정 확인")
-            check_output = check_event(query,token)
-            return  {
-                "response": f"{check_output}",
-                "metadata": {
-                    "query": "{query}",
-                    "agentic_type": "calendar",
-                    "error": ""
-                },
-                "state" : "first",
-                "url" : "null"
-            } 
-        else : 
-            print('알 수 없는 명령입니다.')
+    States:
+        - first: 초기 상태, 기본적인 일정 관리 요청을 처리
+        - general: 일반적인 대화 상태
+        - error: 에러 발생 상태
+    """
+    
+    def __init__(self):
+        self.llm = ChatOpenAI(
+            model="gpt-4",
+            temperature=0.7
+        )
+        self.now = datetime.now()
+        logger.info("[캘린더 에이전트] 초기화 완료")
+
+    async def Calendar_function(self, query: str, token: str, intention: str) -> Dict[str, Any]:
+        """
+        캘린더 기능을 처리하는 메인 함수
+        
+        Args:
+            query (str): 사용자 입력 쿼리
+            token (str): 인증 토큰
+            intention (str): 상태 정보 (first, general 등)
+            
+        Returns:
+            Dict[str, Any]: 처리 결과를 포함한 응답 데이터
+        """
+        logger.info(f"[캘린더 기능] 처리 시작 - intention: {intention}")
+        
+        # 사용자 입력 분류
+        action_type = self._classify_input(query, intention)
+        logger.info(f"[캘린더 기능] 분류 결과: {action_type}")
+        
+        # 액션 타입에 따른 처리
+        try:
+            if action_type == "add":
+                return await self._handle_add_event(query, token)
+            elif action_type == "edit":
+                return await self._handle_edit_event(query, token)
+            elif action_type == "delete":
+                return await self._handle_delete_event(query, token)
+            elif action_type == "check":
+                return await self._handle_check_event(query, token)
+            else:
+                return self._create_error_response("알 수 없는 명령입니다.", query)
+        except Exception as e:
+            logger.error(f"[캘린더 기능] 처리 중 오류 발생: {str(e)}")
+            return self._create_error_response(str(e), query)
+
+    def _classify_input(self, user_input: str, intention: str) -> str:
+        """사용자 입력을 분류하는 함수"""
+        classification_prompt = """You are a scheduling assistant.
+
+Your task is to classify the user's input into one of the following schedule-related actions:
+- add: Add a new schedule
+- delete: Remove an existing schedule
+- edit: Modify or update an existing schedule
+- check: Check or view a schedule
+
+⚠️ Return your answer in the following **exact JSON format**:
+{{
+    "input": "<original input>",
+    "output": "<category>"  // one of: add, delete, edit, check
+}}
+
+Use the examples below as guidance.
+
+### ADD Examples:
+{{"input": "오늘 오후에 영화 보자", "output": "add"}}
+{{"input": "5월 3일에 생일 파티 일정 추가해줘", "output": "add"}}
+{{"input": "이번 주 금요일에 미용실 예약 좀 넣어줘", "output": "add"}}
+{{"input": "내일 오전 9시에 회의 있어", "output": "add"}}
+
+### DELETE Examples:
+{{"input": "오늘 저녁 약속 취소해줘", "output": "delete"}}
+{{"input": "5시 회의 일정 없애줘", "output": "delete"}}
+{{"input": "방금 넣은 일정 삭제해줘", "output": "delete"}}
+
+### EDIT Examples:
+{{"input": "오늘 약속 3시로 변경해줘", "output": "edit"}}
+{{"input": "오후 회의 Zoom 링크로 수정해줘", "output": "edit"}}
+{{"input": "내일 약속 위치 바뀜", "output": "edit"}}
+
+### CHECK Examples:
+{{"input": "이번 주 내 일정 알려줘", "output": "check"}}
+{{"input": "5월 3일에 무슨 일정 있었지?", "output": "check"}}
+{{"input": "지금 예정된 일정이 뭐야?", "output": "check"}}
+
+Current user input: {input}
+"""
+        
+        prompt = ChatPromptTemplate.from_template(classification_prompt)
+        
+        parser = JsonOutputParser()
+        chain = prompt | self.llm | parser
+        
+        result = chain.invoke({"input": user_input})
+        logger.info(f"[입력 분류] 결과: {result['output']}")
+        
+        return result["output"]
+
+    async def _handle_add_event(self, query: str, token: str) -> Dict[str, Any]:
+        """일정 추가 처리"""
+        add_prompt = f"""
+        Current date: {self.now}
+        
+        Create a calendar event from the user's input.
+        Include these fields:
+        - summary: Event title/name
+        - location: Event location (if mentioned)
+        - description: Event details
+        - startDateTime: Start time (ISO format with timezone)
+        - endDateTime: End time (ISO format with timezone)
+        
+        Consider:
+        - Use Korea timezone (+09:00)
+        - Default duration: 1 hour if not specified
+        - Include year and full date information
+        
+        Return only the JSON object.
+        """
+        
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", add_prompt),
+            ("user", query)
+        ])
+        
+        parser = JsonOutputParser()
+        chain = prompt | self.llm | parser
+        
+        event_data = chain.invoke({"input": query})
+        response = await self._add_event_api(event_data, token)
+        
+        return {
+            "response": "일정이 추가되었습니다.",
+            "metadata": {"query": query, "agentic_type": "calendar"},
+            "state": "first",
+            "url": "null"
+        }
+
+    async def _handle_edit_event(self, query: str, token: str) -> Dict[str, Any]:
+        """일정 수정 처리"""
+        # 현재 일정 조회
+        current_events = await self._get_events(token)
+        
+        edit_prompt = f"""
+        Current date: {self.now}
+        
+        Current schedules:
+        {self._format_events(current_events)}
+        
+        Analyze the user's request to modify an existing event.
+        Return a JSON object with:
+        - id: Event ID to modify
+        - summary: New title (if changed)
+        - startDateTime: New start time (if changed)
+        - endDateTime: New end time (if changed)
+        - location: New location (if changed)
+        - description: New description (if changed)
+        
+        Only include fields that need to be changed.
+        Return only the JSON object.
+        """
+        
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", edit_prompt),
+            ("user", query)
+        ])
+        
+        parser = JsonOutputParser()
+        chain = prompt | self.llm | parser
+        
+        edit_data = chain.invoke({"input": query})
+        await self._edit_event_api(edit_data, token)
+        
+        return {
+            "response": "일정이 수정되었습니다.",
+            "metadata": {"query": query, "agentic_type": "calendar"},
+            "state": "first",
+            "url": "null"
+        }
+
+    async def _handle_delete_event(self, query: str, token: str) -> Dict[str, Any]:
+        """일정 삭제 처리"""
+        # 현재 일정 조회
+        current_events = await self._get_events(token)
+        
+        delete_prompt = f"""
+        Current date: {self.now}
+        
+        Current schedules:
+        {self._format_events(current_events)}
+        
+        Identify which event the user wants to delete.
+        Return a JSON object with:
+        - id: Event ID to delete
+        
+        Return only the JSON object.
+        """
+        
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", delete_prompt),
+            ("user", query)
+        ])
+        
+        parser = JsonOutputParser()
+        chain = prompt | self.llm | parser
+        
+        delete_data = chain.invoke({"input": query})
+        await self._delete_event_api(delete_data["id"], token)
+        
+        return {
+            "response": "일정이 삭제되었습니다.",
+            "metadata": {"query": query, "agentic_type": "calendar"},
+            "state": "first",
+            "url": "null"
+        }
+
+    async def _handle_check_event(self, query: str, token: str) -> Dict[str, Any]:
+        """일정 확인 처리"""
+        # 현재 일정 조회
+        current_events = await self._get_events(token)
+        
+        check_prompt = f"""
+        Current date: {self.now}
+        
+        Current schedules:
+        {self._format_events(current_events)}
+        
+        Analyze the user's request and provide relevant schedule information.
+        Format the response as a clear list with:
+        - Date and time
+        - Event title
+        - Location (if any)
+        - Additional details (if any)
+        
+        Return the formatted text response.
+        """
+        
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", check_prompt),
+            ("user", query)
+        ])
+        
+        response = await self.llm.invoke(prompt.format(input=query))
+        
+        return {
+            "response": response,
+            "metadata": {"query": query, "agentic_type": "calendar"},
+            "state": "first",
+            "url": "null"
+        }
+
+    async def _get_events(self, token: str) -> Dict[str, Any]:
+        """캘린더 일정 조회"""
+        url = "http://af9c53d0f69ea45c793da25cdc041496-1311657830.ap-northeast-2.elb.amazonaws.com/calendar"
+        headers = {
+            "Authorization": token,
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error(f"[캘린더 API] 일정 조회 실패: {str(e)}")
+            raise
+
+    def _format_events(self, events: Dict[str, Any]) -> str:
+        """일정 목록 포맷팅"""
+        formatted = []
+        for event in events:
+            formatted.append(
+                f"ID: {event.get('id')}\n"
+                f"제목: {event.get('summary', 'N/A')}\n"
+                f"시작: {event.get('start', {}).get('dateTime', 'N/A')}\n"
+                f"종료: {event.get('end', {}).get('dateTime', 'N/A')}\n"
+                f"위치: {event.get('location', 'N/A')}\n"
+                f"설명: {event.get('description', 'N/A')}\n"
+                "---"
+            )
+        return "\n".join(formatted)
+
+    async def _edit_event_api(self, edit_data: Dict[str, Any], token: str) -> Dict[str, Any]:
+        """캘린더 API를 통한 이벤트 수정"""
+        event_id = edit_data.pop("id")
+        url = f"http://af9c53d0f69ea45c793da25cdc041496-1311657830.ap-northeast-2.elb.amazonaws.com/calendar/{event_id}"
+        headers = {
+            "Authorization": token,
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            response = requests.patch(url, headers=headers, json=edit_data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error(f"[캘린더 API] 이벤트 수정 실패: {str(e)}")
+            raise
+
+    async def _delete_event_api(self, event_id: str, token: str) -> None:
+        """캘린더 API를 통한 이벤트 삭제"""
+        url = f"http://af9c53d0f69ea45c793da25cdc041496-1311657830.ap-northeast-2.elb.amazonaws.com/calendar/{event_id}"
+        headers = {
+            "Authorization": token,
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            response = requests.delete(url, headers=headers)
+            response.raise_for_status()
+        except Exception as e:
+            logger.error(f"[캘린더 API] 이벤트 삭제 실패: {str(e)}")
+            raise
+
+    def _create_error_response(self, error_msg: str, query: str) -> Dict[str, Any]:
+        """에러 응답 생성"""
+        return {
+            "response": f"죄송합니다. {error_msg}",
+            "metadata": {
+                "query": query,
+                "agentic_type": "calendar",
+                "error": error_msg
+            },
+            "state": "error",
+            "url": "null"
+        }
+
+    async def _add_event_api(self, event_data: Dict[str, Any], token: str) -> Dict[str, Any]:
+        """캘린더 API를 통한 이벤트 추가"""
+        url = "http://af9c53d0f69ea45c793da25cdc041496-1311657830.ap-northeast-2.elb.amazonaws.com/calendar"
+        headers = {
+            "Authorization": token,
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            response = requests.post(url, headers=headers, json=event_data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error(f"[캘린더 API] 이벤트 추가 실패: {str(e)}")
+            raise
 
     
 

@@ -106,7 +106,6 @@ class AgenticClassifier:
         - If the query is about **cover letters**, classify it as `coverletter`
         - Only choose `general` if the query **clearly does not belong** to any of the categories above
 
-        ⚠️ Do not choose `general` unless you are certain that no other category fits.
         """
 
         

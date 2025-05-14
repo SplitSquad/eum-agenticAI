@@ -46,11 +46,30 @@ class AgenticResponseGenerator:
             # 에이전트 타입별 라우팅
             if agentic_type == AgenticType.GENERAL:
                 logger.info("[에이전틱 응답] 일반 대화 처리")
-                response_data["response"] = "tmp general response"
+                try:
+                    response = await self.llm_client.generate(english_query)
+                    translated_response = await translate_response(response, original_query)
+                    response_data["response"] = translated_response
+                except Exception as e:
+                    logger.error(f"[에이전틱 응답] 일반 대화 처리 중 오류: {str(e)}")
+                    error_msg = await translate_response("죄송합니다. 응답을 생성하는 중에 오류가 발생했습니다.", original_query)
+                    response_data["response"] = error_msg
+                    response_data["metadata"]["error"] = str(e)
             
             elif agentic_type == AgenticType.CALENDAR:
                 logger.info("[에이전틱 응답] 캘린더 기능 처리")
-                response_data["response"] = "tmp calendar response"
+                try:
+                    calendar_response = await self.calendar_agent.Calendar_function(
+                        query=original_query,
+                        token=token,
+                        intention=state or "general"
+                    )
+                    response_data.update(calendar_response)
+                except Exception as e:
+                    logger.error(f"[에이전틱 응답] 캘린더 처리 중 오류: {str(e)}")
+                    error_msg = await translate_response("죄송합니다. 캘린더 기능 처리 중 오류가 발생했습니다.", original_query)
+                    response_data["response"] = error_msg
+                    response_data["metadata"]["error"] = str(e)
             
             elif agentic_type == AgenticType.RESUME:
                 logger.info("[에이전틱 응답] 이력서 기능 처리")
