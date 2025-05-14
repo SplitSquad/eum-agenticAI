@@ -3,6 +3,8 @@ from loguru import logger
 from app.core.llm_client import get_llm_client
 from app.services.agentic.agentic_classifier import AgenticType
 from app.services.agentic.agentic_calendar import AgenticCalendar
+from app.services.agentic.agentic_post import AgenticPost
+import json
 
 class AgenticResponseGenerator:
     """에이전틱 응답 생성기"""
@@ -10,6 +12,7 @@ class AgenticResponseGenerator:
     def __init__(self):
         self.llm_client = get_llm_client(is_lightweight=False)
         self.calendar_agent = AgenticCalendar()
+        self.post_agent = AgenticPost()
         # 사용자별 상태 관리
         self.user_states = {}
         logger.info(f"[에이전틱 응답] 고성능 모델 사용: {self.llm_client.model}")
@@ -36,9 +39,6 @@ class AgenticResponseGenerator:
             elif agentic_type == AgenticType.POST:
                 logger.info("[1. 사용자 질문 받음]")  
                 Post_Response = await self._generate_post_response(token,original_query, query , state, keyword)
-                "게시판기능"
-                logger.info(f"[Post_Response 받음] : {Post_Response}")  
-                logger.info(f"[Post_Response DATA - TYPE] : {type(Post_Response)}")  
                 Post_Response = json.loads(Post_Response)
                 return {
                     "response": f""" 제목 : {Post_Response['title']} 

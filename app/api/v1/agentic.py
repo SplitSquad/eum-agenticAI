@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from typing import Dict, Any, Optional, List
 from loguru import logger
 from app.services.agentic.agentic import Agentic
+
 from app.services.agentic.agentic_resume_service import (
     ResumeConversationState,
     start_resume_conversation,
@@ -20,6 +21,7 @@ from app.services.agentic.agentic_cover_letter_service import (
     process_cover_letter_response,
     CoverLetterConversationState
 )
+
 
 router = APIRouter(
     prefix="/agentic",
@@ -85,8 +87,8 @@ class CoverLetterResponse(BaseModel):
 # 에이전트 인스턴스 생성 (애플리케이션 시작 시 한 번만 초기화)
 agentic = Agentic()
 
-# 대화 상태 저장소 (실제 프로덕션에서는 Redis나 DB를 사용해야 함)
-conversation_states: Dict[str, ResumeConversationState] = {}
+# # 대화 상태 저장소 (실제 프로덕션에서는 Redis나 DB를 사용해야 함)
+# conversation_states: Dict[str, ResumeConversationState] = {}
 
 # 구직 정보 검색 상태 저장소
 job_search_states: Dict[str, JobSearchState] = {}
@@ -136,8 +138,8 @@ async def agentic_handler(request: AgenticRequest, authorization: Optional[str] 
         return AgenticResponse(
             response=result["response"],
             metadata=result["metadata"],
-            state=result["state"],
-            url=result["url"]
+            state="complete",
+            url=None  
         )
     except Exception as e:
         logger.error(f"에이전틱 처리 중 오류 발생: {str(e)}")

@@ -114,15 +114,19 @@ def post_api(form_data: str, token: str):
     logger.info(f"[headers] : {headers}")
     logger.info(f"[files] : {files}")
 
-    response = requests.post(
-        url = "http://af9c53d0f69ea45c793da25cdc041496-1311657830.ap-northeast-2.elb.amazonaws.com/community/post",
-        headers = headers,
-        files = files
-    )
+    try :
+        response = requests.post(
+            url = "http://af9c53d0f69ea45c793da25cdc041496-1311657830.ap-northeast-2.elb.amazonaws.com/community/post",
+            headers = headers,
+            files = files
+        )
 
-    print("Status Code:", response.status_code)
-    print("Response:", response.text)
+        print("Status Code:", response.status_code)
+        print("Response:", response.text)
 
+    except : 
+        return "응답 생성 중 오류 발생"
+    
     return response
 
 ##################################################################### 게시판 api 요청

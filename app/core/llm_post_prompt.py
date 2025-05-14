@@ -1582,6 +1582,176 @@ class Prompt():
         input : all Other query
         output : general
         -----------------
+        input : I want to create my resume  
+        output : resume  
+        ----------------
+        input : Can you help me write a CV?  
+        output : resume  
+        ----------------
+        input : 이력서를 작성하고 싶어  
+        output : resume  
+        ----------------
+        input : 내 경력사항을 정리해줘  
+        output : resume  
+        ---------------
+        input : What should I include in my resume for a developer role?  
+        output : resume  
+        ---------------
+        input : 자기소개서나 경력기술서 필요해  
+        output : resume  
+        ---------------
+        input : I need to update my resume for a job application  
+        output : resume  
+        ---------------
+        input : I want to create my resume  
+        output : resume  
+        ---------------
+        input : Can you help me write a CV?  
+        output : resume  
+        ---------------
+        input : 이력서를 작성하고 싶어  
+        output : resume  
+        ---------------
+        input : 내 경력사항을 정리해줘  
+        output : resume  
+        ---------------
+        input : What should I include in my resume for a developer role?  
+        output : resume  
+        ---------------
+        input : 자기소개서나 경력기술서 필요해  
+        output : resume  
+        ---------------
+        input : I need to update my resume for a job application  
+        output : resume  
+        ---------------
+        input : I want to create my resume  
+        output : resume  
+        ----------------
+        input : Can you help me write a CV?  
+        output : resume  
+        ----------------
+        input : 이력서를 작성하고 싶어  
+        output : resume  
+        ----------------
+        input : 내 경력사항을 정리해줘  
+        output : resume  
+        ---------------
+        input : What should I include in my resume for a developer role?  
+        output : resume  
+        ---------------
+        input : 자기소개서나 경력기술서 필요해  
+        output : resume  
+        ---------------
+        input : I need to update my resume for a job application  
+        output : resume  
+        ---------------
+        input : I want to create my resume  
+        output : resume  
+        ---------------
+        input : Can you help me write a CV?  
+        output : resume  
+        ---------------
+        input : 이력서를 작성하고 싶어  
+        output : resume  
+        ---------------
+        input : 내 경력사항을 정리해줘  
+        output : resume  
+        ---------------
+        input : What should I include in my resume for a developer role?  
+        output : resume  
+        ---------------
+        input : 자기소개서나 경력기술서 필요해  
+        output : resume  
+        ---------------
+        input : I need to update my resume for a job application  
+        output : resume  
+        ---------------
+        -----------------
+        input : I want to create my resume  
+        output : resume  
+        ----------------
+        input : Can you help me write a CV?  
+        output : resume  
+        ----------------
+        input : 이력서를 작성하고 싶어  
+        output : resume  
+        ----------------
+        input : 내 경력사항을 정리해줘  
+        output : resume  
+        ---------------
+        input : What should I include in my resume for a developer role?  
+        output : resume  
+        ---------------
+        input : 자기소개서나 경력기술서 필요해  
+        output : resume  
+        ---------------
+        input : I need to update my resume for a job application  
+        output : resume  
+        ---------------
+        input : I want to create my resume  
+        output : resume  
+        ---------------
+        input : Can you help me write a CV?  
+        output : resume  
+        ---------------
+        input : 이력서를 작성하고 싶어  
+        output : resume  
+        ---------------
+        input : 내 경력사항을 정리해줘  
+        output : resume  
+        ---------------
+        input : What should I include in my resume for a developer role?  
+        output : resume  
+        ---------------
+        input : 자기소개서나 경력기술서 필요해  
+        output : resume  
+        ---------------
+        input : I need to update my resume for a job application  
+        output : resume  
+        ---------------
+        input : I want to create my resume  
+        output : resume  
+        ----------------
+        input : Can you help me write a CV?  
+        output : resume  
+        ----------------
+        input : 이력서를 작성하고 싶어  
+        output : resume  
+        ----------------
+        input : 내 경력사항을 정리해줘  
+        output : resume  
+        ---------------
+        input : What should I include in my resume for a developer role?  
+        output : resume  
+        ---------------
+        input : 자기소개서나 경력기술서 필요해  
+        output : resume  
+        ---------------
+        input : I need to update my resume for a job application  
+        output : resume  
+        ---------------
+        input : I want to create my resume  
+        output : resume  
+        ---------------
+        input : Can you help me write a CV?  
+        output : resume  
+        ---------------
+        input : 이력서를 작성하고 싶어  
+        output : resume  
+        ---------------
+        input : 내 경력사항을 정리해줘  
+        output : resume  
+        ---------------
+        input : What should I include in my resume for a developer role?  
+        output : resume  
+        ---------------
+        input : 자기소개서나 경력기술서 필요해  
+        output : resume  
+        ---------------
+        input : I need to update my resume for a job application  
+        output : resume  
+        ---------------
+
 
         default.Respond only in JSON format
         
