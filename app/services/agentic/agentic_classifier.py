@@ -3,9 +3,11 @@ from enum import Enum
 from loguru import logger
 from app.core.llm_client import get_llm_client,get_langchain_llm
 from app.models.agentic_response import AgentType, ActionType
+
 from langchain_groq import ChatGroq
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
+
 from dotenv import load_dotenv
 from app.core.llm_post_prompt import Prompt
 load_dotenv()  # .env 파일 자동 로딩
@@ -18,8 +20,6 @@ load_dotenv(dotenv_path)
 # ✅ 환경변수 읽기
 groq_api_key = os.getenv("GROQ_API_KEY")
 import json
-# 기존: from langchain_groq import ChatGroq
-from langchain_openai import ChatOpenAI
 
 class RAGType(str, Enum):
     """RAG 도메인 유형"""
@@ -39,7 +39,6 @@ class AgenticType(str, Enum):
     CALENDAR = "calendar"  # 캘린더 관리
     REMINDER = "reminder"  # 알림 관리
     RESUME = "resume" # 이력서 기능
-    POST = "post" # 게시판기능
 
 class AgentClassifier:
     """에이전트 분류기"""

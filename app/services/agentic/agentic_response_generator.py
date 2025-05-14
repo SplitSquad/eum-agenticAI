@@ -3,12 +3,6 @@ from loguru import logger
 from app.core.llm_client import get_llm_client
 from app.services.agentic.agentic_classifier import AgenticType
 from app.services.agentic.agentic_calendar import AgenticCalendar
-from app.services.agentic.agentic_resume_service import AgenticResume
-from app.services.agentic.agentic_post import AgenticPost
-import json
-# 기존: from langchain_groq import ChatGroq
-from langchain_openai import ChatOpenAI
-
 
 class AgenticResponseGenerator:
     """에이전틱 응답 생성기"""
@@ -16,9 +10,6 @@ class AgenticResponseGenerator:
     def __init__(self):
         self.llm_client = get_llm_client(is_lightweight=False)
         self.calendar_agent = AgenticCalendar()
-        self.resume_agent = AgenticResume()
-        self.post_agent = AgenticPost()
-
         # 사용자별 상태 관리
         self.user_states = {}
         logger.info(f"[에이전틱 응답] 고성능 모델 사용: {self.llm_client.model}")
@@ -32,11 +23,16 @@ class AgenticResponseGenerator:
                 logger.info(f"[CALENDAR 기능 초기화중] : CALENDAR")
                 agentic_calendar = self._generate_calendar_response(original_query,uid,token,intention)
                 return await agentic_calendar
-            
-            # elif agentic_type == AgenticType.RESUME:
-            #     await self._generate_resume_response(query,uid,token,state)
-            #     return 
-
+            elif agentic_type == AgenticType.RESUME:
+                return await {
+                "response": "이력서 기능은 개발중입니다.",
+                "metadata": {
+                    "query": "{query}",
+                    "agentic_type": "RESUME",
+                    "error": ""
+                 },
+                "url":agentic_resume['download_url']
+            }
             elif agentic_type == AgenticType.POST:
                 logger.info("[1. 사용자 질문 받음]")  
                 Post_Response = await self._generate_post_response(token,original_query, query , state, keyword)
@@ -54,7 +50,6 @@ class AgenticResponseGenerator:
                     },
                     "url": None  # null → None (Python 문법)
                 }
-
             else:
                 return await self._generate_general_response(query)
                 
@@ -78,9 +73,7 @@ class AgenticResponseGenerator:
                 "metadata": {
                     "query": query,
                     "agentic_type": AgenticType.GENERAL.value
-                },
-                "state" : "first",
-                "url" : "null"
+                }
             }
         except Exception as e:
             logger.error(f"일반 응답 생성 중 오류 발생: {str(e)}")
@@ -123,25 +116,7 @@ class AgenticResponseGenerator:
                     "query": query,
                     "agentic_type": AgenticType.CALENDAR.value,
                     "error": str(e)
-                },
-                "state" : "error"
-            }
-        
-    async def _generate_resume_response(self, query:str , uid:str , token:str , state:str) -> Dict[str, Any]:
-        """이력서 응답을 생성합니다."""
-        logger.info("[이력서 기능을 수행하는 중입니다...]")
-        step_result = await self.resume_agent.collect_user_input(query, state, uid)
-
-
-        return {
-                "response": "이력서 기능 개발중",
-                "metadata": {
-                    "query": query,
-                    "agentic_type": AgenticType.CALENDAR.value,
-                    "error": ""
-                },
-                "state" : "error",
-                "url" : " "
+                }
             }
     
     async def _generate_reminder_response(self, query: str) -> Dict[str, Any]:
