@@ -132,10 +132,24 @@ async def save_cover_letter_pdf(cover_letter: str, output_path: str) -> str:
         logger.error(f"PDF 저장 중 오류 발생: {str(e)}")
         raise
 
-def split_cover_letter_sections(cover_letter: str):
-    """AI가 생성한 자기소개서를 4개 항목으로 분리 (정확한 번호와 제목 기준, 중복 없이, 불필요한 텍스트 제거)"""
+def _clean_section_text(text: str) -> str:
+    """문단 내 불필요한 줄바꿈, 중복 공백, 어색한 분리 등을 정제하여 자연스럽게 만듦"""
     import re
-    # 기존 분리
+    # 여러 줄바꿈을 하나의 문단 구분(\n\n)으로 통일
+    text = re.sub(r'\n{3,}', '\n\n', text)
+    # 문장 중간의 불필요한 줄바꿈(문장 끝이 아닌 곳의 \n)을 공백으로 치환
+    text = re.sub(r'(?<![.!?])\n(?!\n)', ' ', text)
+    # 문장 끝(마침표, 물음표, 느낌표 등) 뒤에 붙은 \n은 문단 구분으로 유지
+    text = re.sub(r'([.!?])\n', r'\1\n', text)
+    # 중복 공백 제거
+    text = re.sub(r' +', ' ', text)
+    # 앞뒤 공백/줄바꿈 정리
+    text = text.strip()
+    return text
+
+def split_cover_letter_sections(cover_letter: str):
+    """AI가 생성한 자기소개서를 4개 항목으로 분리 (정확한 번호와 제목 기준, 중복 없이, 불필요한 텍스트 제거 및 자연스러운 문단 정리)"""
+    import re
     pattern = r"[\[]?1[\].]? ?성장 과정 및 가치관[\]]?(.*?)(?=\n?\[?2[\].]? ?지원 동기 및 포부[\]]?|\Z)" \
               r"|\[?2[\].]? ?지원 동기 및 포부[\]]?(.*?)(?=\n?\[?3[\].]? ?역량 및 경험[\]]?|\Z)" \
               r"|\[?3[\].]? ?역량 및 경험[\]]?(.*?)(?=\n?\[?4[\].]? ?입사 후 계획[\]]?|\Z)" \
@@ -154,22 +168,22 @@ def split_cover_letter_sections(cover_letter: str):
         sections = ["\n\n".join(paras[i*chunk:(i+1)*chunk]) for i in range(4)]
         if n > chunk*4:
             sections[3] += "\n\n" + "\n\n".join(paras[chunk*4:])
-    # 각 항목에서 '자기소개서', 대괄호 포함 제목 등 불필요한 텍스트 제거
     clean_sections = []
     for idx, sec in enumerate(sections):
         if not sec:
             clean_sections.append('')
             continue
-        # '자기소개서' 단어, [제목] 패턴, 번호+제목 패턴 모두 제거
         sec = re.sub(r'자기소개서', '', sec)
         sec = re.sub(r'\[.*?\]', '', sec)
         sec = re.sub(r'^[0-9]+\.? ?[가-힣 ]+', '', sec)
         sec = sec.strip()
+        # 추가: 자연스러운 문단/공백/줄바꿈 정제
+        sec = _clean_section_text(sec)
         clean_sections.append(sec)
     return tuple(clean_sections)
 
 def generate_cover_letter_html(cover_letter: str) -> str:
-    """자기소개서 HTML 생성 (한 페이지에 여러 칸, 칸이 넘칠 때만 자동 페이지 분리, 불필요한 텍스트 제거)"""
+    """자기소개서 HTML 생성 (한 페이지에 여러 칸, 칸이 넘칠 때만 자동 페이지 분리, 불필요한 텍스트 제거 및 자연스러운 문단 정리)"""
     import re
     growth, motivation, experience, plan = split_cover_letter_sections(cover_letter)
     # 각 항목별로 마크다운 '**' 완전 제거
@@ -420,8 +434,10 @@ async def test_cover_letter_generation():
         # 4. 지원 동기 입력 및 자기소개서 생성
         response = await process_cover_letter_response(state, TEST_DATA["motivation"])
         print(f"[자기소개서 생성 완료]")
-        print(f"PDF 경로: {response['pdf_path']}")
-        print(f"S3 URL: {response['s3_url']}")
+        if 's3_url' in response:
+            print(f"S3 URL: {response['s3_url']}")
+        else:
+            print("S3 URL이 반환되지 않았습니다.")
         
         return response
         
