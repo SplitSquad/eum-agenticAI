@@ -4,6 +4,7 @@ from app.core.llm_client import get_llm_client
 from app.services.agentic.agentic_classifier import AgenticType
 from app.services.agentic.agentic_calendar import AgenticCalendar
 from app.services.agentic.agentic_post import AgenticPost
+from app.services.agentic.agentic_resume_service import AgenticResume
 import json
 
 class AgenticResponseGenerator:
@@ -13,6 +14,7 @@ class AgenticResponseGenerator:
         self.llm_client = get_llm_client(is_lightweight=False)
         self.calendar_agent = AgenticCalendar()
         self.post_agent = AgenticPost()
+        self.resume_agent = AgenticResume()
         # 사용자별 상태 관리
         self.user_states = {}
         logger.info(f"[에이전틱 응답] 고성능 모델 사용: {self.llm_client.model}")
@@ -22,20 +24,19 @@ class AgenticResponseGenerator:
         try:
             if agentic_type == AgenticType.GENERAL:
                 return await self._generate_general_response(query)
+            
             elif agentic_type == AgenticType.CALENDAR:
-                logger.info(f"[CALENDAR 기능 초기화중] : CALENDAR")
+                logger.info(f"[CALENDAR 기능 초기화중...]")
                 agentic_calendar = self._generate_calendar_response(original_query,uid,token,intention)
                 return await agentic_calendar
+            
             elif agentic_type == AgenticType.RESUME:
-                return await {
-                "response": "이력서 기능은 개발중입니다.",
-                "metadata": {
-                    "query": "{query}",
-                    "agentic_type": "RESUME",
-                    "error": ""
-                 },
-                "url":agentic_resume['download_url']
-            }
+                logger.info(f"[RESUME 기능 초기화중...]")
+                agentic_resume = await self._generate_first_resume(original_query,query,uid,token,intention,state)
+                logger.info(f"[반환된 agentic_resume]: {agentic_resume} ")
+                
+                return agentic_resume
+            
             elif agentic_type == AgenticType.POST:
                 logger.info("[1. 사용자 질문 받음]")  
                 Post_Response = await self._generate_post_response(token,original_query, query , state, keyword)
@@ -162,3 +163,46 @@ class AgenticResponseGenerator:
     
 
 ############################################################################# 게시판 생성 기능    
+
+############################################################################# 이력서 생성 기능
+    async def _generate_first_resume(self,original_query,query,uid,token,intention,state):
+        logger.info(f"[RESUME 단계 확인중 ...] : {state}")
+        if state != "complete" : 
+            first_ask = await self.resume_agent.first_query(original_query,query,uid,token,intention,state)
+    
+            return  {
+                "response": first_ask['ask_query'],
+                "metadata": {
+                    "query": "{query}",
+                    "agentic_type": "RESUME",
+                    "error": ""
+                    },
+                "url": None,
+                "state": first_ask['state']
+            }
+
+        elif state == "complete" : 
+            make_pdf = await self.resume_agent.make_pdf(original_query,query,uid,token,intention,state)
+
+            return  {
+                "response": "이력서 기능은 개발중입니다.",
+                "metadata": {
+                    "query": "{query}",
+                    "agentic_type": "RESUME",
+                    "error": ""
+                    },
+                "url": None
+            }
+        
+        else :
+             return  {
+                "response": "이력서 기능도중 에러발생",
+                "metadata": {
+                    "query": "{query}",
+                    "agentic_type": "RESUME",
+                    "error": "error"
+                    },
+                "url": None
+            }
+
+############################################################################# 이력서 생성 기능    

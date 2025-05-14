@@ -59,7 +59,9 @@ class Agentic:
                     "agentic_type": agentic_type.value,
                     "uid": uid,
                     "state": result.get("metadata", {}).get("state", "general")
-                }
+                },
+                "state":result["state"],
+                "url":result["url"]
             }
             
             # 메타데이터에 추가 정보가 있으면 병합
