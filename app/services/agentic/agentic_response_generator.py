@@ -142,17 +142,17 @@ class AgenticResponseGenerator:
         """ 게시판 생성 기능 """
         
         # 1. 카테고리 반환 단계
-        logger.info("[1. 카테고리 반환 단계]: 대분류/소분류, 제목 추출 시도")
+        logger.info("[1. 카테고리 반환 단계]: 대분류, 소분류 추출 시도")
         logger.info(f"[1. 카테고리 반환 단계]: {query}")
         post_first_response = await self.post_agent.first_query(token, query)
         
-        title = post_first_response['title']
+        category = post_first_response['category']
         tags = post_first_response['tags']
-        logger.info(f"[post_second 필요한정보] : {title} {tags}")
+        logger.info(f"[post_second 필요한정보] : {category} {tags}")
         
         
         # 2. 게시판 생성 단계
-        post_second_response = await self.post_agent.second_query(token, original_query, title, tags)
+        post_second_response = await self.post_agent.second_query(token, original_query, category, tags)
         logger.info(f"[post_second_response] : {post_second_response}")
         
         
