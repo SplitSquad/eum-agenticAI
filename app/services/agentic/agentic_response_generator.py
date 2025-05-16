@@ -20,7 +20,7 @@ class AgenticResponseGenerator:
     async def generate_response(self, original_query:str, query: str, agentic_type: AgentType, uid: str, token: str, state: str) -> Dict[str, Any]:
         """응답을 생성합니다."""
         try:
-            # 캘린더 응답
+            # 캘린더 응답 > 수정 완료
             if agentic_type == AgentType.CALENDAR:
                 logger.info(f"[CALENDAR 기능 초기화중] : CALENDAR")
                 agentic_calendar = self._generate_calendar_response(original_query,uid,token)
@@ -29,7 +29,7 @@ class AgenticResponseGenerator:
             # 게시판 응답
             elif agentic_type == AgentType.POST:
                 logger.info("[1. 사용자 질문 받음]")  
-                Post_Response = await self._generate_post_response(token,original_query, query, state)
+                Post_Response = await self._generate_post_response(token, original_query, query)
                 Post_Response = json.loads(Post_Response)
                 return {
                     "response": f""" 제목 : {Post_Response['title']} 
@@ -58,7 +58,7 @@ class AgenticResponseGenerator:
             }
                 
                 
-            # 이력서 응답
+            # 자소서 응답 
             elif agentic_type == AgentType.RESUME:
                 return await {
                 "response": "이력서 기능은 개발중입니다.",
@@ -72,7 +72,7 @@ class AgenticResponseGenerator:
                 
                 
                 
-            # 이력서 응답
+            # 구인 조언 응답
             elif agentic_type == AgentType.RESUME:
                 return await {
                 "response": "이력서 기능은 개발중입니다.",
@@ -138,37 +138,25 @@ class AgenticResponseGenerator:
             }
 ############################################################################# 게시판 생성 기능  
 
-    async def _generate_post_response(self, token, original_query , query , state) -> Dict[str,Any]:
-        logger.info("[2. 어디 단계인지 확인] (ex_ 카테고리 반환 단계 , 게시판 생성단계)")
+    async def _generate_post_response(self, token, original_query, query) -> Dict[str,Any]:
         """ 게시판 생성 기능 """
-        state="first"
-        if state == "first" : 
-            post_first_response = await self.post_agent.first_query(token , query , state)
-            
-            if post_first_response['title'] is None or post_first_response['tags'] is None:
-                return {
-                    "response": "작성하려는 게시물에대한정보를 좀 더 자세하게 입력해주세요 ( 만드려는 게시물의 카테고리등 )",
-                    "state": "first",
-                    "metadata": {
-                        "query": query,
-                        "agentic_type": "POST",
-                        "error": ""
-                    },
-                    "url": "null"
-                }
-            
-            title = post_first_response['title']
-            tags = post_first_response['tags']
-            state= "second"
-
-        if state == "second" : 
-            logger.info(f"[post_second 필요한정보] : {title} {tags} {state}")
-            post_second_response = await self.post_agent.second_query(token , original_query , state, title, tags)
-            logger.info(f"[post_second_response] : {post_second_response}")
-            return post_second_response
         
-        else :
-            return "error" 
+        # 1. 카테고리 반환 단계
+        logger.info("[1. 카테고리 반환 단계]: 대분류/소분류, 제목 추출 시도")
+        logger.info(f"[1. 카테고리 반환 단계]: {query}")
+        post_first_response = await self.post_agent.first_query(token, query)
+        
+        title = post_first_response['title']
+        tags = post_first_response['tags']
+        logger.info(f"[post_second 필요한정보] : {title} {tags}")
+        
+        
+        # 2. 게시판 생성 단계
+        post_second_response = await self.post_agent.second_query(token, original_query, title, tags)
+        logger.info(f"[post_second_response] : {post_second_response}")
+        
+        
+        return post_second_response
     
 
 ############################################################################# 게시판 생성 기능    

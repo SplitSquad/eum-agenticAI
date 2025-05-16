@@ -6,27 +6,38 @@ from langchain_core.prompts import ChatPromptTemplate
 import json
 import re
 import requests
+import os
+from dotenv import load_dotenv
 from app.core.llm_post_prompt import Prompt
 # 기존: from langchain_groq import ChatGroq
 from langchain_openai import ChatOpenAI
-from app.core.llm_client import get_llm_client,get_langchain_llm
+from app.core.llm_client import get_langchain_llm
+
+load_dotenv()  # .env 파일 자동 로딩
+
+# 환경변수에서 API URL 가져오기
+COMMUNITY_API_URL = os.getenv("COMMUNITY_API_URL", "https://api.eum-friends.com/community/post")
+if not COMMUNITY_API_URL:
+    raise ValueError("COMMUNITY_API_URL 환경변수가 설정되지 않았습니다.")
 
 class AgenticPost:
     def __init__(self):
         logger.info("[게시글 에이전트 초기화]")
         
     # 단계에 맞는 함수 생성
-    async def first_query(self, token , query , state) : 
+    async def first_query(self, token , query) : 
 
         logger.info("[카테고리 반환 단계]")
-        logger.info(f"[넘어온정보]: {token} {query} {state}]")
+        logger.info(f"[user token]: {token}")
+        logger.info(f"[user query]: {query}")
 
         llm = get_langchain_llm(is_lightweight = False)
 
         parser = JsonOutputParser(pydantic_object={
             "type": "object",
             "properties": {
-                "title": {"type":"string"},
+                "category": {"type":"string"},
+                "postType": {"type":"string"}
             }
         })
 
@@ -55,7 +66,7 @@ class AgenticPost:
 
 
     #####################################################################
-    async def second_query(self, token , query , state, title, tags) : 
+    async def second_query(self, token, query, title, tags) : 
         logger.info("[게시판 생성 단계]")
         category = title
         llm = get_langchain_llm(is_lightweight=False)
@@ -101,10 +112,7 @@ class AgenticPost:
 
 ##################################################################### 게시판 api 요청
 
-
 def post_api(form_data: str, token: str):
-    
-
     headers = {
         "Authorization": token
     }
@@ -116,17 +124,18 @@ def post_api(form_data: str, token: str):
     logger.info(f"[headers] : {headers}")
     logger.info(f"[files] : {files}")
 
-    try :
+    try:
         response = requests.post(
-            url = "http://af9c53d0f69ea45c793da25cdc041496-1311657830.ap-northeast-2.elb.amazonaws.com/community/post",
-            headers = headers,
-            files = files
+            url=f"{COMMUNITY_API_URL}",
+            headers=headers,
+            files=files
         )
 
         print("Status Code:", response.status_code)
         print("Response:", response.text)
 
-    except : 
+    except Exception as e:
+        logger.error(f"게시글 API 호출 중 오류 발생: {str(e)}")
         return "응답 생성 중 오류 발생"
     
     return response
