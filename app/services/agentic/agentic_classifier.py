@@ -33,15 +33,14 @@ class RAGType(str, Enum):
 class AgenticType(str, Enum):
     """에이전틱 기능 유형"""
     GENERAL = "general"  # 일반 대화
-    SCHEDULE = "schedule"  # 일정 관리
-    TODO = "todo"  # 할 일 관리
-    MEMO = "memo"  # 메모 관리
     CALENDAR = "calendar"  # 캘린더 관리
-    REMINDER = "reminder"  # 알림 관리
     RESUME = "resume" # 이력서 기능
+    JOB_SEARCH = "job_search" # 구직 정보 검색 기능
+    COVER_LETTER = "cover_letter" # 자기소개서 기능
     POST = "post" # 게시판 기능
 
-class AgentClassifier:
+
+class AgenticClassifier:
     """에이전트 분류기"""
     
     def __init__(self):
@@ -50,7 +49,7 @@ class AgentClassifier:
     
     async def classify(self, query: str) -> Dict[str, Any]:
         """
-        에이전트 유형, 액션 유형, 도메인을 분류합니다.
+        에이전트 유형을 분류합니다.
         
         Args:
             query: 입력 질의
@@ -64,18 +63,14 @@ class AgentClassifier:
         agent_type = await self._classify_agent_type(query)
         logger.info(f"[분류기] 에이전트 유형: {agent_type.value}")
         
-        # 필요한 액션 분류
-        action_type = await self._classify_action_type(query)
-        logger.info(f"[분류기] 액션 유형: {action_type.value}")
+        # 도메인 분류(RAG 사용시 활성화)
+        # rag_type = await self._classify_rag_type(query)
+        # logger.info(f"[분류기] RAG 유형: {rag_type.value}")
         
-        # 도메인 분류
-        rag_type = await self._classify_rag_type(query)
-        logger.info(f"[분류기] RAG 유형: {rag_type.value}")
         
         result = {
             "agent_type": agent_type,
-            "action_type": action_type,
-            "rag_type": rag_type
+            # "rag_type": rag_type
         }
         
         logger.info(f"[분류기] 분류 완료: {result}")
@@ -111,36 +106,7 @@ class AgentClassifier:
             logger.error(f"에이전트 유형 분류 중 오류 발생: {str(e)}")
             return AgentType.GENERAL
     
-    async def _classify_action_type(self, query: str) -> ActionType:
-        """필요한 액션 유형을 분류합니다."""
-        prompt = f"""
-        다음 질문을 처리하기 위해 어떤 유형의 액션이 필요한지 판단해주세요.
-        질문: {query}
-        
-        다음 중 하나만 답변해주세요:
-        - inform
-        - execute
-        - decide
-        """
-        
-        try:
-            logger.info(f"[분류기] 액션 유형 분류 시작")
-            response = await self.llm_client.generate(prompt)
-            response = response.strip().lower()
-            logger.info(f"[분류기] 액션 유형 분류 결과: {response}")
-            
-            # 응답에서 키워드 추출
-            if "execute" in response:
-                return ActionType.EXECUTE
-            elif "decide" in response:
-                return ActionType.DECIDE
-            else:
-                return ActionType.INFORM
-                
-        except Exception as e:
-            logger.error(f"액션 유형 분류 중 오류 발생: {str(e)}")
-            return ActionType.INFORM
-    
+
     async def _classify_rag_type(self, query: str) -> RAGType:
         """RAG 유형을 분류합니다."""
         prompt = f"""
@@ -173,81 +139,4 @@ class AgentClassifier:
         except Exception as e:
             logger.error(f"RAG 유형 분류 중 오류 발생: {str(e)}")
             return RAGType.DAILY_LIFE
-
-class AgenticClassifier:
-    """에이전틱 분류기"""
-    
-    def __init__(self):
-        self.llm_client = get_llm_client(is_lightweight=True)
-        logger.info(f"[에이전틱 분류] 경량 모델 사용: {self.llm_client.model}")
-    
-    async def classify(self, query: str,intention: str) -> AgenticType:
-        """
-        질의를 분류합니다.
-        
-        Args:
-            query: 사용자 질의
-            
-        Returns:
-            AgenticType: 에이전틱 기능 유형
-        """
-        try:
-            logger.info(f"[에이전틱 분류] 질의 분류 시작: {query}")
-            
-            # 질의 유형 분류
-            agentic_type = await self._classify_agentic_type(query,intention)
-            logger.info(f"[에이전틱 분류] 기능 유형: {agentic_type.value}")
-            
-            return agentic_type
-            
-        except Exception as e:
-            logger.error(f"분류 중 오류 발생: {str(e)}")
-            return AgenticType.GENERAL
-    
-    async def _classify_agentic_type(self, query: str, intention: str) -> AgenticType:
-        """에이전틱 기능 유형을 분류합니다."""
-        try:
-            # TODO: LLM을 활용한 기능 유형 분류 구현
-            # 임시로 모든 질의를 일반 대화로 분류
-            # LLM을 통해 카테고리 분류
-            category_json = Category_Classification(query, intention)
-            category_dict = json.loads(category_json)  # JSON 문자열을 dict로 변환
-            category = category_dict["output"]  # output 필드 추출
-            
-            logger.info(f"[에이전틱 분류] 기능 유형: {category}")
-
-            return AgenticType(category)
-        except Exception as e:
-            logger.error(f"기능 유형 분류 중 오류 발생: {str(e)}")
-            return AgenticType.GENERAL 
-
-################################################### LLM을 활용한 기능 유형 분류 구현     
-def Category_Classification(query, intention):
-    llm = get_langchain_llm(is_lightweight=False)
-
-    parser = JsonOutputParser(pydantic_object={
-            "type": "object",
-            "properties": {
-                "input": {"type": "string"},
-                "output": {"type": "string"},
-            }
-    })
-    system_prompt = Prompt.agentic_classifier_prompt()
-    prompt = ChatPromptTemplate.from_messages([
-    ("system", system_prompt ),
-        ("user", "{input}")
-    ])
-
-    def parse_product(description: str) -> dict:
-            result = chain.invoke({"input": description})
-            
-            return json.dumps(result, indent=2,ensure_ascii=False)
-    
-    
-
-    chain = prompt | llm | parser
-    input_prompt =f"query:{query} intention:{intention}"
-    Category = parse_product(input_prompt)
-    print("[Category] ",Category)
-    return Category
-################################################### LLM을 활용한 기능 유형 분류 구현
+      
