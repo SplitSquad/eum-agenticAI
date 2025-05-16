@@ -202,7 +202,6 @@ def Input_analysis(user_input,intention):
     {{"input": "5월 3일에 생일 파티 일정 추가해줘", "output": "add"}},
     {{"input": "이번 주 금요일에 미용실 예약 좀 넣어줘", "output": "add"}},
     {{"input": "4월 20일에 친구랑 저녁 약속 있어", "output": "add"}},
-    {{"input": "모레 점심 먹자", "output": "add"}},
     {{"input": "내일 오전 9시에 회의 있어", "output": "add"}},
     {{"input": "주말에 등산 일정 잡아줘", "output": "add"}},
     {{"input": "다음주 화요일에 프로젝트 발표 있어", "output": "add"}},
