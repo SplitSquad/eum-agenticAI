@@ -17,28 +17,19 @@ class AgenticResponseGenerator:
         self.user_states = {}
         logger.info(f"[에이전틱 응답] 고성능 모델 사용: {self.llm_client.model}")
     
-    async def generate_response(self,original_query:str, query: str, agentic_type: AgentType, uid: str, token: str, state: str, keyword:str,intention:str) -> Dict[str, Any]:
+    async def generate_response(self, original_query:str, query: str, agentic_type: AgentType, uid: str, token: str, state: str) -> Dict[str, Any]:
         """응답을 생성합니다."""
         try:
-            if agentic_type == AgentType.GENERAL:
-                return await self._generate_general_response(query)
-            elif agentic_type == AgentType.CALENDAR:
+            # 캘린더 응답
+            if agentic_type == AgentType.CALENDAR:
                 logger.info(f"[CALENDAR 기능 초기화중] : CALENDAR")
-                agentic_calendar = self._generate_calendar_response(original_query,uid,token,intention)
+                agentic_calendar = self._generate_calendar_response(original_query,uid,token)
                 return await agentic_calendar
-            elif agentic_type == AgentType.RESUME:
-                return await {
-                "response": "이력서 기능은 개발중입니다.",
-                "metadata": {
-                    "query": "{query}",
-                    "agentic_type": "RESUME",
-                    "error": ""
-                 },
-                "url":agentic_resume['download_url']
-            }
+                
+            # 게시판 응답
             elif agentic_type == AgentType.POST:
                 logger.info("[1. 사용자 질문 받음]")  
-                Post_Response = await self._generate_post_response(token,original_query, query , state, keyword)
+                Post_Response = await self._generate_post_response(token,original_query, query, state)
                 Post_Response = json.loads(Post_Response)
                 return {
                     "response": f""" 제목 : {Post_Response['title']} 
@@ -53,6 +44,45 @@ class AgenticResponseGenerator:
                     },
                     "url": None  # null → None (Python 문법)
                 }
+                
+            # 이력서 응답
+            elif agentic_type == AgentType.RESUME:
+                return await {
+                "response": "이력서 기능은 개발중입니다.",
+                "metadata": {
+                    "query": "{query}",
+                    "agentic_type": "RESUME",
+                    "error": ""
+                 },
+                "url":agentic_resume['download_url']
+            }
+                
+                
+            # 이력서 응답
+            elif agentic_type == AgentType.RESUME:
+                return await {
+                "response": "이력서 기능은 개발중입니다.",
+                "metadata": {
+                    "query": "{query}",
+                    "agentic_type": "RESUME",
+                    "error": ""
+                 },
+                "url":agentic_resume['download_url']
+            }
+                
+                
+                
+            # 이력서 응답
+            elif agentic_type == AgentType.RESUME:
+                return await {
+                "response": "이력서 기능은 개발중입니다.",
+                "metadata": {
+                    "query": "{query}",
+                    "agentic_type": "RESUME",
+                    "error": ""
+                 },
+                "url":agentic_resume['download_url']
+            }
             else:
                 return await self._generate_general_response(query)
                 
@@ -89,26 +119,11 @@ class AgenticResponseGenerator:
                 }
             }
     
-    async def _generate_schedule_response(self, query: str) -> Dict[str, Any]:
-        """일정 관리 응답을 생성합니다."""
-        # TODO: 일정 관리 기능 구현
-        return await self._generate_general_response(query)
-    
-    async def _generate_todo_response(self, query: str) -> Dict[str, Any]:
-        """할 일 관리 응답을 생성합니다."""
-        # TODO: 할 일 관리 기능 구현
-        return await self._generate_general_response(query)
-    
-    async def _generate_memo_response(self, query: str) -> Dict[str, Any]:
-        """메모 관리 응답을 생성합니다."""
-        # TODO: 메모 관리 기능 구현
-        return await self._generate_general_response(query)
-    
-    async def _generate_calendar_response(self, query: str, uid: str, token: str,intention:str) -> Dict[str, Any]:
+    async def _generate_calendar_response(self, query: str, uid: str, token: str) -> Dict[str, Any]:
         """캘린더 관리 응답을 생성합니다."""
         try:
             logger.info(f"[CALENDAR 응답] : CALENDAR")
-            response = self.calendar_agent.Calendar_function(query,token,intention)
+            response = self.calendar_agent.Calendar_function(query,token)
             logger.info(f"[CALENDAR response]  { response }")
             return response
         except Exception as e:
@@ -121,19 +136,14 @@ class AgenticResponseGenerator:
                     "error": str(e)
                 }
             }
-    
-    async def _generate_reminder_response(self, query: str) -> Dict[str, Any]:
-        """알림 관리 응답을 생성합니다."""
-        # TODO: 알림 관리 기능 구현
-        return await self._generate_general_response(query) 
 ############################################################################# 게시판 생성 기능  
 
-    async def _generate_post_response(self, token, original_query , query , state, keyword) -> Dict[str,Any]:
+    async def _generate_post_response(self, token, original_query , query , state) -> Dict[str,Any]:
         logger.info("[2. 어디 단계인지 확인] (ex_ 카테고리 반환 단계 , 게시판 생성단계)")
         """ 게시판 생성 기능 """
         state="first"
         if state == "first" : 
-            post_first_response = await self.post_agent.first_query(token , query , state, keyword)
+            post_first_response = await self.post_agent.first_query(token , query , state)
             
             if post_first_response['title'] is None or post_first_response['tags'] is None:
                 return {

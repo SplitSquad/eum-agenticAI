@@ -16,7 +16,7 @@ class AgenticPost:
         logger.info("[게시글 에이전트 초기화]")
         
     # 단계에 맞는 함수 생성
-    async def first_query(self, token , query , state, keyword) : 
+    async def first_query(self, token , query , state) : 
 
         logger.info("[카테고리 반환 단계]")
         logger.info(f"[넘어온정보]: {token} {query} {state}]")
@@ -44,6 +44,8 @@ class AgenticPost:
             logger.info(f"[AI가 반환한값] {json.dumps(result, indent=2, ensure_ascii=False)}")
             return result
 
+        #### tmp keyword 추가
+        keyword = query
         description = keyword
 
         response = parse_product(description)

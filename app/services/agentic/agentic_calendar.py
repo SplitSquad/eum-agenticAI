@@ -16,8 +16,20 @@ from langchain_core.prompts import ChatPromptTemplate
 from typing import Dict, Any
 from loguru import logger
 from pathlib import Path
-# 기존: from langchain_groq import ChatGroq
 from langchain_openai import ChatOpenAI
+from langchain.output_parsers import StructuredOutputParser
+from pydantic import BaseModel, Field
+from app.config.app_config import settings
+from app.core.llm_client import get_langchain_llm
+
+def get_llm_client(is_lightweight=False):
+    """Get the appropriate LLM client based on the lightweight flag."""
+    return get_langchain_llm(is_lightweight)
+
+# 환경변수에서 캘린더 API URL 가져오기
+CALENDAR_API_URL = os.getenv("CALENDAR_API_URL","https://api.eum-friends.com/calendar")
+if not CALENDAR_API_URL:
+    raise ValueError("CALENDAR_API_URL 환경변수가 설정되지 않았습니다.")
 
 ################################################ 캘린더 일정 리스트로 반환
 # 결과 출력 (선택)
@@ -85,7 +97,7 @@ def Calendar_list():
 def schedule(token):
     try:
         logger.info("[구글 켈린더 일정 확인]")
-        url = "http://af9c53d0f69ea45c793da25cdc041496-1311657830.ap-northeast-2.elb.amazonaws.com/calendar"
+        url = f"{CALENDAR_API_URL}"
         access_token = token
 
         headers = {
@@ -167,12 +179,9 @@ def get_credentials():
 ################################################ 구글 켈린더 엑세스
 
 ################################################ user input 분류
-def Input_analysis(user_input,intention):
+def Input_analysis(user_input):
     
-    llm = ChatOpenAI(
-        model="gpt-4",
-        temperature=0.7
-    )
+    llm = get_llm_client(is_lightweight=False)  # 고성능 모델 사용
 
     parser = JsonOutputParser(pydantic_object={
         "type": "object",
@@ -254,7 +263,7 @@ def Input_analysis(user_input,intention):
 
         return json.dumps(result, indent=2)
         
-    description = f"user_input:{user_input} intention:{intention}"
+    description = f"user_input:{user_input}"
     response = parse_product(description)
     response = json.loads(response)  # 문자열 → 딕셔너리
 
@@ -266,18 +275,9 @@ def Input_analysis(user_input,intention):
 
 ################################################ 일정 추가
 
-from langchain.output_parsers import StructuredOutputParser
-from pydantic import BaseModel, Field
-
-
-# 현재 날짜와 시간
-now = datetime.now()
 def MakeSchedule(user_input):
 
-    llm = ChatOpenAI(
-        model="gpt-4",
-        temperature=0.7
-    )
+    llm = get_llm_client(is_lightweight=False)  # 고성능 모델 사용
 
     parser = JsonOutputParser(pydantic_object={
         "type": "object",
@@ -290,7 +290,7 @@ def MakeSchedule(user_input):
         }
     })
     system_prompt = f"""
-    0. today's date : {now}
+    0. today's date : {datetime.now()}
     1. This is an example of a one-shot. 
     
     "summary": "f< requested by user >",
@@ -332,7 +332,7 @@ def MakeSchedule(user_input):
 def add_event(make_event , token):
     try:
         print("[TOKEN] ",token)
-        url = "http://af9c53d0f69ea45c793da25cdc041496-1311657830.ap-northeast-2.elb.amazonaws.com/calendar"
+        url = f"{CALENDAR_API_URL}"
         access_token = token
         headers = {
             "Authorization": access_token ,            
@@ -407,11 +407,7 @@ def delete_event(user_input,token):
     formatted_events = schedule(token)
     schedule_list=calendar_events(formatted_events)
 
-    llm = ChatOpenAI(
-        model="gpt-4",
-        temperature=0.7
-    )
-
+    llm = get_llm_client(is_lightweight=False)  # 고성능 모델 사용
 
     parser = JsonOutputParser(pydantic_object={
         "type": "object",
@@ -423,7 +419,7 @@ def delete_event(user_input,token):
     
     # 프롬프트 문자열 구성
     system_prompt_template = f"""
-    0. today's date : {now}
+    0. today's date : {datetime.now()}
     1. I would like to ask you to delete the schedule.
     2. It's a schedule: 
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -464,10 +460,10 @@ def calendar_delete_api(delete_id,token):
 
     print("[schedule_id]",schedule_id)
 
-    print("[URL] " + f"http://af9c53d0f69ea45c793da25cdc041496-1311657830.ap-northeast-2.elb.amazonaws.com/calendar/{schedule_id}")
+    print("[URL] " + f"{CALENDAR_API_URL}/{schedule_id}")
     
     try:
-        url = f"http://af9c53d0f69ea45c793da25cdc041496-1311657830.ap-northeast-2.elb.amazonaws.com/calendar/{schedule_id}"
+        url = f"{CALENDAR_API_URL}/{schedule_id}"
         access_token = token
 
         headers = {
@@ -500,11 +496,7 @@ def edit_event(user_input,token):
     formatted_events = schedule(token)
     schedule_list=calendar_events(formatted_events)
     
-    llm = ChatOpenAI(
-        model="gpt-4",
-        temperature=0.7
-    )
-
+    llm = get_llm_client(is_lightweight=False)  # 고성능 모델 사용
 
     parser = JsonOutputParser(pydantic_object={
         "type": "object",
@@ -518,7 +510,7 @@ def edit_event(user_input,token):
 
     # 프롬프트 문자열 구성
     system_prompt_template = f"""
-    0. today's date : {now}
+    0. today's date : {datetime.now()}
     1. I would like to ask you to change the schedule.
     2. It's a schedule: 
     ##############################################################################################################
@@ -576,7 +568,7 @@ def calendar_edit_api(response,token):
     
 
     try:
-        url = f"http://af9c53d0f69ea45c793da25cdc041496-1311657830.ap-northeast-2.elb.amazonaws.com/calendar/{event_id}"
+        url = f"{CALENDAR_API_URL}/{event_id}"
         access_token = token
 
         headers = {
@@ -606,11 +598,7 @@ def check_event(user_input,token):
     formatted_events = schedule(token)
     schedule_list=calendar_events(formatted_events)
     
-    llm = ChatOpenAI(
-        model="gpt-4",
-        temperature=0.7
-    )
-
+    llm = get_llm_client(is_lightweight=False)  # 고성능 모델 사용
 
     parser = JsonOutputParser(pydantic_object={
         "type": "object",
@@ -623,7 +611,7 @@ def check_event(user_input,token):
     
     # 프롬프트 문자열 구성
     system_prompt_template = f"""
-    0. today's date : {now}
+    0. today's date : {datetime.now()}
     1. I would like to ask you to check the schedule.
     2. It's a schedule: {schedule_list}
     3. This is an example output 
@@ -672,7 +660,7 @@ class AgenticCalendar:
     def __init__(self):
         pass  # 필요한 초기화가 있다면 여기에
 
-    def Calendar_function(self, query: str, token: str,intention:str) -> Dict[str, Any]:
+    def Calendar_function(self, query: str, token: str) -> Dict[str, Any]:
 
         logger.info("[CATEGORY CLASSIFICATION 초기화]")
         # # ✅ 최초 로그인 시 token.pickle 없으면 로그인 유도
@@ -680,7 +668,7 @@ class AgenticCalendar:
         #     print("🔑 Google 로그인이 필요합니다. 브라우저 창이 열립니다.")
         #     get_credentials()
 
-        classification = Input_analysis(query,intention)
+        classification = Input_analysis(query)
         logger.info("[CALENDAR_CATEGORY] ",classification)
     
         if classification == "add" :
