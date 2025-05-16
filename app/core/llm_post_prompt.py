@@ -53,19 +53,3 @@ class Prompt():
         return prompt
     
 
-    @staticmethod
-    def agentic_classifier_prompt():
-
-        prompt = """
-        1. Its role is to inform the category.
-        2. Here is a few-shot example.
-        -----------------------
-        input : Add an event to my calendar  
-        output : calendar  
-        
-
-        default.Respond only in JSON format
-        
-        """
-
-        return prompt
