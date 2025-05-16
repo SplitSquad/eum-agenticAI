@@ -295,7 +295,7 @@ def MakeSchedule(user_input):
     
     "summary": "f< requested by user >",
     "location": "< Places mentioned by users >",
-    "description": "< What users saidr >",
+    "description": "< What users said >",
     "startDateTime": "2025-05-02T10:00:00+09:00",
     "endDateTime": "2025-05-02T11:00:00+09:00",
     
@@ -517,11 +517,12 @@ def edit_event(user_input,token):
     {schedule_list}
     ##############################################################################################################
     3. This is an example output
+    4. description should not be empty
 
     "id": "<choose id in schedule>",
     "summary": "<summary in user_input>"
     "location": "<location in user_input>"
-    "description": "<descript in user_input>",
+    "description": "<description in user_input>",
     "startDateTime": "<Time changed by user_input>",
     "endDateTime": "<Time changed by user_input>"
 
