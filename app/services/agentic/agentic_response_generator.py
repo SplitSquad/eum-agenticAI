@@ -1,7 +1,7 @@
 from typing import Dict, Any
 from loguru import logger
 from app.core.llm_client import get_llm_client
-from app.services.agentic.agentic_classifier import AgenticType
+from app.services.agentic.agentic_classifier import AgentType
 from app.services.agentic.agentic_calendar import AgenticCalendar
 from app.services.agentic.agentic_post import AgenticPost
 import json
@@ -17,16 +17,16 @@ class AgenticResponseGenerator:
         self.user_states = {}
         logger.info(f"[에이전틱 응답] 고성능 모델 사용: {self.llm_client.model}")
     
-    async def generate_response(self,original_query:str, query: str, agentic_type: AgenticType, uid: str, token: str, state: str, keyword:str,intention:str) -> Dict[str, Any]:
+    async def generate_response(self,original_query:str, query: str, agentic_type: AgentType, uid: str, token: str, state: str, keyword:str,intention:str) -> Dict[str, Any]:
         """응답을 생성합니다."""
         try:
-            if agentic_type == AgenticType.GENERAL:
+            if agentic_type == AgentType.GENERAL:
                 return await self._generate_general_response(query)
-            elif agentic_type == AgenticType.CALENDAR:
+            elif agentic_type == AgentType.CALENDAR:
                 logger.info(f"[CALENDAR 기능 초기화중] : CALENDAR")
                 agentic_calendar = self._generate_calendar_response(original_query,uid,token,intention)
                 return await agentic_calendar
-            elif agentic_type == AgenticType.RESUME:
+            elif agentic_type == AgentType.RESUME:
                 return await {
                 "response": "이력서 기능은 개발중입니다.",
                 "metadata": {
@@ -36,7 +36,7 @@ class AgenticResponseGenerator:
                  },
                 "url":agentic_resume['download_url']
             }
-            elif agentic_type == AgenticType.POST:
+            elif agentic_type == AgentType.POST:
                 logger.info("[1. 사용자 질문 받음]")  
                 Post_Response = await self._generate_post_response(token,original_query, query , state, keyword)
                 Post_Response = json.loads(Post_Response)
@@ -75,7 +75,7 @@ class AgenticResponseGenerator:
                 "response": response,
                 "metadata": {
                     "query": query,
-                    "agentic_type": AgenticType.GENERAL.value
+                    "agentic_type": AgentType.GENERAL.value
                 }
             }
         except Exception as e:
@@ -84,7 +84,7 @@ class AgenticResponseGenerator:
                 "response": "죄송합니다. 응답을 생성하는 중에 오류가 발생했습니다.",
                 "metadata": {
                     "query": query,
-                    "agentic_type": AgenticType.GENERAL.value,
+                    "agentic_type": AgentType.GENERAL.value,
                     "error": str(e)
                 }
             }
@@ -117,7 +117,7 @@ class AgenticResponseGenerator:
                 "response": "죄송합니다. 캘린더 기능 처리 중 오류가 발생했습니다.",
                 "metadata": {
                     "query": query,
-                    "agentic_type": AgenticType.CALENDAR.value,
+                    "agentic_type": AgentType.CALENDAR.value,
                     "error": str(e)
                 }
             }

@@ -10,7 +10,7 @@ from loguru import logger
 
 
 def translate_query(query: str): 
-    llm = get_langchain_llm(is_lightweight=False)
+    llm = get_langchain_llm(is_lightweight=True)
 
     parser = JsonOutputParser(pydantic_object={
         "type": "object",
