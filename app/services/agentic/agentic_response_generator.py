@@ -191,6 +191,4 @@ class AgenticResponseGenerator:
         
         
         return post_second_response
-    
-
 ############################################################################# 게시판 생성 기능    

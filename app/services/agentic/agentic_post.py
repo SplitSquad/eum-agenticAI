@@ -95,86 +95,88 @@ class AgenticPost:
         logger.info(f"[게시판 생성 단계] 카테고리 : {category}")
         logger.info(f"[게시판 생성 단계] 태그 : {tags}")
         logger.info(f"[게시판 생성 단계] 입력값 : {query}")
-        
+
         llm = get_langchain_llm(is_lightweight=False)
 
-        parser = JsonOutputParser(pydantic_object={
-            "type": "object",
-            "properties": {
-                "post": {
-                    "type": "object",
-                    "properties": {
-                        "title": {"type": "string"},
-                        "content": {"type": "string"},
-                        "category": {"type": "string"},
-                        "language": {"type": "string", "enum": ["KO", "EN", "JA", "ZH", "DE", "FR", "ES", "RU"]},
-                        "tags": {"type": "array", "items": {"type": "string"}},
-                        "postType": {"type": "string", "enum": ["자유"]},
-                        "address": {"type": "string", "enum": ["자유"]}
-                    },
-                    "required": ["title", "content", "category", "language", "tags", "postType", "address"]
-                }
-            },
-            "required": ["post"]
-        })
+        # LangChain에서 템플릿 변수로 오인되지 않도록 중괄호 이스케이프 처리 필요 없음
+        json_example = f'''
+        "title": "게시글 제목",
+        "content": "게시글 본문",
+        "category": "{category}",
+        "language": "KO",
+        "tags": ["{tags}"],
+        "postType": "자유",
+        "address": "자유"
+    '''
 
-        # JSON 예시를 그대로 포함한 system prompt 정의 (템플릿 안 씀)
         system_prompt = f"""
-            당신은 사용자의 입력을 기반으로 게시판에 올릴 게시글을 작성하는 assistant입니다.
-            다음 JSON 형식에 맞춰 게시글을 작성하세요:
+    당신은 사용자의 입력을 기반으로 게시판에 올릴 게시글을 작성하는 assistant입니다.
+    다음 JSON 형식에 맞춰 게시글을 작성하세요:
 
-            ```json
-            {{{{ 
-            "post": {{
-                "title": "게시글 제목",
-                "content": "게시글 본문",
-                "category": "{category}",
-                "language": "KO",
-                "tags": ["{tags}"],
-                "postType": "자유",
-                "address": "자유"
-            }}
-            }}}}
-
+    ```json
+            {json_example}
 
             요구사항:
 
-                'title'은 짧고 명확하게 작성하세요.
+            "title"은 짧고 명확하게 작성하세요.
 
-                'content'는 구체적이며 유익한 정보를 담도록 하세요.
+            "content"는 구체적이며 유익한 정보를 담도록 하세요.
 
-                'category'는 반드시 '{category}'로 설정하세요.
+            "category"는 반드시 "{category}"로 설정하세요.
 
-                'tags'는 반드시 ["{tags}"] 형식으로 제공하세요.
+            "tags"는 반드시 ["{tags}"] 형식으로 제공하세요.
 
-                'language'는 항상 "KO"로 지정하세요.
+            "language"는 항상 "KO"로 지정하세요.
 
-                'postType'과 'address'는 항상 "자유"로 유지하세요.
+            "postType"과 "address"는 항상 "자유"로 유지하세요.
 
-                JSON 이외의 문장은 포함하지 마세요.
-                """
+            JSON 이외의 문장은 포함하지 마세요.
+            """
 
         # 프롬프트 직접 조합
-        full_input = [
+        full_prompt = ChatPromptTemplate.from_messages([
             ("system", system_prompt),
-            ("user", query)
-        ]
+            ("user", "{input}")
+            ])
+        
+        parser = JsonOutputParser(pydantic_object={
+                "type": "object",
+                "properties": {
+                "post": {
+                        "type": "object",
+                        "properties": {
+                            "title": {"type": "string"},
+                            "content": {"type": "string"},
+                            "category": {"type": "string"},
+                            "language": {"type": "string", "enum": ["KO", "EN", "JA", "ZH", "DE", "FR", "ES", "RU"]},
+                            "tags": {"type": "array", "items": {"type": "string"}},
+                            "postType": {"type": "string", "enum": ["자유"]},
+                            "address": {"type": "string", "enum": ["자유"]}
+                            },
+                        "required": ["title", "content", "category", "language", "tags", "postType", "address"]
+                    }
+                },
+                "required": ["post"]
+            })
 
-        chain = ChatPromptTemplate.from_messages(full_input) | llm | parser
+        chain = full_prompt | llm | parser
 
-        def parse_product(description: str) -> dict:
-            logger.info(f"[입력으로 전달된 변수] : {description}")
-            result = chain.invoke({"input": description})
+        def parse_product(user_input: str) -> dict:
+            logger.info(f"[입력으로 전달된 변수] : {user_input}")
+            result = chain.invoke({"input": user_input})
             logger.info(f"[게시판 생성 AI가 반환한값] {json.dumps(result, indent=2, ensure_ascii=False)}")
             return result
 
-        description = f"{query}, category: {category}, tags: {tags}"
-        response = parse_product(description)
-        response = json.dumps(response["post"], indent=2, ensure_ascii=False)
-        logger.info(f"[response 반환값] : {response}")
+        response_data = parse_product(query)
+        
+        logger.info(f"[response_data] : {response_data}")
+        
+        response_json = json.dumps(response_data["post"], indent=2, ensure_ascii=False)
+        
+        logger.info(f"[response 반환값] : {response_json}")
 
-        post_api(response, token)
-        return response
+        post_api(response_json, token)
+        return response_json
 
 
 ##################################################################### 게시판 api 요청
