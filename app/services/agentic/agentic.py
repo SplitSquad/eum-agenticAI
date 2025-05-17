@@ -38,7 +38,7 @@ class Agentic:
             
             # 3. 응답 생성
             logger.info(f"[WORKFLOW] Step 3: Response generation")
-            result = await self.response_generator.generate_response(original_query,english_query, agentic_type, uid, token, state)
+            result = await self.response_generator.generate_response(original_query, english_query, agentic_type, uid, token, state)
             logger.info("[에이전트] 응답 생성 완료")
             
             # 4. 후처리 (원문 언어로 번역)

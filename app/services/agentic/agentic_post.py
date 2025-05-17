@@ -1,7 +1,7 @@
 from typing import Dict, Any
 from loguru import logger
 from langchain_core.output_parsers import JsonOutputParser
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, HumanMessagePromptTemplate, SystemMessagePromptTemplate
 import json
 import re
 import requests
@@ -81,6 +81,9 @@ class AgenticPost:
         chain = prompt | llm | parser
 
         def parse_product(description: str) -> dict:
+            
+            logger.info(f"[입력으로 전달된 변수] : {description}")
+            logger.info(f"[템플릿이 요구하는 변수] : {prompt.input_variables}")
             result = chain.invoke({"input": description})
             logger.info(f"[AI가 반환한값] {json.dumps(result, indent=2, ensure_ascii=False)}")
             return result
@@ -88,10 +91,13 @@ class AgenticPost:
         response = parse_product(query)
         return response
 
-    async def second_query(self, token, query, category, tags): 
-        logger.info("[게시판 생성 단계]")
-        llm = get_langchain_llm(is_lightweight=False)
+    async def second_query(self, token, query, category, tags):
+        logger.info(f"[게시판 생성 단계] 카테고리 : {category}")
+        logger.info(f"[게시판 생성 단계] 태그 : {tags}")
+        logger.info(f"[게시판 생성 단계] 입력값 : {query}")
         
+        llm = get_langchain_llm(is_lightweight=False)
+
         parser = JsonOutputParser(pydantic_object={
             "type": "object",
             "properties": {
@@ -112,43 +118,52 @@ class AgenticPost:
             "required": ["post"]
         })
 
-        json_format = f'''
-        {{
+        # JSON 예시를 그대로 포함한 system prompt 정의 (템플릿 안 씀)
+        system_prompt = f"""
+            당신은 사용자의 입력을 기반으로 게시판에 올릴 게시글을 작성하는 assistant입니다.
+            다음 JSON 형식에 맞춰 게시글을 작성하세요:
+
+            ```json
+            {{{{ 
             "post": {{
                 "title": "게시글 제목",
-                "content": "게시글 내용",
+                "content": "게시글 본문",
                 "category": "{category}",
-                "language": "KO/EN/JA/ZH/DE/FR/ES/RU 중 하나",
+                "language": "KO",
                 "tags": ["{tags}"],
                 "postType": "자유",
                 "address": "자유"
             }}
-        }}
-        '''
+            }}}}
 
-        system_prompt = f"""
-        사용자의 입력을 기반으로 게시글을 작성하는 assistant입니다.
-        
-        다음 JSON 형식으로만 응답하세요:
-        {json_format}
 
-        요구사항:
-        1. 제목은 명확하고 간결하게 작성
-        2. 내용은 상세하고 유익하게 작성
-        3. 지정된 카테고리({category})와 태그({tags})를 사용
-        4. postType과 address는 항상 "자유"
-        5. language는 제시된 코드 중 하나 사용
-        6. JSON 형식만 반환하고 다른 설명은 포함하지 마세요
-        """
+            요구사항:
 
-        prompt = ChatPromptTemplate.from_messages([
+                'title'은 짧고 명확하게 작성하세요.
+
+                'content'는 구체적이며 유익한 정보를 담도록 하세요.
+
+                'category'는 반드시 '{category}'로 설정하세요.
+
+                'tags'는 반드시 ["{tags}"] 형식으로 제공하세요.
+
+                'language'는 항상 "KO"로 지정하세요.
+
+                'postType'과 'address'는 항상 "자유"로 유지하세요.
+
+                JSON 이외의 문장은 포함하지 마세요.
+                """
+
+        # 프롬프트 직접 조합
+        full_input = [
             ("system", system_prompt),
-            ("user", "{input}")
-        ])
+            ("user", query)
+        ]
 
-        chain = prompt | llm | parser
+        chain = ChatPromptTemplate.from_messages(full_input) | llm | parser
 
         def parse_product(description: str) -> dict:
+            logger.info(f"[입력으로 전달된 변수] : {description}")
             result = chain.invoke({"input": description})
             logger.info(f"[게시판 생성 AI가 반환한값] {json.dumps(result, indent=2, ensure_ascii=False)}")
             return result
@@ -160,6 +175,7 @@ class AgenticPost:
 
         post_api(response, token)
         return response
+
 
 ##################################################################### 게시판 api 요청
 

@@ -182,10 +182,10 @@ class AgenticResponseGenerator:
         
         category = post_first_response['category']
         tags = post_first_response['tags']
-        logger.info(f"[post_second 필요한정보] : {category} {tags}")
         
         
         # 2. 게시판 생성 단계
+        logger.info(f"[게시판 생성 단계] : {category} {tags}")
         post_second_response = await self.post_agent.second_query(token, original_query, category, tags)
         logger.info(f"[post_second_response] : {post_second_response}")
         
