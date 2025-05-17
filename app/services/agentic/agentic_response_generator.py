@@ -26,7 +26,7 @@ class AgenticResponseGenerator:
                 agentic_calendar = self._generate_calendar_response(original_query,uid,token)
                 return await agentic_calendar
                 
-            # 게시판 응답
+            # 게시판 응답 > 수정중
             elif agentic_type == AgentType.POST:
                 logger.info("[1. 사용자 질문 받음]")  
                 Post_Response = await self._generate_post_response(token, original_query, query)
