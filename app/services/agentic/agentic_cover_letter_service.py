@@ -319,13 +319,8 @@ async def generate_cover_letter(
 ) -> str:
     """자기소개서 생성"""
     try:
-        # LLM 클라이언트 초기화
-        llm = ChatOpenAI(
-            model=model_name,
-            temperature=0.7,
-            timeout=timeout,
-            api_key=os.getenv("HIGH_PERFORMANCE_OPENAI_API_KEY")
-        )
+        # LLM 클라이언트 초기화 (OpenAI 하드코딩 대신 추상화)
+        client = get_llm_client(is_lightweight=False)
         
         prompt = f"""
         다음 정보를 바탕으로 자기소개서를 작성해주세요.
@@ -343,13 +338,13 @@ async def generate_cover_letter(
         각 섹션은 2-3문단으로 구성하고, 구체적인 예시와 성과를 포함해주세요.
         """
         
-        response = await llm.ainvoke([HumanMessage(content=prompt)])
+        response = await client.generate(prompt)
         
-        if not response or not response.content:
+        if not response:
             logger.error("자기소개서 생성 실패: 응답이 비어있습니다.")
             return None
             
-        return response.content
+        return response
         
     except Exception as e:
         logger.error(f"자기소개서 생성 중 오류 발생: {str(e)}")
