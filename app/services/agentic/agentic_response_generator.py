@@ -4,6 +4,7 @@ from app.core.llm_client import get_llm_client
 from app.services.agentic.agentic_classifier import AgentType
 from app.services.agentic.agentic_calendar import AgenticCalendar
 from app.services.agentic.agentic_post import AgenticPost
+from app.services.agentic.agentic_find_foodstore import foodstore
 import json
 
 class AgenticResponseGenerator:
@@ -83,8 +84,41 @@ class AgenticResponseGenerator:
                  },
                 "url":agentic_resume['download_url']
             }
+
+            elif agentic_type == AgentType.LOCATION:
+                # 1. foodstore 인스턴스 생성
+                TEST = foodstore()
+                # 2. 사용자정보불러오는중
+                await TEST.load_user_data(token)
+                # 3. 사용자 위치 확인
+                location = await TEST.location()
+                # 4. 카테고리 지정 (예: AT4 = 관광명소, FD6 = 음식점)
+                location_category = "AT4"  # 추후 query 기반 분류 가능
+                # 5. 카카오 API 호출
+                food_store = await TEST.kakao_api_foodstore(
+                    location["latitude"],
+                    location["longitude"],
+                    location_category
+                )
+                # 6. AI 매칭 (예정)
+                await TEST.ai_match(food_store)
+                # 7. 응답 반환
+                return {
+                    "response": "📍 주변 장소를 찾았습니다!",
+                    "metadata": {
+                        "query": query,
+                        "uid": uid,
+                        "location": location,
+                        "results": food_store
+                    },
+                    "state": state,
+                    "url": None
+                }
+
             else:
                 return await self._generate_general_response(query)
+            
+        
                 
         except Exception as e:
             logger.error(f"응답 생성 중 오류 발생: {str(e)}")
