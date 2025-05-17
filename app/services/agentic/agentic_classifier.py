@@ -72,12 +72,13 @@ class AgenticClassifier:
         {json_format}
         
         Available agent types:
+        - calendar : managing schedule, event, or etc.
+        - resume : making resumé which is related to job search.
+        - job_search : jobseeking based on web search data.
+        - cover_letter : making cover letter which is related to job search.
+        - post :  making post in community board.
+        - location : finding location which is related to job search.
         - general
-        - calendar
-        - resume
-        - job_search
-        - cover_letter
-        - post
         """
         
         try:
