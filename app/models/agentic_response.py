@@ -9,6 +9,7 @@ class AgentType(str, Enum):
     JOB_SEARCH = "job_search"
     COVER_LETTER = "cover_letter"
     POST = "post"
+    LOCATION = "location"
 
 # 게시판 카테고리 모델
 # 대분류-소분류 형태
