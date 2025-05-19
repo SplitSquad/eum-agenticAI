@@ -86,7 +86,6 @@ async def process_job_search_response(state: JobSearchConversationState, respons
     if state.current_step == "start":
         state.update_job_keywords(response)
         search_results = await search_jobs(response)
-        state.update_search_results(search_results)
         
         return {
             "status": "search_completed",
@@ -95,18 +94,7 @@ async def process_job_search_response(state: JobSearchConversationState, respons
             "job_keywords": response
         }
     
-    elif state.current_step == "results_shown":
-        if response.lower() in ["yes", "y", "네", "예"]:
-            return {
-                "status": "cover_letter_requested",
-                "message": "간단한 자기소개를 작성해주세요",
-                "job_keywords": state.job_keywords
-            }
-        else:
-            return {
-                "status": "completed",
-                "message": "구직 검색이 완료되었습니다."
-            }
+
     
     return {
         "status": "error",
@@ -137,6 +125,7 @@ def extract_keyword(response: str) -> Optional[str]:
         ("로서 일", "로서"),
         ("으로서 일", "으로서")
     ]
+    # 위 키워드 추출은 llm 경량 모델 base로 분류 
     
     response = response.replace("네,", "네").replace("yes,", "yes")  # 쉼표 제거
     

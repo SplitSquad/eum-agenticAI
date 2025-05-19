@@ -15,7 +15,21 @@ from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from typing import Dict, Any
 from loguru import logger
+from pathlib import Path
+from langchain_openai import ChatOpenAI
+from langchain.output_parsers import StructuredOutputParser
+from pydantic import BaseModel, Field
+from app.config.app_config import settings
+from app.core.llm_client import get_langchain_llm
 
+def get_llm_client(is_lightweight=False):
+    """Get the appropriate LLM client based on the lightweight flag."""
+    return get_langchain_llm(is_lightweight)
+
+# 환경변수에서 캘린더 API URL 가져오기
+CALENDAR_API_URL = os.getenv("CALENDAR_API_URL","https://api.eum-friends.com/calendar")
+if not CALENDAR_API_URL:
+    raise ValueError("CALENDAR_API_URL 환경변수가 설정되지 않았습니다.")
 ###21
 ################################################ 캘린더 일정 리스트로 반환
 # 결과 출력 (선택)
@@ -83,7 +97,7 @@ def Calendar_list():
 def schedule(token):
     try:
         logger.info("[구글 켈린더 일정 확인]")
-        url = "http://localhost:8081/calendar"
+        url = f"{CALENDAR_API_URL}"
         access_token = token
 
         headers = {
@@ -167,10 +181,8 @@ def get_credentials():
 ################################################ user input 분류
 def Input_analysis(user_input):
     
-    llm = ChatGroq(
-    model_name="llama-3.3-70b-versatile",
-    temperature=0.7
-    )
+    llm = get_llm_client(is_lightweight=False)  # 고성능 모델 사용
+
     parser = JsonOutputParser(pydantic_object={
         "type": "object",
         "properties": {
@@ -199,7 +211,6 @@ def Input_analysis(user_input):
     {{"input": "5월 3일에 생일 파티 일정 추가해줘", "output": "add"}},
     {{"input": "이번 주 금요일에 미용실 예약 좀 넣어줘", "output": "add"}},
     {{"input": "4월 20일에 친구랑 저녁 약속 있어", "output": "add"}},
-    {{"input": "모레 점심 먹자", "output": "add"}},
     {{"input": "내일 오전 9시에 회의 있어", "output": "add"}},
     {{"input": "주말에 등산 일정 잡아줘", "output": "add"}},
     {{"input": "다음주 화요일에 프로젝트 발표 있어", "output": "add"}},
@@ -252,7 +263,7 @@ def Input_analysis(user_input):
 
         return json.dumps(result, indent=2)
         
-    description = user_input
+    description = f"user_input:{user_input}"
     response = parse_product(description)
     response = json.loads(response)  # 문자열 → 딕셔너리
 
@@ -264,18 +275,10 @@ def Input_analysis(user_input):
 
 ################################################ 일정 추가
 
-from langchain.output_parsers import StructuredOutputParser
-from pydantic import BaseModel, Field
-
-
-# 현재 날짜와 시간
-now = datetime.now()
 def MakeSchedule(user_input):
 
-    llm = ChatGroq(
-    model_name="llama-3.3-70b-versatile",
-    temperature=0.7
-    )
+    llm = get_llm_client(is_lightweight=False)  # 고성능 모델 사용
+
     parser = JsonOutputParser(pydantic_object={
         "type": "object",
         "properties": {
@@ -287,12 +290,12 @@ def MakeSchedule(user_input):
         }
     })
     system_prompt = f"""
-    0. Always remember the date : {now}
+    0. today's date : {datetime.now()}
     1. This is an example of a one-shot. 
     
     "summary": "f< requested by user >",
     "location": "< Places mentioned by users >",
-    "description": "< What users saidr >",
+    "description": "< What users said >",
     "startDateTime": "2025-05-02T10:00:00+09:00",
     "endDateTime": "2025-05-02T11:00:00+09:00",
     
@@ -329,7 +332,7 @@ def MakeSchedule(user_input):
 def add_event(make_event , token):
     try:
         print("[TOKEN] ",token)
-        url = "http://localhost:8081/calendar"
+        url = f"{CALENDAR_API_URL}"
         access_token = token
         headers = {
             "Authorization": access_token ,            
@@ -404,10 +407,7 @@ def delete_event(user_input,token):
     formatted_events = schedule(token)
     schedule_list=calendar_events(formatted_events)
 
-    llm = ChatGroq(
-        model_name="llama-3.3-70b-versatile",
-        temperature=0.7
-    )
+    llm = get_llm_client(is_lightweight=False)  # 고성능 모델 사용
 
     parser = JsonOutputParser(pydantic_object={
         "type": "object",
@@ -419,7 +419,7 @@ def delete_event(user_input,token):
     
     # 프롬프트 문자열 구성
     system_prompt_template = f"""
-    0. Always remember the date : {now}
+    0. today's date : {datetime.now()}
     1. I would like to ask you to delete the schedule.
     2. It's a schedule: 
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -460,10 +460,10 @@ def calendar_delete_api(delete_id,token):
 
     print("[schedule_id]",schedule_id)
 
-    print("[URL] " + f"http://localhost:8081/calendar/{schedule_id}")
+    print("[URL] " + f"{CALENDAR_API_URL}/{schedule_id}")
     
     try:
-        url = f"http://localhost:8081/calendar/{schedule_id}"
+        url = f"{CALENDAR_API_URL}/{schedule_id}"
         access_token = token
 
         headers = {
@@ -496,10 +496,7 @@ def edit_event(user_input,token):
     formatted_events = schedule(token)
     schedule_list=calendar_events(formatted_events)
     
-    llm = ChatGroq(
-        model_name="llama-3.3-70b-versatile",
-        temperature=0.7
-    )
+    llm = get_llm_client(is_lightweight=False)  # 고성능 모델 사용
 
     parser = JsonOutputParser(pydantic_object={
         "type": "object",
@@ -513,18 +510,19 @@ def edit_event(user_input,token):
 
     # 프롬프트 문자열 구성
     system_prompt_template = f"""
-    0. Always remember the date : {now}
+    0. today's date : {datetime.now()}
     1. I would like to ask you to change the schedule.
     2. It's a schedule: 
     ##############################################################################################################
     {schedule_list}
     ##############################################################################################################
     3. This is an example output
+    4. description should not be empty
 
     "id": "<choose id in schedule>",
     "summary": "<summary in user_input>"
     "location": "<location in user_input>"
-    "description": "<descript in user_input>",
+    "description": "<description in user_input>",
     "startDateTime": "<Time changed by user_input>",
     "endDateTime": "<Time changed by user_input>"
 
@@ -571,7 +569,7 @@ def calendar_edit_api(response,token):
     
 
     try:
-        url = f"http://localhost:8081/calendar/{event_id}"
+        url = f"{CALENDAR_API_URL}/{event_id}"
         access_token = token
 
         headers = {
@@ -601,10 +599,7 @@ def check_event(user_input,token):
     formatted_events = schedule(token)
     schedule_list=calendar_events(formatted_events)
     
-    llm = ChatGroq(
-        model_name="llama-3.3-70b-versatile",
-        temperature=0.7
-    )
+    llm = get_llm_client(is_lightweight=False)  # 고성능 모델 사용
 
     parser = JsonOutputParser(pydantic_object={
         "type": "object",
@@ -617,7 +612,7 @@ def check_event(user_input,token):
     
     # 프롬프트 문자열 구성
     system_prompt_template = f"""
-    0. Always remember the date : {now}
+    0. today's date : {datetime.now()}
     1. I would like to ask you to check the schedule.
     2. It's a schedule: {schedule_list}
     3. This is an example output 

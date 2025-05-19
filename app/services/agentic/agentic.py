@@ -1,6 +1,6 @@
 from typing import Dict, Any
 from loguru import logger
-from app.services.agentic.agentic_classifier import AgenticClassifier, AgenticType
+from app.services.agentic.agentic_classifier import AgenticClassifier
 from app.services.agentic.agentic_response_generator import AgenticResponseGenerator
 from app.services.common.postprocessor import Postprocessor
 from app.services.common.preprocessor import translate_query
@@ -18,24 +18,27 @@ class Agentic:
     async def get_response(self, query: str, uid: str, token: Optional[str] = None) -> Dict[str, Any]:
         """질의에 대한 응답을 생성합니다."""
         try:
+            original_query=query
+            
             logger.info(f"[WORKFLOW] ====== Starting agentic workflow for user {uid} ======")
             logger.info(f"[WORKFLOW] Original query: {query}")
             
-            # 1. 전처리 (언어 감지 및 번역)
+            # 1. 전처리 (언어 감지 및 번역)  > 수정 완료
             logger.info(f"[WORKFLOW] Step 1: Preprocessing (language detection and translation)")
             translation_result = translate_query(query)
             source_lang = translation_result["lang_code"]
             english_query = translation_result["translated_query"]
             logger.info(f"[에이전트] 언어 감지 완료 - 소스 언어: {source_lang}, 영어 번역: {english_query}")
             
-            # 2. 기능 분류
+            # 2. 기능 분류 > 수정 완료
             logger.info(f"[WORKFLOW] Step 2: Classification")
             agentic_type = await self.classifier.classify(english_query)
-            logger.info(f"[에이전트] 에이전틱 유형: {agentic_type.value}")
+            
+            logger.info(f"[에이전트] 에이전틱 유형: {agentic_type}")
             
             # 3. 응답 생성
             logger.info(f"[WORKFLOW] Step 3: Response generation")
-            result = await self.response_generator.generate_response(english_query, agentic_type, uid, token)
+            result = await self.response_generator.generate_response(original_query, english_query, agentic_type, uid, token, state)
             logger.info("[에이전트] 응답 생성 완료")
             
             # 4. 후처리 (원문 언어로 번역)
@@ -49,10 +52,9 @@ class Agentic:
             response_data = {
                 "response": result["response"],
                 "metadata": {
-                    "query": query,
                     "english_query": english_query,
                     "source_lang": source_lang,
-                    "agentic_type": agentic_type.value,
+                    "agentic_type": agentic_type,
                     "uid": uid,
                     "state": result.get("metadata", {}).get("state", "general")
                 }
@@ -72,6 +74,8 @@ class Agentic:
                 "response": "죄송합니다. 응답을 생성하는 중에 오류가 발생했습니다.",
                 "metadata": {
                     "query": query,
+                    "english_query": english_query,
+                    "agentic_type": agentic_type,
                     "state": "error",
                     "uid": uid,
                     "error": str(e)

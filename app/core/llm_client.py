@@ -4,6 +4,9 @@ import httpx
 import time
 from loguru import logger
 from app.config.app_config import settings, LLMProvider
+from langchain_openai import ChatOpenAI
+from langchain_groq import ChatGroq
+from langchain_community.chat_models import ChatOllama
 
 class BaseLLMClient(ABC):
     """LLM 클라이언트의 기본 추상 클래스"""
@@ -284,3 +287,25 @@ def get_llm_client(is_lightweight: bool = True) -> BaseLLMClient:
         return GroqClient(is_lightweight=is_lightweight)
     else:
         raise ValueError(f"지원하지 않는 LLM 프로바이더: {provider}") 
+    
+def get_langchain_llm(is_lightweight: bool = True):
+    provider = settings.LIGHTWEIGHT_LLM_PROVIDER if is_lightweight else settings.HIGH_PERFORMANCE_LLM_PROVIDER
+
+    if provider == LLMProvider.OPENAI:
+        model = settings.LIGHTWEIGHT_OPENAI_MODEL if is_lightweight else settings.HIGH_PERFORMANCE_OPENAI_MODEL
+        api_key = settings.LIGHTWEIGHT_OPENAI_API_KEY if is_lightweight else settings.HIGH_PERFORMANCE_OPENAI_API_KEY
+        timeout = settings.LIGHTWEIGHT_OPENAI_TIMEOUT if is_lightweight else settings.HIGH_PERFORMANCE_OPENAI_TIMEOUT
+        return ChatOpenAI(model=model, api_key=api_key, timeout=timeout)
+    
+    elif provider == LLMProvider.GROQ:
+        model = settings.GROQ_LIGHTWEIGHT_MODEL if is_lightweight else settings.GROQ_HIGHPERFORMANCE_MODEL
+        api_key = settings.GROQ_API_KEY
+        return ChatGroq(model=model, api_key=api_key)
+
+    elif provider == LLMProvider.OLLAMA:
+        model = settings.LIGHTWEIGHT_OLLAMA_MODEL if is_lightweight else settings.HIGH_PERFORMANCE_OLLAMA_MODEL
+        base_url = settings.LIGHTWEIGHT_OLLAMA_URL if is_lightweight else settings.HIGH_PERFORMANCE_OLLAMA_URL
+        return ChatOllama(model=model, base_url=base_url)
+    
+    else:
+        raise ValueError(f"지원하지 않는 LangChain LLM 프로바이더: {provider}")

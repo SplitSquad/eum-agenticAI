@@ -1,40 +1,77 @@
 from typing import Dict, Any
 from loguru import logger
-from langchain_groq import ChatGroq
 from langchain_core.output_parsers import JsonOutputParser
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, HumanMessagePromptTemplate, SystemMessagePromptTemplate
 import json
 import re
 import requests
-from app.core.llm_prompt import Prompt
-# 기존: from langchain_groq import ChatGroq
+import os
+from dotenv import load_dotenv
+from app.core.llm_post_prompt import Prompt
 from langchain_openai import ChatOpenAI
+from app.core.llm_client import get_langchain_llm
+from app.models.agentic_response import PostCategory
+
+load_dotenv()  # .env 파일 자동 로딩
+
+# 환경변수에서 API URL 가져오기
+COMMUNITY_API_URL = os.getenv("COMMUNITY_API_URL", "https://api.eum-friends.com/community/post")
+
+if not COMMUNITY_API_URL:
+    raise ValueError("COMMUNITY_API_URL 환경변수가 설정되지 않았습니다.")
 
 class AgenticPost:
     def __init__(self):
         logger.info("[게시글 에이전트 초기화]")
         
-    # 단계에 맞는 함수 생성
-    async def first_query(self, token , query , state) : 
-
+    async def first_query(self, token, query): 
         logger.info("[카테고리 반환 단계]")
-        logger.info(f"[넘어온정보]: {token} {query} {state}]")
+        logger.info(f"[user token]: {token}")
+        logger.info(f"[user query]: {query}")
 
-        llm = ChatOpenAI(
-            model="gpt-4-turbo",
-            temperature=0.7
-        )
+        llm = get_langchain_llm(is_lightweight=False)
 
+        # 대분류, 소분류 json으로 반환하는 파서
         parser = JsonOutputParser(pydantic_object={
             "type": "object",
             "properties": {
-                "title": {"type":"string"},
-            }
+                "category": {
+                    "type": "string",
+                    "enum": [cat.value.split('-')[0] for cat in PostCategory]
+                },
+                "tags": {
+                    "type": "string",
+                    "enum": [cat.value.split('-')[1] for cat in PostCategory]
+                }
+            },
+            "required": ["category", "tags"]
         })
 
-        system_prompt = Prompt.post_prompt()
+        json_format = '''
+        {{
+            "category": "여행/주거/유학/취업 중 하나",
+            "tags": "해당 카테고리의 태그 중 하나"
+        }}
+        '''
 
-        print(" [system_prompt] ",system_prompt)
+        valid_categories = "\n".join([f"- {cat.value}" for cat in PostCategory])
+
+        system_prompt = f"""
+        분석할 게시글의 카테고리와 태그를 결정하는 assistant입니다.
+        사용자의 입력을 분석하여 가장 적절한 카테고리와 태그를 선택하세요.
+
+        다음 JSON 형식으로만 응답하세요:
+        {json_format}
+
+        사용 가능한 카테고리-태그 조합:
+        {valid_categories}
+
+        주의사항:
+        1. 반드시 위 목록에 있는 카테고리와 태그만 사용하세요
+        2. 카테고리는 하이픈(-) 앞부분만 사용
+        3. 태그는 하이픈(-) 뒷부분만 사용
+        4. JSON 형식만 반환하고 다른 설명은 포함하지 마세요
+        """
 
         prompt = ChatPromptTemplate.from_messages([
             ("system", system_prompt),
@@ -44,175 +81,118 @@ class AgenticPost:
         chain = prompt | llm | parser
 
         def parse_product(description: str) -> dict:
+            
+            logger.info(f"[입력으로 전달된 변수] : {description}")
+            logger.info(f"[입력으로 전달된 변수 type] : {type(description)}")
+            
+            logger.info(f"[템플릿이 요구하는 변수] : {prompt.input_variables}")
             result = chain.invoke({"input": description})
             logger.info(f"[AI가 반환한값] {json.dumps(result, indent=2, ensure_ascii=False)}")
+            logger.info(f"[AI가 반환한값 type] {type(result)}")
             return result
 
-        description = query
-
-        response = parse_product(description)
-
+        response = parse_product(query)
         return response
-    #####################################################################
 
+    async def second_query(self, token, query, category, tags):
+        logger.info(f"[게시판 생성 단계] 카테고리 : {category}")
+        logger.info(f"[게시판 생성 단계] 태그 : {tags}")
+        logger.info(f"[게시판 생성 단계] 입력값 : {query}")
 
-    #####################################################################
-    async def second_query(self, token , query , state, title, tags) : 
-        logger.info("[게시판 생성 단계]")
-        category = title
-        llm = ChatOpenAI(
-            model="gpt-4-turbo",
-            temperature=0.7
-        )
-        parser = JsonOutputParser(pydantic_object={
-            "type": "object",
-            "properties": {
-                "title": {"type": "string"},
-                "content": {"type": "string"},
-                "category" : {"type" : "string"},
-                "language": { "type": "string"},
-                "tags" : {"type": "string"},
-                "postType":{ "type": "string"},
-                "address":{ "type": "string"}
-            }
-        })
+        llm = get_langchain_llm(is_lightweight=False)
+
+        # LangChain에서 템플릿 변수로 오인되지 않도록 중괄호 이스케이프 처리 필요 없음
+        json_example = f'''
+        "title": "게시글 제목",
+        "content": "게시글 본문",
+        "category": "{category}",
+        "language": "KO",
+        "tags": ["{tags}"],
+        "postType": "자유",
+        "address": "자유"
+    '''
+
         system_prompt = f"""
-        1. Please create a post creation json.
-        2. Please make it like the example (tags is list)
+    당신은 사용자의 입력을 기반으로 게시판에 올릴 게시글을 작성하는 assistant입니다.
+    다음 JSON 형식에 맞춰 게시글을 작성하세요:
 
-        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        !!! if postType is "자유" then address is "자유"
-        language example : {"KO", "EN", "JA", "ZH", "DE", "FR", "ES", "RU"}
-        ----------------------------------------------------------------------------------------------------
-        input : I want to create a post recommending tourist attractions in Jeju Island. , "category": "여행" , "tags": [관광/체험]
-        output :  
-            "post":  
-                "title": "Jeju Island travel recommendations",  
-                "content": "We've compiled a list of must-see attractions in Jeju Island! Enjoy a leisurely trip to Seongsan Ilchulbong, Hyeopjae Beach, and Udo.",  
-                "category": "여행",  
-                "language": "EN",  
-                "tags": ["관광/체험"] ,  
-                "postType": "자유",  
-                "address": "자유"  
-        ----------------------------------------------------------------------------------------------------
-        input : 일본 맛집 탐방 후기 작성할래 , "category": "여행" , "tags": [식도락/맛집] 
-        output :  
-            "post":  
-                "title": "오사카 맛집 리스트",  
-                "content": "돈카츠, 타코야끼, 오코노미야끼 등 오사카에서 먹어야 할 음식과 위치를 정리해봤어요. 여행 전 참고해보세요!",  
-                "category": "여행",  
-                "language": "KO",  
-                "tags": "[식도락/맛집]",  
-                "postType": "자유",  
-                "address": "자유"  
-        ----------------------------------------------------------------------------------------------------
-        input : パリ博物館ツアー会議をしたい , "category": "여행" , "tags": [관광/체험]  
-        output :  
-            "post":  
-                "title": "パリ文化を訪れる",  
-                "content": "ルーヴル、オルセ、ロダン美術館ツアー一緒にいただく方募集します。フランス芸術に興味のある方歓迎します！",  
-                "category": "여행",  
-                "language": "JA",  
-                "tags": ["관광/체험"],  
-                "postType": "모임",  
-                "address": "프랑스 파리"  
-        ----------------------------------------------------------------------------------------------------
-        input : 我想写一篇总结首尔交通的文章。 ,"category": "여행" , "tags": [교통/이동 ] 
-        output :  
-            "post":  
-                "title": " 首尔交通提示",  
-                "content": "我们分享如何在首尔轻松乘坐地铁和公交车、换乘技巧以及如何使用T-money的技巧。",  
-                "category": "여행",  
-                "language": "ZH",  
-                "tags": ["교통/이동"],  
-                "postType": "자유",  
-                "address": "자유"  
-        ----------------------------------------------------------------------------------------------------
-        input : Ich werde einen Artikel über Apothekeninformationen für Ausländer schreiben. , "category": "여행" , tags": [대사관/응급]  
-        output :  
-            "post":  
-                "title": "Tipps zur Apothekennutzung für Ausländer",  
-                "content": "Wir haben Informationen zu für Ausländer leicht zugänglichen Apotheken und grundlegenden rezeptfreien Medikamenten zusammengestellt.",  
-                "category": "여행",  
-                "language": "DE",  
-                "tags": ["대사관/응급"] ,  
-                "postType": "자유",  
-                "address": "자유"  
-        ----------------------------------------------------------------------------------------------------
-        input : Je veux partager des conseils pour utiliser le métro à Séoul. , "category": "여행" , "tags": [교통/이동]
-        output :  
-            "post":  
-                "title": "Se déplacer à Séoul en métro",  
-                "content": "Découvrez comment utiliser facilement le métro de Séoul, acheter une carte T-money, et naviguer entre les lignes principales.",  
-                "category": "여행",  
-                "language": "FR",  
-                "tags": ["교통/이동"],  
-                "postType": "자유",  
-                "address": "Corée du Sud, Séoul"  
-        ----------------------------------------------------------------------------------------------------
-        input : Quiero escribir una publicación sobre mi experiencia gastronómica en México. , "category": "여행" , "tags": [식도락/맛집]
-        output :  
-            "post":  
-                "title": "Comida callejera que debes probar en México",  
-                "content": "Desde tacos y elotes hasta tamales y aguas frescas, comparto mis experiencias y lugares favoritos en la Ciudad de México.",  
-                "category": "여행",  
-                "language": "ES",  
-                "tags": ["식도락/맛집"],  
-                "postType": "자유",  
-                "address": "Ciudad de México, México"  
-        ----------------------------------------------------------------------------------------------------
-        input : Хочу поделиться местами, которые стоит посетить в Санкт-Петербурге. , "category": "여행" , "tags": [관광/체험]
-        output :  
-            "post":  
-                "title": "Лучшие туристические места Санкт-Петербурга",  
-                "content": "Эрмитаж, Исаакиевский собор и прогулки по Неве — вот что обязательно стоит включить в свой маршрут!",  
-                "category": "여행",  
-                "language": "RU",  
-                "tags": ["관광/체험"],  
-                "postType": "자유",  
-                "address": "Россия, Санкт-Петербург"  
-        ----------------------------------------------------------------------------------------------------
+    ```json
+            {json_example}
 
-        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            요구사항:
 
-                
-        ⚠️ Do NOT include any explanation or message. ONLY return a valid JSON object. No natural language.
+            "title"은 짧고 명확하게 작성하세요.
 
-        """
+            "content"는 구체적이며 유익한 정보를 담도록 하세요.
 
-        prompt=system_prompt
-        logger.info(f"[system_prompt] : {prompt}")
+            "category"는 반드시 "{category}"로 설정하세요.
 
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", prompt),
+            "tags"는 반드시 ["{tags}"] 형식으로 제공하세요.
+
+            "language"는 항상 "KO"로 지정하세요.
+
+            "postType"과 "address"는 항상 "자유"로 유지하세요.
+
+            JSON 이외의 문장은 포함하지 마세요.
+            """
+
+        # 프롬프트 직접 조합
+        full_prompt = ChatPromptTemplate.from_messages([
+            ("system", system_prompt),
             ("user", "{input}")
-        ])
+            ])
+        
+        parser = JsonOutputParser(pydantic_object={
+                "type": "object",
+                "properties": {
+                "post": {
+                        "type": "object",
+                        "properties": {
+                            "title": {"type": "string"},
+                            "content": {"type": "string"},
+                            "category": {"type": "string"},
+                            "language": {"type": "string", "enum": ["KO", "EN", "JA", "ZH", "DE", "FR", "ES", "RU"]},
+                            "tags": {"type": "array", "items": {"type": "string"}},
+                            "postType": {"type": "string", "enum": ["자유"]},
+                            "address": {"type": "string", "enum": ["자유"]}
+                            },
+                        "required": ["title", "content", "category", "language", "tags", "postType", "address"]
+                    }
+                },
+                "required": ["post"]
+            })
 
-        chain = prompt | llm | parser
+        chain = full_prompt | llm | parser
 
-        def parse_product(description: str) -> dict:
-            result = chain.invoke({"input": description})
+        def parse_product(user_input: str) -> dict:
+            logger.info(f"[입력으로 전달된 변수] : {user_input}")
+            result = chain.invoke({"input": user_input})
             logger.info(f"[게시판 생성 AI가 반환한값] {json.dumps(result, indent=2, ensure_ascii=False)}")
             return result
 
-        description = f"{query}, category: {category}, tags: {tags}"
-
-        response = parse_product(description)
-        response = response["post"]
-        response = json.dumps(response, indent=2, ensure_ascii=False)
-        logger.info(f"[response 반환값] : {response}")
-
-        post_api(response, token)
+        response_data = parse_product(query)
         
-        return response
-    #####################################################################
+        logger.info(f"[response_data] : {response_data}")
+        logger.info(f"[response_data type] : {type(response_data)}")
+        
+        response_json = json.dumps(response_data, indent=2, ensure_ascii=False)
+        
+        logger.info(f"[response 반환값] : {response_json}")
+        logger.info(f"[response_json type] : {type(response_json)}")
+
+        post_api(response_json, token)
+        return response_json
+
 
 ##################################################################### 게시판 api 요청
 
-
 def post_api(form_data: str, token: str):
     
-
+    
+    logger.info(f"[POST API 호출] : {COMMUNITY_API_URL}")
+    logger.info(f"[form_data] : {form_data}")
+    logger.info(f"[form_data type] : {type(form_data)}")
+    
     headers = {
         "Authorization": token
     }
@@ -224,15 +204,20 @@ def post_api(form_data: str, token: str):
     logger.info(f"[headers] : {headers}")
     logger.info(f"[files] : {files}")
 
-    response = requests.post(
-        url = "http://af9c53d0f69ea45c793da25cdc041496-1311657830.ap-northeast-2.elb.amazonaws.com/community/post",
-        headers = headers,
-        files = files
-    )
+    try:
+        response = requests.post(
+            url=f"{COMMUNITY_API_URL}",
+            headers=headers,
+            files=files
+        )
 
-    print("Status Code:", response.status_code)
-    print("Response:", response.text)
+        print("Status Code:", response.status_code)
+        print("Response:", response.text)
 
+    except Exception as e:
+        logger.error(f"게시글 API 호출 중 오류 발생: {str(e)}")
+        return "응답 생성 중 오류 발생"
+    
     return response
 
 ##################################################################### 게시판 api 요청

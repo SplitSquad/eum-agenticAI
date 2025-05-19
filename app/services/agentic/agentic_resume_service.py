@@ -12,7 +12,11 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
 import subprocess
 from pydantic import BaseModel
+import boto3
+from botocore.exceptions import NoCredentialsError, ClientError
 
+
+# 수정 필요
 class ResumeRequest(BaseModel):
     """이력서 생성 요청 모델"""
     response: str
@@ -149,16 +153,16 @@ async def process_resume_conversation_response(state: ResumeConversationState, r
     """사용자 응답 처리 및 상태 전이"""
     if state.current_step == "edu_cert":
         state.edu_cert_input = response
-        # OpenAI 파싱
-        result = await parse_edu_cert_with_openai(response)
+       
+        result = await parse_edu_cert_with_llm(response)
         state.education = result.get("education", [])
         state.certifications = result.get("certifications", [])
         state.current_step = "career"
         return {"message": "경력사항을 모두 입력해 주세요. 예시: 2016-2018 네이버 소프트웨어 엔지니어(검색 엔진 개발)", "state": state}
     elif state.current_step == "career":
         state.career_input = response
-        # OpenAI 파싱
-        result = await parse_career_with_openai(response)
+  
+        result = await parse_career_with_llm(response)
         state.career = result
         state.current_step = "completed"
         state.is_completed = True
@@ -390,7 +394,7 @@ async def job_resume(query: str, uid: str, state: str, token: str) -> Dict[str, 
             resume_state = await start_resume_conversation(authotization, user_email, request)
             
             # 학력/자격사항 파싱
-            edu_cert_result = await parse_edu_cert_with_openai(query)
+            edu_cert_result = await parse_edu_cert_with_llm(query)
             resume_state.user_data['education'] = edu_cert_result.get('education', [])
             resume_state.user_data['certifications'] = edu_cert_result.get('certifications', [])
             
@@ -422,7 +426,7 @@ async def job_resume(query: str, uid: str, state: str, token: str) -> Dict[str, 
                 )
             
             # 경력사항 파싱
-            career_result = await parse_career_with_openai(query)
+            career_result = await parse_career_with_llm(query)
             resume_state.user_data['career'] = career_result
             
             # 이력서 PDF 생성
@@ -682,31 +686,60 @@ async def make_pdf(state: str, user_data: dict):
     return {"html": html_content}
 
 ########################################################## 이력서 작성 중 응답 API
-async def respond_to_resume(user_id: str, request: ResumeRequest) -> ResumeResponse:
-    """이력서 생성 대화 응답 처리"""
+async def process_resume_response(state: ResumeConversationState, response: str) -> Dict[str, Any]:
+    """이력서 생성 응답 처리"""
     try:
-        # 대화 상태 확인
-        if user_id not in conversation_states:
-            raise HTTPException(
-                status_code=400,
-                detail="진행 중인 이력서 생성 대화가 없습니다."
-            )
-        
-        state = conversation_states[user_id]
-        result = await process_resume_conversation_response(state, request.response)
-        
-        # 대화가 완료된 경우 상태 제거
-        if result["status"] == "completed":
-            del conversation_states[user_id]
-        
-        return ResumeResponse(**result)
-        
+        if state.current_step == "start":
+            # 첫 응답에서는 학력/자격사항 정보를 저장
+            state.edu_cert_input = response
+            result = await parse_edu_cert_with_llm(response)
+            state.education = result.get("education", [])
+            state.certifications = result.get("certifications", [])
+            state.current_step = "career"
+            return {
+                "status": "in_progress",
+                "message": "경력사항을 입력해주세요.",
+                "question": "경력사항을 모두 입력해 주세요.\n예시: 2016-2018 네이버 소프트웨어 엔지니어(검색 엔진 개발), 2018-2020 카카오 시니어 개발자(메시징 플랫폼 개발)",
+                "state": state
+            }
+        elif state.current_step == "career":
+            # 경력사항 정보를 받고 이력서 생성
+            state.career_input = response
+            result = await parse_career_with_llm(response)
+            state.career = result
+            state.current_step = "completed"
+            state.is_completed = True
+            
+            # 이력서 PDF 생성
+            pdf_form = await make_pdf(state, state.user_data)
+            output_dir = os.path.join(os.getcwd(), "app/services/agentic/resume")
+            os.makedirs(output_dir, exist_ok=True)
+            output_path = os.path.join(output_dir, "resume.pdf")
+            await save_html_to_pdf(pdf_form, output_path)
+            
+            # S3 업로드
+            s3_url = upload_to_s3(output_path, "pdfs/resume.pdf")
+            
+            return {
+                "status": "completed",
+                "message": "이력서가 생성되었습니다.",
+                "pdf_path": output_path,
+                "s3_url": s3_url,
+                "state": state
+            }
+        else:
+            return {
+                "status": "error",
+                "message": "이미 이력서가 생성되었습니다.",
+                "state": state
+            }
     except Exception as e:
         logger.error(f"이력서 생성 응답 처리 실패: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail=str(e)
-        )
+        return {
+            "status": "error",
+            "message": f"이력서 생성 중 오류가 발생했습니다: {str(e)}",
+            "state": state
+        }
 ########################################################## 이력서 작성 중 응답 API
 
 ########################################################## 이력서 진행 상태 조회 API
@@ -730,11 +763,7 @@ async def get_resume_status(user_id: str) -> ResumeResponse:
 
 
 ########################################################## PDF 파일을 S3로 업로드하는 함수
-import boto3
-from botocore.exceptions import NoCredentialsError
-import os
 
-from botocore.exceptions import NoCredentialsError, ClientError
 
 def upload_to_s3(file_path: str, object_name: str) -> str:
     try:
@@ -783,8 +812,8 @@ async def ask_career_question(state: ResumeConversationState) -> str:
     state.current_step = "career"
     return "경력사항을 모두 입력해 주세요.\n예시: 2016-2018 네이버 소프트웨어 엔지니어(검색 엔진 개발), 2018-2020 카카오 시니어 개발자(메시징 플랫폼 개발)"
 
-async def parse_edu_cert_with_openai(user_input: str) -> dict:
-    """OpenAI로 학력/자격사항을 리스트로 파싱 (JSON 파싱 robust)"""
+async def parse_edu_cert_with_llm(user_input: str) -> dict:
+    """LLM으로 학력/자격사항을 리스트로 파싱 (JSON 파싱 robust)"""
     prompt = f"""
     다음 사용자의 입력을 분석하여 학력(education)과 자격사항(certifications)을 각각 리스트로 JSON으로 반환하세요.
     - 학력: period, school, major, degree
@@ -797,15 +826,13 @@ async def parse_edu_cert_with_openai(user_input: str) -> dict:
     }}
     입력: {user_input}
     """
-    llm = ChatOpenAI(api_key=os.getenv("HIGH_PERFORMANCE_OPENAI_API_KEY"), model_name=os.getenv("HIGH_PERFORMANCE_OPENAI_MODEL"), timeout=int(os.getenv("HIGH_PERFORMANCE_OPENAI_TIMEOUT")))
-    response = await llm.ainvoke([HumanMessage(content=prompt)])
+    client = get_llm_client(is_lightweight=True)
+    response = await client.generate(prompt)
     import json, re
-    
-    # 응답에서 JSON 형식 찾기
-    json_match = re.search(r'\{[\s\S]*\}', response.content)
+    json_match = re.search(r'\{[\s\S]*\}', response)
     if json_match:
         json_str = json_match.group(0)
-        json_str = json_str.replace("'", '"')  # 작은따옴표를 큰따옴표로 변환
+        json_str = json_str.replace("'", '"')
         try:
             parsed = json.loads(json_str)
             if isinstance(parsed, dict):
@@ -816,13 +843,11 @@ async def parse_edu_cert_with_openai(user_input: str) -> dict:
         except Exception as e:
             logger.error(f"JSON 파싱 오류: {str(e)}")
             logger.error(f"원본 JSON 문자열: {json_str}")
-            
-    # 파싱 실패 시 빈 딕셔너리 반환
-    logger.error(f"OpenAI 응답에서 유효한 JSON을 찾을 수 없음: {response.content}")
+    logger.error(f"LLM 응답에서 유효한 JSON을 찾을 수 없음: {response}")
     return {"education": [], "certifications": []}
 
-async def parse_career_with_openai(user_input: str) -> list:
-    """OpenAI로 경력사항을 리스트로 파싱"""
+async def parse_career_with_llm(user_input: str) -> list:
+    """LLM으로 경력사항을 리스트로 파싱"""
     prompt = f"""
     다음 경력사항을 JSON 형식으로 변환하세요:
     입력: {user_input}
@@ -845,16 +870,14 @@ async def parse_career_with_openai(user_input: str) -> list:
       ]
     }}
     """
-    llm = ChatOpenAI(api_key=os.getenv("HIGH_PERFORMANCE_OPENAI_API_KEY"), model_name=os.getenv("HIGH_PERFORMANCE_OPENAI_MODEL"), timeout=int(os.getenv("HIGH_PERFORMANCE_OPENAI_TIMEOUT")))
-    response = await llm.ainvoke([HumanMessage(content=prompt)])
-    
-    # 응답에서 JSON 형식 찾기
+    client = get_llm_client(is_lightweight=True)
+    response = await client.generate(prompt)
     import json, re
-    json_match = re.search(r'\{[\s\S]*\}', response.content)
+    json_match = re.search(r'\{[\s\S]*\}', response)
     if json_match:
         try:
             json_str = json_match.group(0)
-            json_str = json_str.replace("'", '"')  # 작은따옴표를 큰따옴표로 변환
+            json_str = json_str.replace("'", '"')
             parsed = json.loads(json_str)
             if isinstance(parsed, dict) and "career" in parsed and isinstance(parsed["career"], list):
                 logger.info(f"경력사항 파싱 성공: {parsed['career']}")
@@ -862,7 +885,6 @@ async def parse_career_with_openai(user_input: str) -> list:
         except Exception as e:
             logger.error(f"JSON 파싱 오류: {str(e)}")
             logger.error(f"원본 JSON 문자열: {json_str}")
-    
     # 파싱 실패 시 직접 파싱 시도
     try:
         career = []
@@ -881,8 +903,7 @@ async def parse_career_with_openai(user_input: str) -> list:
             return career
     except Exception as e:
         logger.error(f"정규식 파싱 오류: {str(e)}")
-    
-    logger.error(f"경력사항 파싱 실패. OpenAI 응답: {response.content}")
+    logger.error(f"경력사항 파싱 실패. LLM 응답: {response}")
     return []
 
 async def save_html_to_pdf(html_content: dict, output_path: str):

@@ -86,6 +86,7 @@ cp .env.example .env
 # .env 파일을 수정하여 필요한 설정을 입력
 
 # 서버 실행
+uvicorn app.main:app --reload 
 
 mac,linux ( 백그라운드 실행 ) 
 nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload > logs/uvicorn.log 2>&1 &
