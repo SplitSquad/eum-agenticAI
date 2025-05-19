@@ -5,6 +5,7 @@ from app.services.agentic.agentic_classifier import AgentType
 from app.services.agentic.agentic_calendar import AgenticCalendar
 from app.services.agentic.agentic_post import AgenticPost
 from app.services.agentic.agentic_find_foodstore import foodstore
+from app.services.agentic.agentic_resume_service import AgenticResume
 import json
 
 class AgenticResponseGenerator:
@@ -14,11 +15,12 @@ class AgenticResponseGenerator:
         self.llm_client = get_llm_client(is_lightweight=False)
         self.calendar_agent = AgenticCalendar()
         self.post_agent = AgenticPost()
+        self.agentic_resume = AgenticResume()
         # 사용자별 상태 관리
         self.user_states = {}
         logger.info(f"[에이전틱 응답] 고성능 모델 사용: {self.llm_client.model}")
     
-    async def generate_response(self, original_query:str, query: str, agentic_type: AgentType, uid: str, token: str, state: str) -> Dict[str, Any]:
+    async def generate_response(self, original_query:str, query: str, agentic_type: AgentType, uid: str, token: str, state: str, source_lang: str) -> Dict[str, Any]:
         """응답을 생성합니다."""
         try:
             # 캘린더 응답 > 수정 완료
@@ -48,16 +50,10 @@ class AgenticResponseGenerator:
                 
             # 이력서 응답
             elif agentic_type == AgentType.RESUME:
-                return await {
-                "response": "이력서 기능은 개발중입니다.",
-                "metadata": {
-                    "query": "{query}",
-                    "agentic_type": "RESUME",
-                    "error": ""
-                 },
-                "url":agentic_resume['download_url']
-            }
-                
+                # 1. 질문 & 이력서 생성
+                result = await self.agentic_resume.first_query(query, uid, token, state, source_lang)
+                return result  # ✅ 응답값 리턴
+                        
                 
             # 자소서 응답 
             elif agentic_type == AgentType.RESUME:
