@@ -95,7 +95,6 @@ async def process_job_search_response(state: JobSearchConversationState, respons
         }
     
     
-    
     return {
         "status": "error",
         "message": "잘못된 응답입니다."

@@ -83,9 +83,12 @@ class AgenticPost:
         def parse_product(description: str) -> dict:
             
             logger.info(f"[입력으로 전달된 변수] : {description}")
+            logger.info(f"[입력으로 전달된 변수 type] : {type(description)}")
+            
             logger.info(f"[템플릿이 요구하는 변수] : {prompt.input_variables}")
             result = chain.invoke({"input": description})
             logger.info(f"[AI가 반환한값] {json.dumps(result, indent=2, ensure_ascii=False)}")
+            logger.info(f"[AI가 반환한값 type] {type(result)}")
             return result
 
         response = parse_product(query)
@@ -170,10 +173,12 @@ class AgenticPost:
         response_data = parse_product(query)
         
         logger.info(f"[response_data] : {response_data}")
+        logger.info(f"[response_data type] : {type(response_data)}")
         
-        response_json = json.dumps(response_data["post"], indent=2, ensure_ascii=False)
+        response_json = json.dumps(response_data, indent=2, ensure_ascii=False)
         
         logger.info(f"[response 반환값] : {response_json}")
+        logger.info(f"[response_json type] : {type(response_json)}")
 
         post_api(response_json, token)
         return response_json
@@ -182,6 +187,12 @@ class AgenticPost:
 ##################################################################### 게시판 api 요청
 
 def post_api(form_data: str, token: str):
+    
+    
+    logger.info(f"[POST API 호출] : {COMMUNITY_API_URL}")
+    logger.info(f"[form_data] : {form_data}")
+    logger.info(f"[form_data type] : {type(form_data)}")
+    
     headers = {
         "Authorization": token
     }
