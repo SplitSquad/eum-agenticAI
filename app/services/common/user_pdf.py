@@ -1,5 +1,4 @@
 import os
-from weasyprint import HTML
 from loguru import logger
 from playwright.async_api import async_playwright
 
