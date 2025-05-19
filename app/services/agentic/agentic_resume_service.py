@@ -9,8 +9,7 @@ from app.core.llm_post_prompt import Prompt
 from app.services.common.user_information_resume import User_Information_Resume
 from app.services.common.user_information import User_Api
 from app.services.common.user_pdf import UserPDF
-from app.config.user_s3 import UserS3
-
+from app.services.common.user_s3 import UserS3
 
 # ✅ 사용자에게 물어봐야 할 항목 목록
 # 1. 기본 인적 사항
