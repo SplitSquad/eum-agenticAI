@@ -15,7 +15,7 @@ class Agentic:
         self.postprocessor = Postprocessor()
         logger.info("[에이전트] 초기화 완료")
     
-    async def get_response(self, query: str, uid: str, token: Optional[str] = None, state: Optional[str] = None) -> Dict[str, Any]:
+    async def get_response(self, query: str, uid: str, token: Optional[str] = None) -> Dict[str, Any]:
         """질의에 대한 응답을 생성합니다."""
         try:
             original_query=query

@@ -30,7 +30,7 @@ def get_llm_client(is_lightweight=False):
 CALENDAR_API_URL = os.getenv("CALENDAR_API_URL","https://api.eum-friends.com/calendar")
 if not CALENDAR_API_URL:
     raise ValueError("CALENDAR_API_URL 환경변수가 설정되지 않았습니다.")
-
+###21
 ################################################ 캘린더 일정 리스트로 반환
 # 결과 출력 (선택)
 def Output_organization(formatted_events) -> str:
@@ -101,7 +101,7 @@ def schedule(token):
         access_token = token
 
         headers = {
-            "Authorization": access_token,  # ✅ Bearer 꼭 포함
+            "Authorization": f"{access_token}",  # ✅ Bearer 꼭 포함
             "Content-Type": "application/json"
         }
 
@@ -338,7 +338,7 @@ def add_event(make_event , token):
             "Authorization": access_token ,            
             "Content-Type": "application/json"
         }
-        print(f" [headers] : { headers} ")
+
         print("\n📤 보내는 이벤트 JSON:")
         print(json.dumps(make_event, indent=4, ensure_ascii=False))
 
@@ -617,19 +617,36 @@ def check_event(user_input,token):
     2. It's a schedule: {schedule_list}
     3. This is an example output 
 
-    ----------------
-    "time" : 
-    "title" :
-    "content" : 
-    ----------------
-    "time" : 
-    "title" :
-    "content" : 
-    ----------------
-    "time" : 
-    "title" :
-    "content" : 
-    ----------------
+    "output": 
+        summary: ""
+        description: ""
+        "start":
+            "dateTime": "",
+            "timeZone": ""
+        ,
+        "end":
+            "dateTime": "",
+            "timeZone": ""
+        ,
+        summary: ""
+        description: ""
+        "start":
+            "dateTime": "",
+            "timeZone": ""
+        ,
+        "end":
+            "dateTime": "",
+            "timeZone": ""
+        ,
+        summary: ""
+        description: ""
+        "start":
+            "dateTime": "",
+            "timeZone": ""
+        ,
+        "end":
+            "dateTime": "",
+            "timeZone": ""
 
     ⚠️ Do NOT include any explanation or message. ONLY return a valid JSON object. No natural language.
     """
@@ -664,14 +681,9 @@ class AgenticCalendar:
     def Calendar_function(self, query: str, token: str) -> Dict[str, Any]:
 
         logger.info("[CATEGORY CLASSIFICATION 초기화]")
-        # # ✅ 최초 로그인 시 token.pickle 없으면 로그인 유도
-        # if not Path("token.pickle").exists():
-        #     print("🔑 Google 로그인이 필요합니다. 브라우저 창이 열립니다.")
-        #     get_credentials()
-
         classification = Input_analysis(query)
         logger.info("[CALENDAR_CATEGORY] ",classification)
-    
+        
         if classification == "add" :
             print("일정 추가")        
             make_event = MakeSchedule(query) ## 이벤트 생성
@@ -683,9 +695,7 @@ class AgenticCalendar:
                     "query": "{query}",
                     "agentic_type": "calendar",
                     "error": ""
-                },
-                "state" : "first",
-                "url" : "null"
+                }
             }
         elif classification == "edit" : 
             print("일정 수정")
@@ -697,9 +707,7 @@ class AgenticCalendar:
                     "query": "{query}",
                     "agentic_type": "calendar",
                     "error": ""
-                },
-                "state" : "first",
-                "url" : "null"
+                }
             }
         elif classification == "delete" : 
             print("일정 삭제")
@@ -711,9 +719,7 @@ class AgenticCalendar:
                     "query": "{query}",
                     "agentic_type": "calendar",
                     "error": ""
-                },
-                "state" : "first",
-                "url" : "null"
+                }
             } 
         elif classification == "check" : 
             print("일정 확인")
@@ -724,9 +730,7 @@ class AgenticCalendar:
                     "query": "{query}",
                     "agentic_type": "calendar",
                     "error": ""
-                },
-                "state" : "first",
-                "url" : "null"
+                }
             } 
         else : 
             print('알 수 없는 명령입니다.')

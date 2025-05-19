@@ -1,3 +1,4 @@
+
 # app/api/v1/agentic.py
 
 from fastapi import APIRouter, HTTPException, Request, Body, Header
@@ -42,6 +43,7 @@ class AgenticResponse(BaseModel):
     """에이전틱 응답 모델"""
     response: str
     metadata: Dict[str, Any]
+
     state: Optional[str] = None
     url: Optional[str] = None
 
@@ -77,6 +79,7 @@ class CoverLetterResponseRequest(BaseModel):
     response: str
     state: CoverLetterConversationState
 
+
 class CoverLetterResponse(BaseModel):
     """자기소개서 생성 응답 모델"""
     message: str
@@ -89,6 +92,9 @@ agentic = Agentic()
 
 # # 대화 상태 저장소 (실제 프로덕션에서는 Redis나 DB를 사용해야 함)
 # conversation_states: Dict[str, ResumeConversationState] = {}
+
+# 구직 정보 검색 상태 저장소
+job_search_states: Dict[str, JobSearchState] = {}
 
 # 구직 정보 검색 상태 저장소
 job_search_states: Dict[str, JobSearchState] = {}

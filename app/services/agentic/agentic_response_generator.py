@@ -18,14 +18,17 @@ class AgenticResponseGenerator:
         self.user_states = {}
         logger.info(f"[에이전틱 응답] 고성능 모델 사용: {self.llm_client.model}")
     
+
     async def generate_response(self, original_query:str, query: str, agentic_type: AgentType, uid: str, token: str, state: str) -> Dict[str, Any]:
+
         """응답을 생성합니다."""
         try:
             # 캘린더 응답 > 수정 완료
             if agentic_type == AgentType.CALENDAR:
                 logger.info(f"[CALENDAR 기능 초기화중] : CALENDAR")
-                agentic_calendar = self._generate_calendar_response(original_query,uid,token)
+                agentic_calendar = self._generate_calendar_response(query,uid,token)
                 return await agentic_calendar
+
                 
             # 게시판 응답 > 수정 완료 
             elif agentic_type == AgentType.POST:
@@ -194,3 +197,4 @@ class AgenticResponseGenerator:
         
         return post_second_response
 ############################################################################# 게시판 생성 기능    
+
