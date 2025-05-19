@@ -52,7 +52,6 @@ class Agentic:
             response_data = {
                 "response": result["response"],
                 "metadata": {
-                    "query": query,
                     "english_query": english_query,
                     "source_lang": source_lang,
                     "agentic_type": agentic_type,
