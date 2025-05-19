@@ -7,11 +7,6 @@ from typing import Dict, Any, Optional, List
 from loguru import logger
 from app.services.agentic.agentic import Agentic
 
-from app.services.agentic.agentic_resume_service import (
-    ResumeConversationState,
-    start_resume_conversation,
-    process_resume_response
-)
 from app.services.agentic.agentic_job_search import (
     JobSearchState,
     process_job_search_response,

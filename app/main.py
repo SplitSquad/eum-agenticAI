@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from app.api.v1 import agentic
 from app.config.logging_config import setup_logging
 from fastapi.middleware.cors import CORSMiddleware
-from eureka_client import eureka_client
+from py_eureka_client import eureka_client
 from os import getenv
 
 # main.py (혹은 uvicorn 실행에 사용되는 시작 파일)
