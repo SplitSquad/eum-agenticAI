@@ -8,10 +8,11 @@ from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.prompts import ChatPromptTemplate
 from app.services.common.user_information import User_Api
+import os
+
 
 # ✅ API 기본 설정
-# url = "https://dapi.kakao.com/v2/local/search/category.json"
-
+url = os.getenv("MAPS_API_URL","https://dapi.kakao.com/v2/local/search/category.json")
 
 class foodstore():
     user_api=User_Api()
@@ -29,19 +30,49 @@ class foodstore():
     
     async def location(self):
         logger.info("[사용자 위치 조회중...]")
-        user_address=self.user['address']
-
-        ##임의로 주소 선정
-        user_address = "서울 강남"
-
-        ## 실제 이메일 사용해야함!
-        geolocator = Nominatim(user_agent="jwontiger@gmail.com")
-        location = geolocator.geocode(user_address)
-        print((location.latitude, location.longitude))
-        return {
-            "latitude": location.latitude , 
-            "longitude": location.longitude
-        }
+        
+        try:
+            # ✅ 사용자 주소 조회
+            user_address = self.user['address']
+            
+            if not user_address:
+                logger.warning("[사용자 주소 없음] 기본 주소 사용")
+                user_address = "서울 강남"
+            
+            ## 실제 이메일 사용해야함!
+            geolocator = Nominatim(user_agent="jwontiger@gmail.com")
+            location = geolocator.geocode(user_address)
+            
+            if location is None:
+                logger.warning(f"[위치 조회 실패] 주소 '{user_address}'에 대한 위치 정보를 찾을 수 없음. 기본 주소 사용")
+                user_address = "서울 강남"
+                location = geolocator.geocode(user_address)
+            
+            logger.info(f"[위치 조회 성공] 위도: {location.latitude}, 경도: {location.longitude}")
+            return {
+                "latitude": location.latitude,
+                "longitude": location.longitude
+            }
+            
+        except Exception as e:
+            logger.error(f"[위치 조회 오류] {str(e)}. 기본 주소 사용")
+            # 기본 주소로 재시도
+            try:
+                user_address = "서울 강남"
+                geolocator = Nominatim(user_agent="jwontiger@gmail.com")
+                location = geolocator.geocode(user_address)
+                
+                return {
+                    "latitude": location.latitude,
+                    "longitude": location.longitude
+                }
+            except Exception as e:
+                logger.error(f"[기본 주소 조회 실패] {str(e)}")
+                # 강남역 좌표 하드코딩 (최후의 수단)
+                return {
+                    "latitude": 37.498095,
+                    "longitude": 127.027610
+                }
 
     async def kakao_api_foodstore(self,latitude:str,longitude:str,location_category):
         logger.info(f"[주변 {location_category} 데이터 불러오는중...]")
@@ -61,7 +92,7 @@ class foodstore():
         }
 
         # ✅ GET 요청
-        response = requests.get("https://dapi.kakao.com/v2/local/search/category.json", headers=headers, params=params)
+        response = requests.get(url, headers=headers, params=params)
 
         # ✅ 결과 확인
         if response.status_code == 200:

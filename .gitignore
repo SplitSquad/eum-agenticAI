@@ -51,3 +51,6 @@ credentials.json
 # google cloud
 client_secret.json
 token.pickle
+
+# mac
+.DS_Store

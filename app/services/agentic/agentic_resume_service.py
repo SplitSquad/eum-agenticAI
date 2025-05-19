@@ -1,3 +1,4 @@
+
 from loguru import logger
 import json
 import os
@@ -40,6 +41,7 @@ class AgenticResume():
     async def first_query(self,query,uid,token,state,source_lang) :
         logger.info("[first_query 함수 실행중...]")
         logger.info(f"[처음 state 상태] : {state}")
+
         
         if state == "initial" : 
             state = "education"
@@ -62,6 +64,7 @@ class AgenticResume():
         
         elif state == "certifications":
 
+
             logger.info("[사용자에게 받은 응답 저장하는중...]")
             response_query = await self.llm.generate(f" <Please translate it into Korean> {query}")
             await self.save_user_data(uid, state, response_query)
@@ -83,6 +86,7 @@ class AgenticResume():
             logger.info("[사용자에게 받은 응답 저장하는중...]")
             response_query = await self.llm.generate(f" <Please translate it into Korean> {query}")
             await self.save_user_data(uid, state, response_query)
+
             
             logger.info("[질문 만드는중...]") 
             result = await self.llm.generate(f" <Please translate it into {source_lang}> Please tell us about your career history.")
@@ -97,6 +101,7 @@ class AgenticResume():
             }
         
         elif state == "complete":
+
 
             logger.info("[사용자에게 받은 응답 저장하는중...]")
             response_query = await self.llm.generate(f" <Please translate it into Korean> {query}")
@@ -147,6 +152,7 @@ class AgenticResume():
                 "title": {"type":"string"},
             }
         })
+
 
         system_prompt = Prompt.make_html_ai_prompt()
 
@@ -214,4 +220,5 @@ class AgenticResume():
         response = parse_product(description)
 
         return response
+
 

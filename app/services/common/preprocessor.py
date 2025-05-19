@@ -52,3 +52,4 @@ def translate_query(query: str):
             "translated_query": query,
             "lang_code": "en"  # 에러 발생시 기본값으로 영어 설정
         }
+

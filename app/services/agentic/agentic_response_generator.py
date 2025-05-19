@@ -20,22 +20,28 @@ class AgenticResponseGenerator:
         self.user_states = {}
         logger.info(f"[에이전틱 응답] 고성능 모델 사용: {self.llm_client.model}")
     
+
     async def generate_response(self, original_query:str, query: str, agentic_type: AgentType, uid: str, token: str, state: str, source_lang: str) -> Dict[str, Any]:
+
         """응답을 생성합니다."""
         try:
             # 캘린더 응답 > 수정 완료
             if agentic_type == AgentType.CALENDAR:
                 logger.info(f"[CALENDAR 기능 초기화중] : CALENDAR")
-                agentic_calendar = self._generate_calendar_response(original_query,uid,token)
+                agentic_calendar = self._generate_calendar_response(query,uid,token)
                 return await agentic_calendar
+
                 
-            # 게시판 응답
+            # 게시판 응답 > 수정 완료 
             elif agentic_type == AgentType.POST:
                 logger.info("[1. 사용자 질문 받음]")  
                 Post_Response = await self._generate_post_response(token, original_query, query)
                 Post_Response = json.loads(Post_Response)
                 return {
-                    "response": f""" 제목 : {Post_Response['title']} 
+                    "response": f""" 
+                    {Post_Response['category']} 게시판에 게시글이 생성되었습니다.
+                    
+                    제목 : {Post_Response['title']} 
                     카테고리 : {Post_Response['category']} 
                     내용 : {Post_Response['content']}  
                     게시글이 생성되었습니다. """,
@@ -114,7 +120,6 @@ class AgenticResponseGenerator:
             else:
                 return await self._generate_general_response(query)
             
-        
                 
         except Exception as e:
             logger.error(f"응답 생성 중 오류 발생: {str(e)}")
@@ -178,15 +183,14 @@ class AgenticResponseGenerator:
         
         category = post_first_response['category']
         tags = post_first_response['tags']
-        logger.info(f"[post_second 필요한정보] : {category} {tags}")
         
         
         # 2. 게시판 생성 단계
+        logger.info(f"[게시판 생성 단계] : {category} {tags}")
         post_second_response = await self.post_agent.second_query(token, original_query, category, tags)
         logger.info(f"[post_second_response] : {post_second_response}")
         
         
         return post_second_response
-    
-
 ############################################################################# 게시판 생성 기능    
+
