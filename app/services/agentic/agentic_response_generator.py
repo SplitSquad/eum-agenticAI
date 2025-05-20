@@ -16,6 +16,7 @@ class AgenticResponseGenerator:
         self.calendar_agent = AgenticCalendar()
         self.post_agent = AgenticPost()
         self.agentic_resume = AgenticResume()
+        self.agentic_coverletter = AgenticCoverLetter()
         self.TEST = foodstore()
         # 사용자별 상태 관리
         self.user_states = {}
@@ -70,7 +71,12 @@ class AgenticResponseGenerator:
                 agentic_calendar = self._generate_calendar_response(query,uid,token)
                 return await agentic_calendar
 
+            
+            elif agentic_type == AgentType.COVER_LETTER:
+                result = await self.agentic_coverletter.first_query(query, uid, token, state, source_lang)
+                return result
                 
+            
             # 게시판 응답 > 수정 완료 
             elif agentic_type == AgentType.POST:
                 logger.info("[1. 사용자 질문 받음]")  
