@@ -55,11 +55,14 @@ class AgenticResume():
 
             state = "certifications"
             return {
-                "response" : result,
-                "metadata" : {"source": "default"} ,
-                "state" : state,
-                "url" : None
+                "response": result,
+                "metadata": {
+                    "source": "default",
+                    "state": state         # ✅ metadata 안에 포함
+                },
+                "url": None
             }
+
         
         elif state == "certifications":
 
@@ -74,10 +77,12 @@ class AgenticResume():
 
             state = "career"
             return {
-                "response" : result,
-                "metadata" : {"source": "default"} ,
-                "state" : state,
-                "url" : None
+                "response": result,
+                "metadata": {
+                    "source": "default",
+                    "state": state         # ✅ metadata 안에 포함
+                },
+                "url": None
             }
         
         elif state == "career":
@@ -93,10 +98,12 @@ class AgenticResume():
 
             state = "complete"
             return {
-                "response" : result,
-                "metadata" : {"source": "default"} ,
-                "state" : state,
-                "url" : None
+                "response": result,
+                "metadata": {
+                    "source": "default",
+                    "state": state         # ✅ metadata 안에 포함
+                },
+                "url": None
             }
         
         elif state == "complete":
@@ -123,22 +130,26 @@ class AgenticResume():
             pdf_path = await self.user_pdf.make_pdf(uid,html)
 
             # s3 저장
-            utl = await self.user_s3.upload_pdf(pdf_path)
+            url = await self.user_s3.upload_pdf(pdf_path)
 
             return {
-                "response" : result,
-                "metadata" : {"source": "default"} ,
-                "state" : state,
-                "url" : utl
+                "response": result,
+                "metadata": {
+                    "source": "default",
+                    "state": state         # ✅ metadata 안에 포함
+                },
+                "url": url
             }
 
         else :
             logger.warning(f"[first_query] 알 수 없는 state: {state}")
             return {
-                "response" : "다시작성해주세요",
-                "metadata" : {"source": "default"} ,
-                "state" : state,
-                "url" : None
+                "response": "이력서를 다시 작성해주세요.",
+                "metadata": {
+                    "source": "default",
+                    "state": state         # ✅ metadata 안에 포함
+                },
+                "url": url
             }
         
     async def make_html_ai(self,token,uid):

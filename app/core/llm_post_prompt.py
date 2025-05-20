@@ -50,6 +50,60 @@ class Prompt():
 
         """
 
+    @staticmethod
+    def make_user_data() : 
+
+        prompt= f"""
+
+        1. Please return a dict.
+        2. Please return them all as in the example. (If there is no value, return blank.)
+
+        [one-shot]
+        input:
+            Collected user information : <collected_user_data> 
+            Saved user information : <user_info> + <preference_info> 
+        output:
+            "name": "홍길동",
+            "birth": "1990-01-01",
+            "phone": "010-1234-5678",
+            "nationality": "대한민국",
+
+            "relation1": "부",
+            "name1": "홍아버지",
+            "age1": "65",
+            "job1": "교사",
+
+            "relation2": "모",
+            "name2": "홍어머니",
+            "age2": "63",
+            "job2": "주부",
+
+            "relation3": "형",
+            "name3": "홍형",
+            "age3": "35",
+            "job3": "회사원",
+
+            "address": "서울특별시 강남구 테헤란로 123",
+            "email": "hong@example.com",
+
+            "edu_period1": "2009.03 ~ 2013.02",
+            "edu_detail1": "서울대학교 컴퓨터공학과 졸업",
+
+            "edu_period2": "2014.06",
+            "edu_detail2": "정보처리기사 자격증 취득",
+
+            "career_period1": "2015.03 ~ 2020.12",
+            "career_detail1": "네이버 백엔드 개발자",
+            "career_note1": "검색 플랫폼 개발",
+
+            "career_period2": "2021.01 ~ 현재",
+            "career_detail2": "카카오 시니어 개발자",
+            "career_note2": "AI 챗봇 서비스 개발",
+
+            "written_date": "2025년 5월 19일"
+
+        """
+        
         return prompt
     
 

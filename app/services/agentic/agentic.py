@@ -15,7 +15,7 @@ class Agentic:
         self.postprocessor = Postprocessor()
         logger.info("[에이전트] 초기화 완료")
     
-    async def get_response(self, query: str, uid: str, token: Optional[str] = None) -> Dict[str, Any]:
+    async def get_response(self, query: str, uid: str, token: Optional[str] = None, state: Optional[str] = None) -> Dict[str, Any]:
         """질의에 대한 응답을 생성합니다."""
         try:
             original_query=query
@@ -41,7 +41,7 @@ class Agentic:
 
             result = await self.response_generator.generate_response(original_query, english_query, agentic_type, uid, token, state,source_lang)
 
-            logger.info("[에이전트] 응답 생성 완료")
+            logger.info(f"[에이전트] 응답 생성 완료 : {result}")
             
             # 4. 후처리 (원문 언어로 번역)
             logger.info(f"[WORKFLOW] Step 4: Postprocessing (translation back to original language)")
@@ -59,7 +59,9 @@ class Agentic:
                     "agentic_type": agentic_type,
                     "uid": uid,
                     "state": result.get("metadata", {}).get("state", "general")
-                }
+                },
+                "state": result.get("metadata", {}).get("state", "general"),
+                "url": result["url"]
             }
             
             # 메타데이터에 추가 정보가 있으면 병합

@@ -128,7 +128,8 @@ async def agentic_handler(request: AgenticRequest, authorization: Optional[str] 
         result = await agentic.get_response(
             query=request.query,
             uid=request.uid,
-            token=token
+            token=token,
+            state=request.state
         )
         
         logger.info(f"[에이전트 응답] : {result}")
@@ -148,26 +149,26 @@ async def agentic_handler(request: AgenticRequest, authorization: Optional[str] 
             detail=f"에이전틱 처리 중 오류가 발생했습니다: {str(e)}"
         )
 
-@router.get(
-    "/resume/status/{user_id}",
-    response_model=ResumeResponse,
-    summary="이력서 생성 상태",
-    description="이력서 생성 진행 상태를 확인합니다."
-)
-async def get_resume_status(user_id: str) -> ResumeResponse:
-    """이력서 생성 진행 상태 확인"""
-    if user_id not in conversation_states:
-        raise HTTPException(
-            status_code=404,
-            detail="진행 중인 이력서 생성 대화가 없습니다."
-        )
+# @router.get(
+#     "/resume/status/{user_id}",
+#     response_model=ResumeResponse,
+#     summary="이력서 생성 상태",
+#     description="이력서 생성 진행 상태를 확인합니다."
+# )
+# async def get_resume_status(user_id: str) -> ResumeResponse:
+#     """이력서 생성 진행 상태 확인"""
+#     if user_id not in conversation_states:
+#         raise HTTPException(
+#             status_code=404,
+#             detail="진행 중인 이력서 생성 대화가 없습니다."
+#         )
     
-    state = conversation_states[user_id]
-    return ResumeResponse(
-        status="in_progress" if not state.is_completed else "completed",
-        question=state.current_question,
-        field=state.current_field
-    )
+#     state = conversation_states[user_id]
+#     return ResumeResponse(
+#         status="in_progress" if not state.is_completed else "completed",
+#         question=state.current_question,
+#         field=state.current_field
+#     )
 
 @router.post(
     "/job-search/start/{user_id}",

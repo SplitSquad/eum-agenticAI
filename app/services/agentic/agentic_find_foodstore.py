@@ -2,7 +2,7 @@ import json
 import requests
 from geopy.geocoders import Nominatim
 from loguru import logger
-from app.core.llm_client import get_langchain_llm
+from app.core.llm_client import get_langchain_llm,get_llm_client
 from langchain_groq import ChatGroq
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
@@ -27,6 +27,108 @@ class foodstore():
         self.user = await self.user_api.user_api(token)
         self.user_prefer = await self.user_api.user_prefer_api(token)
         logger.info(f"[사용자 정보]: {self.user} | {self.user_prefer}")
+
+    async def category_query(self,source_lang):
+        logger.info("[질문 만드는중...]")
+
+        # LLM 클라이언트 인스턴스 가져오기
+        llm_client = get_llm_client(is_lightweight=True)
+
+        # 프롬프트 구성
+        prompt = f"<Please translate it into {source_lang}> 어떤 장소를 찾고 계신가요?? 1.대형마트 2.편의점 3.음식점 4.카페 5.관광명소 6.숙박 7.주유소,충전소 8.주차장 9.지하철역 10.학교 11.학원 12.병원 13.약국 14.중개업소 15.공공기관"
+
+        # 직접 호출 (클라이언트마다 방식 다를 수 있음)
+        response_query = await llm_client.acall(prompt)
+
+        return response_query
+    
+    async def Category_extraction(self):
+        logger.info("[카테고리 추출 하는중 만드는중...]")
+
+       
+        llm = get_langchain_llm(is_lightweight=True)
+
+        parser = JsonOutputParser(pydantic_object={
+            "type": "object",
+            "properties": {
+                "input": {"type": "string"},
+                "output": {"type": "string"},
+            }
+        })
+       
+
+        system_prompt=f"""
+        1. Please output the code that matches the category.
+        2. Please choose just one.
+        
+        [few-shot]
+        input : 대형마트 
+        output : MT1
+
+        input : 편의점 
+        output : CS2
+
+        input : 음식점 
+        output : FD6
+
+        input : 카페 
+        output : CE7
+
+        input : 관광명소 
+        output : AT4
+
+        input : 숙박 
+        output : AD5
+
+        input : 주유소, 충전소 
+        output : OL7
+
+        input : 주차장
+        output : PK6
+
+        input : 지하철역 
+        output : SW8
+
+        input : 학교 
+        output : SC4
+
+        input : 학원
+        output : AC5
+
+        input : 병원
+        output : HP8
+
+        input : 약국
+        output : PM9
+
+        input : 중개업소
+        output : AG2
+
+        input : 공공기관
+        output : PO3
+ 
+        """
+
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", system_prompt ),
+            ("user", "{input}")
+        ])
+
+
+        chain = prompt | llm | parser
+
+        def parse_product(description: str) -> dict:
+            result = chain.invoke({"input": description})
+            print(f"[Category] : {json.dumps(result, indent=2, ensure_ascii=False)}")
+            return result
+            
+        description = f"""
+
+        """
+
+        response = parse_product(description)
+    
+        return
     
     async def location(self):
         logger.info("[사용자 위치 조회중...]")

@@ -16,15 +16,28 @@ class AgenticResponseGenerator:
         self.calendar_agent = AgenticCalendar()
         self.post_agent = AgenticPost()
         self.agentic_resume = AgenticResume()
+        self.TEST = foodstore()
         # 사용자별 상태 관리
         self.user_states = {}
         logger.info(f"[에이전틱 응답] 고성능 모델 사용: {self.llm_client.model}")
     
 
     async def generate_response(self, original_query:str, query: str, agentic_type: AgentType, uid: str, token: str, state: str, source_lang: str) -> Dict[str, Any]:
-
         """응답을 생성합니다."""
         try:
+
+            # 이력서 기능 즉시 라우팅
+            if state in ["education", "certifications", "career", "complete"]:
+                result = await self.agentic_resume.first_query(query, uid, token, state, source_lang)
+                return result
+            
+            # 위치 찾기 기능 즉시 라우팅
+            if state == "location_category":
+                await self.TEST.Category_extraction()
+
+                return
+
+
             # 캘린더 응답 > 수정 완료
             if agentic_type == AgentType.CALENDAR:
                 logger.info(f"[CALENDAR 기능 초기화중] : CALENDAR")
@@ -60,50 +73,38 @@ class AgenticResponseGenerator:
                 result = await self.agentic_resume.first_query(query, uid, token, state, source_lang)
                 return result  # ✅ 응답값 리턴
                         
-                
-            # 자소서 응답 
-            elif agentic_type == AgentType.RESUME:
-                return await {
-                "response": "이력서 기능은 개발중입니다.",
-                "metadata": {
-                    "query": "{query}",
-                    "agentic_type": "RESUME",
-                    "error": ""
-                 },
-                "url":agentic_resume['download_url']
-            }
-                
-                
-                
-            # 구인 조언 응답
-            elif agentic_type == AgentType.RESUME:
-                return await {
-                "response": "이력서 기능은 개발중입니다.",
-                "metadata": {
-                    "query": "{query}",
-                    "agentic_type": "RESUME",
-                    "error": ""
-                 },
-                "url":agentic_resume['download_url']
-            }
 
             elif agentic_type == AgentType.LOCATION:
-                # 1. foodstore 인스턴스 생성
-                TEST = foodstore()
+
+                if state == "initial" :
+                # 1 원하는 카테고리 질문
+                    category = await self.TEST.category_query(source_lang)
+                    return {
+                        "response": category,
+                        "metadata": {
+                            "query": query,
+                            "uid": uid,
+                            "location": "default",
+                            "results": "default"
+                        },
+                        "state": "location_category",
+                        "url": None
+                    }
+                    
                 # 2. 사용자정보불러오는중
-                await TEST.load_user_data(token)
+                await self.TEST.load_user_data(token)
                 # 3. 사용자 위치 확인
-                location = await TEST.location()
+                location = await self.TEST.location()
                 # 4. 카테고리 지정 (예: AT4 = 관광명소, FD6 = 음식점)
                 location_category = "AT4"  # 추후 query 기반 분류 가능
                 # 5. 카카오 API 호출
-                food_store = await TEST.kakao_api_foodstore(
+                food_store = await self.TEST.kakao_api_foodstore(
                     location["latitude"],
                     location["longitude"],
                     location_category
                 )
                 # 6. AI 매칭 (예정)
-                await TEST.ai_match(food_store)
+                await self.TEST.ai_match(food_store)
                 # 7. 응답 반환
                 return {
                     "response": "📍 주변 장소를 찾았습니다!",
