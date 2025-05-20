@@ -61,9 +61,6 @@ class AgenticResponseGenerator:
                     "url": None
                 }
 
-                return
-
-
             # 캘린더 응답 > 수정 완료
             if agentic_type == AgentType.CALENDAR:
                 logger.info(f"[CALENDAR 기능 초기화중] : CALENDAR")
