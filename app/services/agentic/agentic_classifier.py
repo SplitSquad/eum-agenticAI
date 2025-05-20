@@ -77,7 +77,7 @@ class AgenticClassifier:
         - job_search : jobseeking based on web search data.
         - cover_letter : making cover letter which is related to job search.
         - post :  making post in community board.
-        - location : finding location which is related to job search.
+        - location : find a location.
         - general
         """
         

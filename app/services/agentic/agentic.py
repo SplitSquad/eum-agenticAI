@@ -42,6 +42,16 @@ class Agentic:
             result = await self.response_generator.generate_response(original_query, english_query, agentic_type, uid, token, state,source_lang)
 
             logger.info(f"[에이전트] 응답 생성 완료 : {result}")
+
+            # result["url"] 예외처리
+            if "url" not in result or result["url"] is None:
+                result["url"] = "None"
+
+            # state 예외처리
+            if result["metadata"].get("state") in [None , "general", "calendar", "post"]:
+                result["metadata"]["state"] = "initial"
+
+
             
             # 4. 후처리 (원문 언어로 번역)
             logger.info(f"[WORKFLOW] Step 4: Postprocessing (translation back to original language)")
@@ -51,6 +61,8 @@ class Agentic:
                 result["metadata"]["translated"] = True
             
             # 5. 응답 데이터 구성
+
+            logger.info(f"[WORKFLOW] 응답 데이터 구성 시작")
             response_data = {
                 "response": result["response"],
                 "metadata": {

@@ -33,7 +33,33 @@ class AgenticResponseGenerator:
             
             # 위치 찾기 기능 즉시 라우팅
             if state == "location_category":
-                await self.TEST.Category_extraction()
+                # 1. 카테고리추출
+                category_code = await self.TEST.Category_extraction(query)
+                # 2. 사용자정보불러오는중
+                await self.TEST.load_user_data(token)
+                # 3. 사용자 위치 확인
+                location = await self.TEST.location()
+                # 4. 카카오 API 호출    
+                food_store = await self.TEST.kakao_api_foodstore(
+                    location["latitude"],
+                    location["longitude"],
+                    category_code["output"]
+                )
+                # 6. AI 매칭 (예정)
+                await self.TEST.ai_match(food_store)
+                # 7. 응답 반환
+                return {
+                    "response": "📍 주변 장소를 찾았습니다!",
+                    "metadata": {
+                        "query": query,
+                        "uid": uid,
+                        "location": location,
+                        "results": food_store,
+                        "state": "initial"
+                    },
+                    "state": "initial",
+                    "url": None
+                }
 
                 return
 
@@ -75,19 +101,32 @@ class AgenticResponseGenerator:
                         
 
             elif agentic_type == AgentType.LOCATION:
+                logger.info("[위치찾기 실행중...]")
 
                 if state == "initial" :
                 # 1 원하는 카테고리 질문
                     category = await self.TEST.category_query(source_lang)
+                    # return {
+                    #     "response": category,
+                    #     "metadata": {
+                    #         "query": query,
+                    #         "uid": uid,
+                    #         "location": "default",
+                    #         "results": "default"
+                    #     },
+                    #     "state": "location_category",
+                    #     "url": None
+                    # }
                     return {
                         "response": category,
                         "metadata": {
+                            "source": "default",
+                            "state": "location_category",        # ✅ metadata 안에 포함
                             "query": query,
                             "uid": uid,
                             "location": "default",
                             "results": "default"
                         },
-                        "state": "location_category",
                         "url": None
                     }
                     

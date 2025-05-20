@@ -110,13 +110,13 @@ class AgenticPost:
         "tags": ["{tags}"],
         "postType": "자유",
         "address": "자유"
-    '''
+        '''
 
         system_prompt = f"""
-    당신은 사용자의 입력을 기반으로 게시판에 올릴 게시글을 작성하는 assistant입니다.
-    다음 JSON 형식에 맞춰 게시글을 작성하세요:
+        당신은 사용자의 입력을 기반으로 게시판에 올릴 게시글을 작성하는 assistant입니다.
+        다음 JSON 형식에 맞춰 게시글을 작성하세요:
 
-    ```json
+        ```json
             {json_example}
 
             요구사항:

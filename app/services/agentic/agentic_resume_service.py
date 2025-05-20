@@ -132,11 +132,14 @@ class AgenticResume():
             # s3 저장
             url = await self.user_s3.upload_pdf(pdf_path)
 
+            # json 데이터 정리
+            await self.user_information.delete_user_data(uid)
+
             return {
                 "response": result,
                 "metadata": {
                     "source": "default",
-                    "state": state         # ✅ metadata 안에 포함
+                    "state": "initial"         # ✅ metadata 안에 포함
                 },
                 "url": url
             }
@@ -147,7 +150,7 @@ class AgenticResume():
                 "response": "이력서를 다시 작성해주세요.",
                 "metadata": {
                     "source": "default",
-                    "state": state         # ✅ metadata 안에 포함
+                    "state": "initial"         # ✅ metadata 안에 포함
                 },
                 "url": url
             }

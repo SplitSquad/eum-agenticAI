@@ -38,11 +38,11 @@ class foodstore():
         prompt = f"<Please translate it into {source_lang}> 어떤 장소를 찾고 계신가요?? 1.대형마트 2.편의점 3.음식점 4.카페 5.관광명소 6.숙박 7.주유소,충전소 8.주차장 9.지하철역 10.학교 11.학원 12.병원 13.약국 14.중개업소 15.공공기관"
 
         # 직접 호출 (클라이언트마다 방식 다를 수 있음)
-        response_query = await llm_client.acall(prompt)
+        response_query = await llm_client.generate(prompt)
 
         return response_query
     
-    async def Category_extraction(self):
+    async def Category_extraction(self,query):
         logger.info("[카테고리 추출 하는중 만드는중...]")
 
        
@@ -60,6 +60,10 @@ class foodstore():
         system_prompt=f"""
         1. Please output the code that matches the category.
         2. Please choose just one.
+        default. Please output it as json 
+
+        [Format]
+        "output" : "<CATEGORY_CODE>"
         
         [few-shot]
         input : 대형마트 
@@ -126,9 +130,9 @@ class foodstore():
 
         """
 
-        response = parse_product(description)
+        response = parse_product(query)
     
-        return
+        return response
     
     async def location(self):
         logger.info("[사용자 위치 조회중...]")
