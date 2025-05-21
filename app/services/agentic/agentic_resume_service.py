@@ -69,6 +69,7 @@ class AgenticResume():
 
             logger.info("[사용자에게 받은 응답 저장하는중...]")
             response_query = await self.llm.generate(f" <Please translate it into Korean> {query}")
+            state="education"
             await self.save_user_data(uid, state, response_query)
 
             logger.info("[질문 만드는중...]") 
@@ -89,6 +90,7 @@ class AgenticResume():
 
             logger.info("[사용자에게 받은 응답 저장하는중...]")
             response_query = await self.llm.generate(f" <Please translate it into Korean> {query}")
+            state="certifications"
             await self.save_user_data(uid, state, response_query)
 
             
@@ -111,6 +113,7 @@ class AgenticResume():
 
             logger.info("[사용자에게 받은 응답 저장하는중...]")
             response_query = await self.llm.generate(f" <Please translate it into Korean> {query}")
+            state="career"
             await self.save_user_data(uid, state, response_query)
 
             logger.info("[질문 만드는중...]") 
@@ -182,12 +185,13 @@ class AgenticResume():
             return result
         
         collected_user_data = await self.user_information.all(uid)
-        # user_info= await self.user_api.user_api(token)
-        # preference_info=await self.user_api.user_prefer_api(token)
+        user_info= await self.user_api.user_api(token)
+        preference_info=await self.user_api.user_prefer_api(token)
 
         description = f"""
         Collected user information : {collected_user_data} 
-        Saved user information : default """ # + {user_info} + {preference_info} 토큰 새로받으면 추가할로직
+        Saved user information_1 : {user_info}  
+        Saved user information_2 : {preference_info} """ # +  토큰 새로받으면 추가할로직
         logger.info(f"[수집한 정보] {description}")
 
         response = parse_product(description)

@@ -148,6 +148,8 @@ class AgenticCoverLetter:
             pdf_path = await self.user_pdf.make_pdf(uid, html)
             # S3 업로드
             url = await self.user_s3.upload_pdf(pdf_path)
+
+            await self.user_pdf.delete_pdf(uid)
             return {
                 "response": result,
                 "metadata": {"source": "default","state":state},

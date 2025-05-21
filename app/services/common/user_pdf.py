@@ -39,6 +39,7 @@ class UserPDF:
 
 
     async def pdf_html_form(self, user_data: dict):
+        logger.info(f"[html_form 변환중인데이터] : {user_data}")
         html_form = f"""
         <!DOCTYPE html>
         <html lang="ko">
