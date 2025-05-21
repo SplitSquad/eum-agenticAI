@@ -24,7 +24,7 @@ import re
 import boto3
 from botocore.exceptions import NoCredentialsError, ClientError
 from docx import Document
-from app.services.common.user_coverletter_infromation import UserCoverLetterInformation
+from app.services.common.user_coverletter_information import UserCoverLetterInformation
 from app.services.common.user_coverletter_pdf import UserCoverLetterPDF
 from app.services.common.user_coverletter_s3 import UserCoverLetterS3
 
@@ -66,7 +66,7 @@ class AgenticCoverLetter:
             state = "motivation"
             return {
                 "response": result,
-                "metadata": {"source": "default"},
+                "metadata": {"source": "default","state":state},
                 "state": state,
                 "url": None
             }
@@ -82,7 +82,7 @@ class AgenticCoverLetter:
             state = "experience"
             return {
                 "response": result,
-                "metadata": {"source": "default"},
+                "metadata": {"source": "default","state":state},
                 "state": state,
                 "url": None
             }
@@ -98,7 +98,7 @@ class AgenticCoverLetter:
             state = "plan"
             return {
                 "response": result,
-                "metadata": {"source": "default"},
+                "metadata": {"source": "default","state":state},
                 "state": state,
                 "url": None
             }
@@ -127,17 +127,17 @@ class AgenticCoverLetter:
             # S3 업로드
             url = await self.user_s3.upload_pdf(pdf_path)
             return {
-                "response": "자기소개서가 완성되었습니다.",
-                "metadata": {"source": "default"},
+                "response": result,
+                "metadata": {"source": "default","state":state},
                 "state": state,
-                "url": url
+                "url": None
             }
         
         elif state == "complete":
             logger.info("[이미 완성된 상태에서 요청]")
             return {
-                "response": "이미 자기소개서가 완성되었습니다.",
-                "metadata": {"source": "default"},
+                "response": "[이미 완성된 상태에서 요청]",
+                "metadata": {"source": "default","state":state},
                 "state": state,
                 "url": None
             }
@@ -145,12 +145,13 @@ class AgenticCoverLetter:
         else:
             logger.warning(f"[first_query] 알 수 없는 state: {state}")
             return {
-                "response": "다시 작성해주세요.",
-                "metadata": {"source": "default"},
+                "response": " 알 수 없는 state",
+                "metadata": {"source": "default","state":state},
                 "state": state,
                 "url": None
             }
 
+# 1. 대화 시작 시 빈 상태 객체를 초기화해줍니다.
 async def start_cover_letter_conversation(user_id: str) -> CoverLetterConversationState:
     """자기소개서 생성 대화 시작"""
     
@@ -159,8 +160,9 @@ async def start_cover_letter_conversation(user_id: str) -> CoverLetterConversati
         current_step="start"
     )
     logger.info(f"자기소개서 대화 시작: user_id={user_id}")
-    return state
+    return staticmethod
 
+# 2. 상태 업데이트.
 async def process_cover_letter_response(state: CoverLetterConversationState, response: str) -> Dict[str, Any]:
     """사용자 응답 처리 및 자기소개서 생성"""
     try:
@@ -207,6 +209,7 @@ async def process_cover_letter_response(state: CoverLetterConversationState, res
         logger.error(f"자기소개서 생성 중 오류 발생: {str(e)}")
         return {"message": "자기소개서 생성 중 오류가 발생했습니다.", "error": str(e), "state": state}
 
+#3. 자기소개서 생성
 async def generate_cover_letter(
     job_keywords: str,
     experience: str,
