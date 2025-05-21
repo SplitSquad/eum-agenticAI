@@ -34,7 +34,7 @@ class AgenticResponseGenerator:
                 return result
             
             # 자소서 기능 즉시 라우팅
-            if state in ["growth", "motivation", "experience", "plan","complete"]:
+            if state in ["growth", "motivation", "experience", "plan","complete_letter"]:
                 result = await self.cover_letter.first_query(query, uid, token, state, source_lang)
                 return result
             

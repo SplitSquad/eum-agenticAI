@@ -74,6 +74,7 @@ class AgenticCoverLetter:
         elif state == "motivation":
             logger.info("[사용자에게 받은 응답 저장하는중...]")
             response_query = await self.llm.generate(f"<Please translate it into Korean> {query}")
+            state = "growth"
             await self.save_user_data(uid, state, response_query)
             
             logger.info("[질문 만드는중...]")
@@ -90,6 +91,7 @@ class AgenticCoverLetter:
         elif state == "experience":
             logger.info("[사용자에게 받은 응답 저장하는중...]")
             response_query = await self.llm.generate(f"<Please translate it into Korean> {query}")
+            state = "motivation"
             await self.save_user_data(uid, state, response_query)
             
             logger.info("[질문 만드는중...]")
@@ -106,12 +108,32 @@ class AgenticCoverLetter:
         elif state == "plan":
             logger.info("[사용자에게 받은 응답 저장하는중...]")
             response_query = await self.llm.generate(f"<Please translate it into Korean> {query}")
+            state = "experience"
+            await self.save_user_data(uid, state, response_query)
+            
+            logger.info("[질문 만드는중...]")
+            result = await self.llm.generate(f"<Please translate it into {source_lang}> 입사 후 계획에대해 말해주세요.")
+            logger.info("[사용자에게 질문할 쿼리]", result)
+            state = "complete"
+            return {
+                "response": result,
+                "metadata": {"source": "default","state":state},
+                "state": state,
+                "url": None
+            }
+        
+        
+        
+        elif state == "complete_letter":
+            logger.info("[사용자에게 받은 응답 저장하는중...]")
+            response_query = await self.llm.generate(f"<Please translate it into Korean> {query}")
+            state = "plan"
             await self.save_user_data(uid, state, response_query)
             
             logger.info("[질문 만드는중...]")
             result = await self.llm.generate(f"<Please translate it into {source_lang}> 입사 후 계획에 대해 말씀해 주세요.")
             logger.info("[사용자에게 질문할 쿼리]", result)
-            state = "complete"
+            state = "initial"
             # user_data 가져오기
             user_data = await self.user_information.all(uid)
             # cover_letter 텍스트 조합
@@ -119,7 +141,7 @@ class AgenticCoverLetter:
             cover_letter += f"[1. 성장 과정 및 가치관]\n{user_data.get('growth', '')}\n\n"
             cover_letter += f"[2. 지원 동기 및 포부]\n{user_data.get('motivation', '')}\n\n"
             cover_letter += f"[3. 역량 및 경험]\n{user_data.get('experience', '')}\n\n"
-            cover_letter += f"[4. 입사 후 계획]\n{response_query}\n\n"
+            cover_letter += f"[4. 입사 후 계획]\n{user_data.get('plan', '')}\n\n"
             # HTML 생성
             html = self.user_pdf.pdf_html_form(cover_letter)
             # PDF 변환
@@ -130,16 +152,7 @@ class AgenticCoverLetter:
                 "response": result,
                 "metadata": {"source": "default","state":state},
                 "state": state,
-                "url": None
-            }
-        
-        elif state == "complete":
-            logger.info("[이미 완성된 상태에서 요청]")
-            return {
-                "response": "[이미 완성된 상태에서 요청]",
-                "metadata": {"source": "default","state":state},
-                "state": state,
-                "url": None
+                "url": url
             }
         
         else:
