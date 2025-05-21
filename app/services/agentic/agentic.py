@@ -55,10 +55,9 @@ class Agentic:
             
             # 4. 후처리 (원문 언어로 번역)
             logger.info(f"[WORKFLOW] Step 4: Postprocessing (translation back to original language)")
-            if source_lang != "en":
-                processed_response = await self.postprocessor.postprocess(result["response"], source_lang, "general")
-                result["response"] = processed_response["response"]
-                result["metadata"]["translated"] = True
+            processed_response = await self.postprocessor.postprocess(result["response"], source_lang, "general")
+            result["response"] = processed_response["response"]
+            result["metadata"]["translated"] = True
             
             # 5. 응답 데이터 구성
 

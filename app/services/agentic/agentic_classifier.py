@@ -75,7 +75,7 @@ class AgenticClassifier:
         - calendar : managing schedule, event, or etc.
         - resume : making resumé which is related to job search.
         - job_search : jobseeking based on web search data.
-        - cover_letter : making cover letter which is related to job search.
+        - cover_letter : Write a self-introduction.
         - post :  making post in community board.
         - location : find a location.
         - general

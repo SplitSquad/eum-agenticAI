@@ -6,6 +6,7 @@ from app.services.agentic.agentic_calendar import AgenticCalendar
 from app.services.agentic.agentic_post import AgenticPost
 from app.services.agentic.agentic_find_foodstore import foodstore
 from app.services.agentic.agentic_resume_service import AgenticResume
+from app.services.agentic.agentic_cover_letter_service import AgenticCoverLetter
 import json
 
 class AgenticResponseGenerator:
@@ -17,6 +18,7 @@ class AgenticResponseGenerator:
         self.post_agent = AgenticPost()
         self.agentic_resume = AgenticResume()
         self.TEST = foodstore()
+        self.cover_letter = AgenticCoverLetter()
         # 사용자별 상태 관리
         self.user_states = {}
         logger.info(f"[에이전틱 응답] 고성능 모델 사용: {self.llm_client.model}")
@@ -29,6 +31,11 @@ class AgenticResponseGenerator:
             # 이력서 기능 즉시 라우팅
             if state in ["education", "certifications", "career", "complete"]:
                 result = await self.agentic_resume.first_query(query, uid, token, state, source_lang)
+                return result
+            
+            # 자소서 기능 즉시 라우팅
+            if state in ["growth", "motivation", "experience", "plan","complete_letter"]:
+                result = await self.cover_letter.first_query(query, uid, token, state, source_lang)
                 return result
             
             # 위치 찾기 기능 즉시 라우팅
@@ -60,9 +67,6 @@ class AgenticResponseGenerator:
                     "state": "initial",
                     "url": None
                 }
-
-                return
-
 
             # 캘린더 응답 > 수정 완료
             if agentic_type == AgentType.CALENDAR:
@@ -97,6 +101,12 @@ class AgenticResponseGenerator:
             elif agentic_type == AgentType.RESUME:
                 # 1. 질문 & 이력서 생성
                 result = await self.agentic_resume.first_query(query, uid, token, state, source_lang)
+                return result  # ✅ 응답값 리턴
+            
+            # 자소서 응답
+            elif agentic_type == AgentType.COVER_LETTER:
+                # 1. 질문 & 이력서 생성
+                result = await self.cover_letter.first_query(query, uid, token, state, source_lang)
                 return result  # ✅ 응답값 리턴
                         
 
