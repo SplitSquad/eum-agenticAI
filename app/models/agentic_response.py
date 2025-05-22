@@ -10,6 +10,7 @@ class AgentType(str, Enum):
     COVER_LETTER = "cover_letter"
     POST = "post"
     LOCATION = "location"
+    WEATHER = "weather"
 
 # 게시판 카테고리 모델
 # 대분류-소분류 형태

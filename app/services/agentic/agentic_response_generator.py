@@ -7,6 +7,8 @@ from app.services.agentic.agentic_post import AgenticPost
 from app.services.agentic.agentic_find_foodstore import foodstore
 from app.services.agentic.agentic_resume_service import AgenticResume
 from app.services.agentic.agentic_cover_letter_service import AgenticCoverLetter
+from app.services.agentic.agentic_job_search import agentic_job_search
+from app.services.agentic.agentic_weather import Weather
 import json
 
 class AgenticResponseGenerator:
@@ -19,6 +21,8 @@ class AgenticResponseGenerator:
         self.agentic_resume = AgenticResume()
         self.TEST = foodstore()
         self.cover_letter = AgenticCoverLetter()
+        self.job_search = agentic_job_search()
+        self.weather_search = Weather()
         # 사용자별 상태 관리
         self.user_states = {}
         logger.info(f"[에이전틱 응답] 고성능 모델 사용: {self.llm_client.model}")
@@ -36,6 +40,11 @@ class AgenticResponseGenerator:
             # 자소서 기능 즉시 라우팅
             if state in ["growth", "motivation", "experience", "plan","complete_letter"]:
                 result = await self.cover_letter.first_query(query, uid, token, state, source_lang)
+                return result
+            
+            # job_search 즉시 라우팅
+            if state in ["job_search"]:
+                result = await self.job_search.google_search(query)                
                 return result
             
             # 위치 찾기 기능 즉시 라우팅
@@ -72,10 +81,21 @@ class AgenticResponseGenerator:
 
             # 캘린더 응답 > 수정 완료
             if agentic_type == AgentType.CALENDAR:
-                logger.info(f"[CALENDAR 기능 초기화중] : CALENDAR")
+                logger.info(f"[CALENDAR 기능 초기화중...]")
                 agentic_calendar = self._generate_calendar_response(query,uid,token)
                 return await agentic_calendar
-
+            
+            # 날씨 서치
+            elif agentic_type == AgentType.WEATHER:
+                logger.info(f"[WEATHERSEARCH]")
+                response = await self.weather_search.weather_google_search(query,token)
+                return response
+            
+            # 잡서치
+            elif agentic_type == AgentType.JOB_SEARCH:
+                logger.info(f"[JOBSEARCH]")
+                response = await self.job_search.first_query(source_lang)
+                return response
                 
             # 게시판 응답 > 수정 완료 
             elif agentic_type == AgentType.POST:
