@@ -53,10 +53,12 @@ class AgenticResponseGenerator:
                     category_code["output"]
                 )
                 # 6. AI 매칭 (예정)
-                await self.TEST.ai_match(food_store)
+                location_ai = await self.TEST.ai_match(food_store)
+                # 7. 프론트에게 잘보이도록 파싱.
+
                 # 7. 응답 반환
                 return {
-                    "response": "📍 주변 장소를 찾았습니다!",
+                    "response": location_ai ,
                     "metadata": {
                         "query": query,
                         "uid": uid,

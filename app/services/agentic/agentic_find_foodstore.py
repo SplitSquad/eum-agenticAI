@@ -144,6 +144,7 @@ class foodstore():
             if not user_address:
                 logger.warning("[사용자 주소 없음] 기본 주소 사용")
                 user_address = "서울 강남"
+                self.user['address'] = user_address
             
             ## 실제 이메일 사용해야함!
             geolocator = Nominatim(user_agent="jwontiger@gmail.com")
