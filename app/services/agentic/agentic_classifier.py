@@ -79,6 +79,8 @@ class AgenticClassifier:
         - post :  making post in community board.
         - location : find a location.
         - weather : When asking about the weather
+        - event : Find an event
+        - dog : Find dog
         - general : Any questions not included above
         """
         

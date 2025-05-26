@@ -10,6 +10,7 @@ class agentic_job_search():
     def __init__(self):
         self.api_key = os.getenv("GOOGLE_SERACH_WEATHER_API_KEY")
         self.search_engine_id = os.getenv("GOOGLE_SEARCH_ENGINE_ID")
+        self.llm = get_llm_client()
 
     async def first_query(self,source_lang):
         logger.info("[질문 만드는중...]")
@@ -34,7 +35,7 @@ class agentic_job_search():
             }
 
 
-    async def google_search(self, query):
+    async def google_search(self, query,source_lang):
         logger.info("[구글 서치중...]")
         service = build("customsearch", "v1", developerKey=self.api_key)
 
@@ -70,8 +71,12 @@ class agentic_job_search():
         # 결과값 다듬기.
         trimmed_results = await self.Trim(res.get("items", []))  # ✨ 여기
 
+        logger.info("[사용자의 언어로 변형중...]")
+        result = await self.llm.generate(f" <Please translate it into {source_lang}> {trimmed_results}")
+        logger.info("[사용자에게 질문할 쿼리]", result)
+
         return {
-                    "response": trimmed_results,
+                    "response": result,
                     "metadata": {
                         "source": "default",
                         "state": "initial",        # ✅ metadata 안에 포함
@@ -82,6 +87,7 @@ class agentic_job_search():
     
     async def Trim(self, items: list) -> list:
         """검색 결과를 프론트엔드용으로 정제"""
+        logger.info("[결과 값 다듬는중...]")
         trimmed = []
         for item in items:
             result = {

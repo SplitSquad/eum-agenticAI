@@ -11,6 +11,8 @@ class AgentType(str, Enum):
     POST = "post"
     LOCATION = "location"
     WEATHER = "weather"
+    EVENT = "event"
+    DOG = "dog"
 
 # 게시판 카테고리 모델
 # 대분류-소분류 형태

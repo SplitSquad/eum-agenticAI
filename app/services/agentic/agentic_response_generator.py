@@ -9,6 +9,8 @@ from app.services.agentic.agentic_resume_service import AgenticResume
 from app.services.agentic.agentic_cover_letter_service import AgenticCoverLetter
 from app.services.agentic.agentic_job_search import agentic_job_search
 from app.services.agentic.agentic_weather import Weather
+from app.services.agentic.agentic_event import EVENT
+from app.services.agentic.agentic_random_dog import RandomDog
 import json
 
 class AgenticResponseGenerator:
@@ -16,6 +18,7 @@ class AgenticResponseGenerator:
     
     def __init__(self):
         self.llm_client = get_llm_client(is_lightweight=False)
+        self.light_llm_client = get_llm_client(is_lightweight=True)
         self.calendar_agent = AgenticCalendar()
         self.post_agent = AgenticPost()
         self.agentic_resume = AgenticResume()
@@ -23,6 +26,8 @@ class AgenticResponseGenerator:
         self.cover_letter = AgenticCoverLetter()
         self.job_search = agentic_job_search()
         self.weather_search = Weather()
+        self.event_search = EVENT()
+        self.dog_search = RandomDog()
         # 사용자별 상태 관리
         self.user_states = {}
         logger.info(f"[에이전틱 응답] 고성능 모델 사용: {self.llm_client.model}")
@@ -44,7 +49,7 @@ class AgenticResponseGenerator:
             
             # job_search 즉시 라우팅
             if state in ["job_search"]:
-                result = await self.job_search.google_search(query)                
+                result = await self.job_search.google_search(query,source_lang)                
                 return result
             
             # 위치 찾기 기능 즉시 라우팅
@@ -85,10 +90,34 @@ class AgenticResponseGenerator:
                 agentic_calendar = self._generate_calendar_response(query,uid,token)
                 return await agentic_calendar
             
+            # 강아지 이미지 
+            elif agentic_type == AgentType.DOG:
+                logger.info(f"[DOGSEARCH]")
+                response = await self.dog_search.api_random_image()
+                random_text = await self.light_llm_client.generate( f"<{source_lang}> Describe a random short dog image" )
+                result = f"저는 거짓말쟁이가 아닙니다!! , {random_text} , {response['message']}"
+                return {
+                    "response": result ,
+                    "state": "initial",
+                    "metadata": {
+                        "query": query,
+                        "agentic_type": "POST",
+                        "error": "",
+                        "dog":"random"
+                    },
+                    "url": None  # null → None (Python 문법)
+                }
+            
+            # 행사 서치
+            elif agentic_type == AgentType.EVENT:
+                logger.info(f"[EVENTSEARCH]")
+                response = await self.event_search.google_search(query,source_lang,token)
+                return response
+            
             # 날씨 서치
             elif agentic_type == AgentType.WEATHER:
                 logger.info(f"[WEATHERSEARCH]")
-                response = await self.weather_search.weather_google_search(query,token)
+                response = await self.weather_search.weather_google_search(query,token,source_lang)
                 return response
             
             # 잡서치

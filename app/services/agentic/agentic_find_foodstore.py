@@ -265,11 +265,11 @@ class foodstore():
         description = f"""
 
         [user_data]
-        address : {self.user["address"]}
-        country born: {self.user_prefer["nation"]}
-        birthday : {self.user["birthday"]}
-        visitpurpose : {self.user_prefer["visitPurpose"]}
-        gender : {self.user_prefer["gender"]}
+        address : {self.user['address']}
+        country born: {self.user_prefer['nation']}
+        birthday : {self.user['birthday']}
+        visitpurpose : {self.user_prefer['visitPurpose']}
+        gender : {self.user_prefer['gender']}
 
         [Food_store]
         {food_store}
