@@ -13,6 +13,8 @@ class AgentType(str, Enum):
     WEATHER = "weather"
     EVENT = "event"
     DOG = "dog"
+    CAT = "cat"
+    EUM = "eum"
 
 # 게시판 카테고리 모델
 # 대분류-소분류 형태

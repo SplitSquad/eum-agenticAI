@@ -3,11 +3,16 @@ from typing import Dict, Any, Optional
 import httpx
 import time
 from loguru import logger
-
 from app.config.app_config import settings, LLMProvider
 from langchain_openai import ChatOpenAI
 from langchain_groq import ChatGroq
 from langchain_community.chat_models import ChatOllama
+import os
+from openai import AsyncOpenAI
+from dotenv import load_dotenv
+
+load_dotenv()
+client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 class BaseLLMClient(ABC):
     """LLM 클라이언트의 기본 추상 클래스"""
@@ -310,3 +315,16 @@ def get_langchain_llm(is_lightweight: bool = True):
     
     else:
         raise ValueError(f"지원하지 않는 LangChain LLM 프로바이더: {provider}")
+    
+async def dalle(prompt: str) -> str:
+    try:
+        response = await client.images.generate(
+            model="dall-e-3",
+            prompt=prompt,
+            size="1024x1024",
+            quality="standard",
+            n=1
+        )
+        return response.data[0].url
+    except Exception as e:
+        return f"이미지 생성 중 오류 발생: {e}"

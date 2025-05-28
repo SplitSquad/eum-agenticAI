@@ -722,7 +722,7 @@ class AgenticCalendar:
                 }
             } 
         elif classification == "check" : 
-            print("일정 확인")
+            print("일정 확인") 
             check_output = check_event(query,token)
             # 프론트에게 잘보이도록 파싱.
             

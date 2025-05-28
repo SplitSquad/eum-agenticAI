@@ -17,6 +17,7 @@ class Weather():
         self.api_key = os.getenv("GOOGLE_SERACH_WEATHER_API_KEY")
         self.search_engine_id = os.getenv("GOOGLE_SEARCH_WEATHER_ENGINE_ID")
         self.user_information = User_Api()
+        self.llm = get_llm_client(is_lightweight=True)  # ✅ 추가된 부분
 
     async def weather_google_search(self, query,token,source_lang):
         logger.info("[구글 서치중...]")
@@ -25,6 +26,7 @@ class Weather():
 
         user_information = await self.user_information.user_api(token)
         if user_information.get("address") is None:
+            logger.info("[기본 값 적용] : 부산 동구")
             user_information["address"] = "부산 동구"
     
 

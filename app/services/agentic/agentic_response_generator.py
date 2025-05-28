@@ -11,6 +11,8 @@ from app.services.agentic.agentic_job_search import agentic_job_search
 from app.services.agentic.agentic_weather import Weather
 from app.services.agentic.agentic_event import EVENT
 from app.services.agentic.agentic_random_dog import RandomDog
+from app.services.agentic.agentic_cat_information import Cat_Infromation
+from app.services.agentic.agentic_eum_image import agentic_eum_image
 import json
 
 class AgenticResponseGenerator:
@@ -28,6 +30,8 @@ class AgenticResponseGenerator:
         self.weather_search = Weather()
         self.event_search = EVENT()
         self.dog_search = RandomDog()
+        self.cat_information = Cat_Infromation()
+        self.eum_image = agentic_eum_image()
         # 사용자별 상태 관리
         self.user_states = {}
         logger.info(f"[에이전틱 응답] 고성능 모델 사용: {self.llm_client.model}")
@@ -90,14 +94,71 @@ class AgenticResponseGenerator:
                 agentic_calendar = self._generate_calendar_response(query,uid,token)
                 return await agentic_calendar
             
+            # EUM 이미지
+            if agentic_type == AgentType.EUM:
+                logger.info(f"[EUM 기능 초기화중...]")
+                selected_eum_image = await self.eum_image.select_image(query)
+                if selected_eum_image == "There_is_no_image":
+                    text = f"""
+                    [character description] 
+                    This character is wearing traditional Korean clothing. He wears a red band on his head and a hat with a cloud-shaped decoration on top. His face has a curious and serious expression. 
+                    the character name's eum
+
+                    [user's needs]
+                    {query}
+                    """
+                    img_url = await self.cat_information.describe_img(text)
+                    return {
+                        "response": f"{query} , {img_url}" ,
+                        "state": "initial",
+                        "metadata": {
+                            "query": query,
+                            "agentic_type": "POST",
+                            "error": "",
+                            "cat":"random"
+                        },
+                        "url": img_url  # null → None (Python 문법)
+                    }
+                s3_url = await self.eum_image.choose_img(selected_eum_image)
+                describe = await self.eum_image.describe_eum(s3_url)
+                return {
+                    "response": f" {describe } , {s3_url}" ,
+                    "state": "initial",
+                    "metadata": {
+                        "query": query,
+                        "agentic_type": "POST",
+                        "error": "",
+                        "eum":"random"
+                    },
+                    "url": s3_url  
+                }
+            
+            # 고양이 이미지 
+            elif agentic_type == AgentType.CAT:
+                logger.info(f"[CATSEARCH]")
+                response = await self.cat_information.hidden_cat_information()
+                img_url = await self.cat_information.describe_img(response['fact'])
+                
+                return {
+                    "response": f"{response['fact']} , {img_url}" ,
+                    "state": "initial",
+                    "metadata": {
+                        "query": query,
+                        "agentic_type": "POST",
+                        "error": "",
+                        "cat":"random"
+                    },
+                    "url": img_url  # null → None (Python 문법)
+                }
+                
             # 강아지 이미지 
             elif agentic_type == AgentType.DOG:
                 logger.info(f"[DOGSEARCH]")
                 response = await self.dog_search.api_random_image()
-                random_text = await self.light_llm_client.generate( f"<{source_lang}> Describe a random short dog image" )
-                result = f"저는 거짓말쟁이가 아닙니다!! , {random_text} , {response['message']}"
+                describe = await self.dog_search.describe_img(response['message'])
+                       
                 return {
-                    "response": result ,
+                    "response": f"{describe} , {response['message']}" ,
                     "state": "initial",
                     "metadata": {
                         "query": query,
@@ -105,7 +166,7 @@ class AgenticResponseGenerator:
                         "error": "",
                         "dog":"random"
                     },
-                    "url": None  # null → None (Python 문법)
+                    "url": response['message'] # null → None (Python 문법)
                 }
             
             # 행사 서치

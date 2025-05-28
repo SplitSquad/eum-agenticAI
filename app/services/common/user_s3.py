@@ -23,6 +23,19 @@ class UserS3:
         # ✅ 삭제 예약 (예: 10분 후 삭제)
         asyncio.create_task(self.schedule_deletion(key, delay_sec=600))
         return url
+    
+    async def upload_file(self, file_path: str, s3_folder: str = "uploads/") -> str:
+        filename = os.path.basename(file_path)
+        key = f"{s3_folder.rstrip('/')}/{filename}"
+        
+        self.client.upload_file(file_path, self.bucket, key)
+
+        url = f"https://{self.bucket}.s3.{s3_config.S3_REGION}.amazonaws.com/{key}"
+        logger.info(f"✅ S3 업로드 완료: {url}")
+
+        # 예시로 삭제 예약 추가 (옵션)
+        asyncio.create_task(self.schedule_deletion(key, delay_sec=600))
+        return url
 
     async def schedule_deletion(self, key: str, delay_sec: int = 600):
         logger.info(f"⏳ {delay_sec}초 후 {key} 삭제 예약됨")
