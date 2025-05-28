@@ -8,7 +8,7 @@ load_dotenv()  # .env 파일을 읽어서 환경변수로 등록
 
 class agentic_job_search():
     def __init__(self):
-        self.api_key = os.getenv("GOOGLE_SERACH_WEATHER_API_KEY")
+        self.api_key = os.getenv("GOOGLE_SEARCH_WEATHER_API_KEY")
         self.search_engine_id = os.getenv("GOOGLE_SEARCH_ENGINE_ID")
         self.llm = get_llm_client()
 

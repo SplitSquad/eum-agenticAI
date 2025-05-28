@@ -14,7 +14,7 @@ load_dotenv()  # .env 파일을 읽어서 환경변수로 등록
 
 class Weather():
     def __init__(self):
-        self.api_key = os.getenv("GOOGLE_SERACH_WEATHER_API_KEY")
+        self.api_key = os.getenv("GOOGLE_SEARCH_WEATHER_API_KEY")
         self.search_engine_id = os.getenv("GOOGLE_SEARCH_WEATHER_ENGINE_ID")
         self.user_information = User_Api()
         self.llm = get_llm_client(is_lightweight=True)  # ✅ 추가된 부분

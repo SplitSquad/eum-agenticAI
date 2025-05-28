@@ -11,7 +11,7 @@ import os
 
 class EVENT():
     def __init__(self):
-        self.api_key = os.getenv("GOOGLE_SERACH_EVENT_API_KEY")
+        self.api_key = os.getenv("GOOGLE_SEARCH_EVENT_API_KEY")
         self.search_engine_id = os.getenv("GOOGLE_SEARCH_EVENT_ENGINE_ID")
         self.llm = get_llm_client()
         self.user_information = User_Api()
@@ -28,7 +28,6 @@ class EVENT():
             user_information["address"] = "부산 동구"
     
         logger.info( f"[user_information[address] ] : {user_information['address']}")
-        user_information["address"] = "부산 동구"
 
         llm = get_langchain_llm(is_lightweight=False)  # 고성능 모델 사용
 
