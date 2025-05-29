@@ -40,6 +40,8 @@ class AgenticResponseGenerator:
     async def generate_response(self, original_query:str, query: str, agentic_type: AgentType, uid: str, token: str, state: str, source_lang: str) -> Dict[str, Any]:
         """응답을 생성합니다."""
         try:
+            if state not in ["education", "certifications", "career", "complete","growth", "motivation", "experience", "plan","complete_letter","job_search","location_category"]:
+                state = "initial"
 
             # 이력서 기능 즉시 라우팅
             if state in ["education", "certifications", "career", "complete"]:
