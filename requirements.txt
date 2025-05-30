@@ -160,6 +160,7 @@ regex==2024.11.6
 requests==2.32.3
 requests-oauthlib==2.0.0
 requests-toolbelt==1.0.0
+reverse_geocoder==1.5.1
 rich==14.0.0
 rpds-py==0.24.0
 rsa==4.9.1
