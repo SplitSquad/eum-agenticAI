@@ -16,14 +16,15 @@ class EVENT():
         self.llm = get_llm_client()
         self.user_information = User_Api()
 
-    async def google_search(self, query,source_lang,token):
+
+    async def google_search(self, query,source_lang,token,location):
         logger.info("[구글 이벤트 서치중...]")
 
         ##########################################################
         service = build("customsearch", "v1", developerKey=self.api_key)
 
 
-        user_information = await self.user_information.user_api(token)
+        user_information = await self.user_information.user_api(token,location)
         if user_information.get("address") is None:
             user_information["address"] = "부산 동구"
     

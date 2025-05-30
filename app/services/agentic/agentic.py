@@ -4,6 +4,7 @@ from app.services.agentic.agentic_classifier import AgenticClassifier
 from app.services.agentic.agentic_response_generator import AgenticResponseGenerator
 from app.services.common.postprocessor import Postprocessor
 from app.services.common.preprocessor import translate_query
+# from app.api.v1.agentic import Location
 from typing import Optional
 
 class Agentic:
@@ -15,11 +16,11 @@ class Agentic:
         self.postprocessor = Postprocessor()
         logger.info("[에이전트] 초기화 완료")
     
-    async def get_response(self, query: str, uid: str, token: Optional[str] = None, state: Optional[str] = None) -> Dict[str, Any]:
+    async def get_response(self, query: str, uid: str, token: Optional[str] = None, state: Optional[str] = None, location: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
         """질의에 대한 응답을 생성합니다."""
         try:
             original_query=query
-            
+            logger.info(f"[live_location] {location}")
             logger.info(f"[WORKFLOW] ====== Starting agentic workflow for user {uid} ======")
             logger.info(f"[WORKFLOW] Original query: {query}")
             logger.info(f"[WORKFLOW] Original state: {state}")
@@ -40,7 +41,9 @@ class Agentic:
             # 3. 응답 생성
             logger.info(f"[WORKFLOW] Step 3: Response generation")
 
-            result = await self.response_generator.generate_response(original_query, english_query, agentic_type, uid, token, state,source_lang)
+            logger.info(f"[응답 생성 live_location] : {location}")
+
+            result = await self.response_generator.generate_response(original_query, english_query, agentic_type, uid, token, state,source_lang,location)
 
             logger.info(f"[에이전트] 응답 생성 완료 : {result}")
 

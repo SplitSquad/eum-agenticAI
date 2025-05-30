@@ -37,9 +37,10 @@ class AgenticResponseGenerator:
         logger.info(f"[에이전틱 응답] 고성능 모델 사용: {self.llm_client.model}")
     
 
-    async def generate_response(self, original_query:str, query: str, agentic_type: AgentType, uid: str, token: str, state: str, source_lang: str) -> Dict[str, Any]:
+    async def generate_response(self, original_query:str, query: str, agentic_type: AgentType, uid: str, token: str, state: str, source_lang: str, live_location: str) -> Dict[str, Any]:
         """응답을 생성합니다."""
         try:
+            logger.info(f"[live_location] : {live_location}")
             if state not in ["education", "certifications", "career", "complete","growth", "motivation", "experience", "plan","complete_letter","job_search","location_category"]:
                 state = "initial"
 
@@ -64,18 +65,22 @@ class AgenticResponseGenerator:
                 category_code = await self.TEST.Category_extraction(query)
                 # 2. 사용자정보불러오는중
                 await self.TEST.load_user_data(token)
+
                 # 3. 사용자 위치 확인
-                location = await self.TEST.location()
+                if not live_location:
+                    location = await self.TEST.location()
+                else:
+                    location = live_location   
+
                 # 4. 카카오 API 호출    
                 food_store = await self.TEST.kakao_api_foodstore(
-                    location["latitude"],
-                    location["longitude"],
+                    float(location.latitude),
+                    float(location.longitude),
                     category_code["output"]
                 )
                 # 6. AI 매칭 (예정)
                 location_ai = await self.TEST.ai_match(food_store)
-                # 7. 프론트에게 잘보이도록 파싱.
-
+                
                 # 7. 응답 반환
                 return {
                     "response": location_ai ,
@@ -230,17 +235,7 @@ class AgenticResponseGenerator:
                 if state == "initial" :
                 # 1 원하는 카테고리 질문
                     category = await self.TEST.category_query(source_lang)
-                    # return {
-                    #     "response": category,
-                    #     "metadata": {
-                    #         "query": query,
-                    #         "uid": uid,
-                    #         "location": "default",
-                    #         "results": "default"
-                    #     },
-                    #     "state": "location_category",
-                    #     "url": None
-                    # }
+        
                     return {
                         "response": category,
                         "metadata": {
@@ -254,32 +249,32 @@ class AgenticResponseGenerator:
                         "url": None
                     }
                     
-                # 2. 사용자정보불러오는중
-                await self.TEST.load_user_data(token)
-                # 3. 사용자 위치 확인
-                location = await self.TEST.location()
-                # 4. 카테고리 지정 (예: AT4 = 관광명소, FD6 = 음식점)
-                location_category = "AT4"  # 추후 query 기반 분류 가능
-                # 5. 카카오 API 호출
-                food_store = await self.TEST.kakao_api_foodstore(
-                    location["latitude"],
-                    location["longitude"],
-                    location_category
-                )
-                # 6. AI 매칭 (예정)
-                await self.TEST.ai_match(food_store)
-                # 7. 응답 반환
-                return {
-                    "response": "📍 주변 장소를 찾았습니다!",
-                    "metadata": {
-                        "query": query,
-                        "uid": uid,
-                        "location": location,
-                        "results": food_store
-                    },
-                    "state": state,
-                    "url": None
-                }
+                # # 2. 사용자정보불러오는중
+                # await self.TEST.load_user_data(token)
+                # # 3. 사용자 위치 확인
+                # location = await self.TEST.location()
+                # # 4. 카테고리 지정 (예: AT4 = 관광명소, FD6 = 음식점)
+                # location_category = "AT4"  # 추후 query 기반 분류 가능
+                # # 5. 카카오 API 호출
+                # food_store = await self.TEST.kakao_api_foodstore(
+                #     location["latitude"],
+                #     location["longitude"],
+                #     location_category
+                # )
+                # # 6. AI 매칭 (예정)
+                # await self.TEST.ai_match(food_store)
+                # # 7. 응답 반환
+                # return {
+                #     "response": "📍 주변 장소를 찾았습니다!",
+                #     "metadata": {
+                #         "query": query,
+                #         "uid": uid,
+                #         "location": location,
+                #         "results": food_store
+                #     },
+                #     "state": state,
+                #     "url": None
+                # }
 
             else:
                 return await self._generate_general_response(query)

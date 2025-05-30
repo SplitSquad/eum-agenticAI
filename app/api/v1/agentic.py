@@ -17,11 +17,16 @@ router = APIRouter(
     }
 )
 
+class Location(BaseModel):
+    latitude: str
+    longitude: str
+
 class AgenticRequest(BaseModel):
     """에이전틱 요청 모델"""
     query: str
     uid: str
     state: Optional[str] = None
+    location: Optional[Location] = None  # 🔥 선택적 필드
 
 class AgenticResponse(BaseModel):
     """에이전틱 응답 모델"""
@@ -63,13 +68,15 @@ async def agentic_handler(request: AgenticRequest, authorization: Optional[str] 
             token = authorization
 
         logger.info(f"[TOKEN] Extracted token: {token}")
+        logger.info(f"[request.location] {request.location}")
         
         # 에이전트 응답 생성
         result = await agentic.get_response(
             query=request.query,
             uid=request.uid,
             token=token,
-            state=request.state
+            state=request.state,
+            location=request.location
         )
         
         logger.info(f"[에이전트 응답] : {result}")

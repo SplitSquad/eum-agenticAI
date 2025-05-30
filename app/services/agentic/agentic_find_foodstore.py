@@ -178,8 +178,11 @@ class foodstore():
                     "latitude": 37.498095,
                     "longitude": 127.027610
                 }
+            
+    async def kakao_search(self,location):
+        pass
 
-    async def kakao_api_foodstore(self,latitude:str,longitude:str,location_category):
+    async def kakao_api_foodstore(self,latitude:str,longitude:str,location_category:str):
         logger.info(f"[주변 {location_category} 데이터 불러오는중...]")
 
         headers = {
@@ -190,7 +193,7 @@ class foodstore():
             "category_group_code": location_category,       # 위치
             "x": longitude,                  # 경도
             "y": latitude,                   # 위도
-            "radius": "10000",                 # 반경 10km
+            "radius": 3000,                 # 반경 3km
             "sort": "distance",                # 거리순 정렬
             "page": 1,
             "size": 10                         # 1페이지당 10개
@@ -228,23 +231,60 @@ class foodstore():
        
 
         system_prompt="""
-        1. Can you recommend a place that fits my user information?
-        2. Please return it as json. < "output" : "..." >
-        3. please return at least 3
-        
-        [example]
+        [Role]
+        - You are a personalized location recommendation AI assistant.
+        - Your goal is to select and return at least 3 locations from a provided list, considering the user's personal profile.
 
-        "output":  [
-            "address_name": "서울 강남구 삼성동 16",
-            "distance": "50",
-            "id": "950568212",
-            "phone": "02-540-8688",
-            "place_name": "미얌 샌드위치",
-            "road_address_name": "서울 강남구 학동로68길 7",
-            "x": "127.046744137873",
-            "y": "37.5176168952442"
+        [user_info]
+        - address: (ex. 서울특별시 구로구 개봉2동)
+        - country_born: (ex. ko)
+        - birthday: (ex. 1555-05-05)
+        - visit_purpose: (ex. Study)
+        - gender: (ex. male)
+
+        [place_list]
+        1. 대형마트 (Large Mart)
+        2. 편의점 (Convenience Store)
+        3. 음식점 (Restaurant)
+        4. 카페 (Café)
+        5. 관광명소 (Tourist Spot)
+        6. 숙박 (Accommodation)
+        7. 주유소, 충전소 (Gas Station / EV Charging Station)
+        8. 주차장 (Parking Lot)
+        9. 지하철역 (Subway Station)
+        10. 학교 (School)
+        11. 학원 (Academy)
+        12. 병원 (Hospital)
+        13. 약국 (Pharmacy)
+        14. 중개업소 (Real Estate)
+        15. 공공기관 (Government Office)
+
+        [instructions]
+        Please recommend 3~5 places from the list that best fit the user's lifestyle and context, based on:
+        - National background and general taste
+        - Age (you can infer rough age from birthday)
+        - Visit purpose (e.g., Study → Cafés, libraries, affordable restaurants, pharmacies)
+        - Gender (optional if relevant)
+        - Proximity, usefulness, and match to user's daily life
+
+        [format]
+        "output": [...] 
+
+        [Example]
+        "output": [
+            "place_name": "서울구로구청",
+            "category_group_name": "공공기관",
+            "address_name": "서울 구로구 가마산로 245",
+            "road_address_name": "서울 구로구 가마산로 245",
+            "phone": "02-860-2114",
+            "distance": "320",
+            "x": "126.889145",
+            "y": "37.494682"
+        ,
+        ...
         ]
 
+        Return only the JSON output. No extra commentary.
         """
 
         prompt = ChatPromptTemplate.from_messages([
