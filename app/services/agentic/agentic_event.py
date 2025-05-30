@@ -6,6 +6,7 @@ from app.services.common.user_information import User_Api
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
+from app.services.common.search_location import search_location
 import json
 import os
 
@@ -15,21 +16,25 @@ class EVENT():
         self.search_engine_id = os.getenv("GOOGLE_SEARCH_EVENT_ENGINE_ID")
         self.llm = get_llm_client()
         self.user_information = User_Api()
+        self.search_live_location = search_location()
 
 
-    async def google_search(self, query,source_lang,token,location):
+    async def google_search(self, query,source_lang,token,live_location):
         logger.info("[구글 이벤트 서치중...]")
 
         ##########################################################
         service = build("customsearch", "v1", developerKey=self.api_key)
 
 
-        user_information = await self.user_information.user_api(token,location)
-        if user_information.get("address") is None:
-            user_information["address"] = "부산 동구"
-    
-        logger.info( f"[user_information[address] ] : {user_information['address']}")
+        if live_location == "None" : 
+            user_information = await self.user_information.user_api(token)
+            if user_information.get("address") is None:
+                user_information["address"] = "부산 동구"
+        
+        user_information = self.search_live_location.search(live_location)
 
+        logger.info(f"[user_information_location] : {user_information} ")
+    
         llm = get_langchain_llm(is_lightweight=False)  # 고성능 모델 사용
 
         parser = JsonOutputParser(pydantic_object={
