@@ -71,15 +71,11 @@ class agentic_job_search():
         # 결과값 다듬기.
         trimmed_results = await self.Trim(res.get("items", []))  # ✨ 여기
 
-        logger.info("[사용자의 언어로 변형중...]")
-        result = await self.llm.generate(f" <Please translate it into {source_lang}> {trimmed_results}")
-        logger.info("[사용자에게 질문할 쿼리]", result)
-
         return {
-                    "response": result,
+                    "response": trimmed_results,
                     "metadata": {
                         "source": "default",
-                        "state": "initial",        # ✅ metadata 안에 포함
+                        "state": "job_search_state",        # ✅ metadata 안에 포함
                         "results": "default"
                     },
                 "url": None

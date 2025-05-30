@@ -94,17 +94,17 @@ class Weather():
 
 
         logger.info("[사용자의 언어로 변형중...]")
-        result = await self.llm.generate(f" <Please translate it into {source_lang}> {html_data}")
-        logger.info("[사용자에게 질문할 쿼리]", result)
+        result = await self.llm.generate(f"""{html_data} Explain it like a weather forecaster.""")
+        logger.info("[ai 아나운서]", result)
         
         return {
-            "response": html_data,
+            "response": result,
             "metadata": {
                 "source": "kma.go.kr",
-                "state": "parsed",
+                "state": "weather_state",
                 "results": "html"
             },
-            "url": url
+            "url": None
         }
 
     async def Crawling(self, url: str):

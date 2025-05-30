@@ -22,6 +22,7 @@ class Agentic:
             
             logger.info(f"[WORKFLOW] ====== Starting agentic workflow for user {uid} ======")
             logger.info(f"[WORKFLOW] Original query: {query}")
+            logger.info(f"[WORKFLOW] Original state: {state}")
             
             # 1. 전처리 (언어 감지 및 번역)  > 수정 완료
             logger.info(f"[WORKFLOW] Step 1: Preprocessing (language detection and translation)")

@@ -142,7 +142,7 @@ class AgenticResume():
                 "response": result,
                 "metadata": {
                     "source": "default",
-                    "state": "initial"         # ✅ metadata 안에 포함
+                    "state": "resume_service_state"         # ✅ metadata 안에 포함
                 },
                 "url": url
             }

@@ -61,11 +61,10 @@ class AgenticCoverLetter:
 
         if state == "growth":
             logger.info("[질문 만드는중...]")
-            result = await self.llm.generate(f"<Please translate it into {source_lang}> 성장 과정 및 가치관에 대해 말씀해 주세요.")
-            logger.info("[사용자에게 질문할 쿼리]", result)
+            
             state = "motivation"
             return {
-                "response": result,
+                "response": "성장 과정 및 가치관에 대해 말씀해 주세요.",
                 "metadata": {"source": "default","state":state},
                 "state": state,
                 "url": None
@@ -73,16 +72,18 @@ class AgenticCoverLetter:
         
         elif state == "motivation":
             logger.info("[사용자에게 받은 응답 저장하는중...]")
-            response_query = await self.llm.generate(f"<Please translate it into Korean> {query}")
+            response_query = await self.llm.generate(f"""
+                                                       1. Please translate it into Korean  
+                                                       2. expand the content a bit
+                                                       3. Please answer directly without any introduction.
+                                                       4. Please make it into 5 sentences
+                                                     query : {query}""")
             state = "growth"
             await self.save_user_data(uid, state, response_query)
             
-            logger.info("[질문 만드는중...]")
-            result = await self.llm.generate(f"<Please translate it into {source_lang}> 지원 동기 및 포부에 대해 말씀해 주세요.")
-            logger.info("[사용자에게 질문할 쿼리]", result)
             state = "experience"
             return {
-                "response": result,
+                "response": "지원 동기 및 포부에 대해 말씀해 주세요.",
                 "metadata": {"source": "default","state":state},
                 "state": state,
                 "url": None
@@ -90,16 +91,19 @@ class AgenticCoverLetter:
         
         elif state == "experience":
             logger.info("[사용자에게 받은 응답 저장하는중...]")
-            response_query = await self.llm.generate(f"<Please translate it into Korean> {query}")
+            response_query = await self.llm.generate(f"""
+                                                       1. Please translate it into Korean  
+                                                       2. expand the content a bit
+                                                       3. Please answer directly without any introduction.
+                                                       4. Please make it into 4 sentences
+                                                     query : {query}""")
             state = "motivation"
             await self.save_user_data(uid, state, response_query)
             
             logger.info("[질문 만드는중...]")
-            result = await self.llm.generate(f"<Please translate it into {source_lang}> 역량 및 경험에 대해 말씀해 주세요.")
-            logger.info("[사용자에게 질문할 쿼리]", result)
             state = "plan"
             return {
-                "response": result,
+                "response": "역량 및 경험에 대해 말씀해 주세요.",
                 "metadata": {"source": "default","state":state},
                 "state": state,
                 "url": None
@@ -107,16 +111,19 @@ class AgenticCoverLetter:
         
         elif state == "plan":
             logger.info("[사용자에게 받은 응답 저장하는중...]")
-            response_query = await self.llm.generate(f"<Please translate it into Korean> {query}")
+            response_query = await self.llm.generate(f"""
+                                                       1. Please translate it into Korean  
+                                                       2. expand the content a bit
+                                                       3. Please answer directly without any introduction.
+                                                       4. Please make it into 5 sentences
+                                                     query : {query}""")
             state = "experience"
             await self.save_user_data(uid, state, response_query)
             
             logger.info("[질문 만드는중...]")
-            result = await self.llm.generate(f"<Please translate it into {source_lang}> 입사 후 계획에대해 말해주세요.")
-            logger.info("[사용자에게 질문할 쿼리]", result)
-            state = "complete"
+            state = "complete_letter"
             return {
-                "response": result,
+                "response": "입사 후 계획에대해 말해주세요.",
                 "metadata": {"source": "default","state":state},
                 "state": state,
                 "url": None
@@ -126,14 +133,16 @@ class AgenticCoverLetter:
         
         elif state == "complete_letter":
             logger.info("[사용자에게 받은 응답 저장하는중...]")
-            response_query = await self.llm.generate(f"<Please translate it into Korean> {query}")
+            response_query = await self.llm.generate(f"""
+                                                       1. Please translate it into Korean  
+                                                       2. expand the content a bit
+                                                       3. Please answer directly without any introduction.
+                                                       4. Please make it into 5 sentences
+                                                     query : {query}""")
             state = "plan"
             await self.save_user_data(uid, state, response_query)
             
-            logger.info("[질문 만드는중...]")
-            result = await self.llm.generate(f"<Please translate it into {source_lang}> 입사 후 계획에 대해 말씀해 주세요.")
-            logger.info("[사용자에게 질문할 쿼리]", result)
-            state = "initial"
+            state = "cover_letter_state"
             # user_data 가져오기
             user_data = await self.user_information.all(uid)
             # cover_letter 텍스트 조합
@@ -151,7 +160,7 @@ class AgenticCoverLetter:
 
             await self.user_pdf.delete_pdf(uid)
             return {
-                "response": result,
+                "response": "자소서 작성 완료.",
                 "metadata": {"source": "default","state":state},
                 "state": state,
                 "url": url

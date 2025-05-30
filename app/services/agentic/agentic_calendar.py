@@ -114,6 +114,7 @@ def schedule(token):
         else:
             print(f"❌ 요청 실패: {response.status_code}")
             print("💬 응답 내용:", response.text)
+            return response.status_code
 
     except Exception as e:
         print("❌ 일정 조회 중 오류 발생:", e)
@@ -347,9 +348,11 @@ def add_event(make_event , token):
         if response.status_code == 200:
             print("✅ 일정이 성공적으로 추가되었습니다.")
             print("🔗 응답:", response.json())
+            return response.status_code
         else:
             print(f"❌ 요청 실패: {response.status_code}")
             print("💬 응답 내용:", response.text)
+            return response.status_code
 
     except Exception as e:
         print("❌ 일정 추가 중 오류 발생:", e)
@@ -476,15 +479,16 @@ def calendar_delete_api(delete_id,token):
         if response.status_code == 200:
             print("✅ 일정이 성공적으로 수정되었습니다.")
             print("🔗 응답:", response.json())
+            return response.status_code
         else:
             print(f"❌ 요청 실패: {response.status_code}")
             print("💬 응답 내용:", response.text)
+            return response.status_code
 
     except Exception as e:
         print("❌ 일정 추가 중 오류 발생:", e)    
 
     return 
-    return
 
 ################################################ 일정 삭제
 
@@ -583,9 +587,11 @@ def calendar_edit_api(response,token):
         if response.status_code == 200:
             print("✅ 일정이 성공적으로 수정되었습니다.")
             print("🔗 응답:", response.json())
+            return response.status_code
         else:
             print(f"❌ 요청 실패: {response.status_code}")
             print("💬 응답 내용:", response.text)
+            return response.status_code
 
     except Exception as e:
         print("❌ 일정 추가 중 오류 발생:", e)    
@@ -597,6 +603,9 @@ def calendar_edit_api(response,token):
 def check_event(user_input,token):
 
     formatted_events = schedule(token)
+    if formatted_events == 500 : 
+        return formatted_events
+
     schedule_list=calendar_events(formatted_events)
     
     llm = get_llm_client(is_lightweight=False)  # 고성능 모델 사용
@@ -688,7 +697,17 @@ class AgenticCalendar:
             print("일정 추가")        
             make_event = MakeSchedule(query) ## 이벤트 생성
             logger.info(f"[MAKED_EVENT] {make_event}")
-            add_event( make_event , token ) ## 이벤트 추가
+            event_result = add_event( make_event , token ) ## 이벤트 추가
+            
+            if event_result == 500 :
+                return {
+                "response": "구글계정 서비스를 이용하세요.",
+                "metadata": {
+                    "query": "{query}",
+                    "agentic_type": "calendar",
+                    "error": ""
+                    }
+                }
             return {
                 "response": "일정이 추가되었습니다.",
                 "metadata": {
@@ -700,7 +719,16 @@ class AgenticCalendar:
         elif classification == "edit" : 
             print("일정 수정")
             make_event = edit_event(query,token) 
-            calendar_edit_api(make_event, token)
+            event_result = calendar_edit_api(make_event, token)
+            if event_result == 500 : 
+                return {
+                    "response": "구글계정 서비스를 이용하세요.",
+                    "metadata": {
+                        "query": "{query}",
+                        "agentic_type": "calendar",
+                        "error": ""
+                    }
+                }
             return {
                 "response": "일정이 수정되었습니다.",
                 "metadata": {
@@ -709,10 +737,20 @@ class AgenticCalendar:
                     "error": ""
                 }
             }
+        
         elif classification == "delete" : 
             print("일정 삭제")
             make_event = delete_event(query,token)
-            calendar_delete_api(make_event,token)
+            event_result =calendar_delete_api(make_event,token)
+            if event_result == 500 : 
+                return {
+                    "response": "구글계정 서비스를 이용하세요.",
+                    "metadata": {
+                        "query": "{query}",
+                        "agentic_type": "calendar",
+                        "error": ""
+                    }
+                }
             return  {
                 "response": "일정이 삭제되었습니다.",
                 "metadata": {
@@ -721,10 +759,20 @@ class AgenticCalendar:
                     "error": ""
                 }
             } 
+            
         elif classification == "check" : 
             print("일정 확인") 
             check_output = check_event(query,token)
             # 프론트에게 잘보이도록 파싱.
+            if check_output == 500 : 
+                return {
+                    "response": "구글계정 서비스를 이용하세요.",
+                    "metadata": {
+                        "query": "{query}",
+                        "agentic_type": "calendar",
+                        "error": ""
+                    }
+                }
             
             return  {
                 "response": f"{check_output}",

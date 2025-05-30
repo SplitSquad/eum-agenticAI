@@ -84,9 +84,9 @@ class AgenticResponseGenerator:
                         "uid": uid,
                         "location": location,
                         "results": food_store,
-                        "state": "initial"
+                        "state": "find_food_state"
                     },
-                    "state": "initial",
+                    "state": "find_food_state",
                     "url": None
                 }
 
@@ -111,7 +111,7 @@ class AgenticResponseGenerator:
                     """
                     img_url = await self.cat_information.describe_img(text)
                     return {
-                        "response": f"{query} , {img_url}" ,
+                        "response": f"{query}" ,
                         "state": "initial",
                         "metadata": {
                             "query": query,
@@ -124,7 +124,7 @@ class AgenticResponseGenerator:
                 s3_url = await self.eum_image.choose_img(selected_eum_image)
                 describe = await self.eum_image.describe_eum(s3_url)
                 return {
-                    "response": f" {describe } , {s3_url}" ,
+                    "response": f" {describe } " ,
                     "state": "initial",
                     "metadata": {
                         "query": query,
@@ -160,7 +160,7 @@ class AgenticResponseGenerator:
                 describe = await self.dog_search.describe_img(response['message'])
                        
                 return {
-                    "response": f"{describe} , {response['message']}" ,
+                    "response": f"{describe} " ,
                     "state": "initial",
                     "metadata": {
                         "query": query,
@@ -175,6 +175,7 @@ class AgenticResponseGenerator:
             elif agentic_type == AgentType.EVENT:
                 logger.info(f"[EVENTSEARCH]")
                 response = await self.event_search.google_search(query,source_lang,token)
+                logger.info(f"[EVENTSEARCH_statecheck] : {response}")
                 return response
             
             # 날씨 서치
@@ -196,18 +197,17 @@ class AgenticResponseGenerator:
                 Post_Response = json.loads(Post_Response)
                 return {
                     "response": f""" 
-                    {Post_Response['category']} 게시판에 게시글이 생성되었습니다.
-                    
-                    제목 : {Post_Response['title']} 
-                    카테고리 : {Post_Response['category']} 
-                    내용 : {Post_Response['content']}  
-                    게시글이 생성되었습니다. """,
-                    "state": "first",
+                    제목📝 : {Post_Response['title']} 
+                    카테고리✈️ : {Post_Response['category']} 
+                    내용📑 : {Post_Response['content']}  
+                    ✅게시판에 업로드 되었습니다. """,
                     "metadata": {
                         "query": query,
                         "agentic_type": "POST",
-                        "error": ""
+                        "error": "",
+                        "state": "post_state"
                     },
+                    "state": "post_state",
                     "url": None  # null → None (Python 문법)
                 }
                 

@@ -96,7 +96,7 @@ class EVENT():
                     "response": trimmed_results,
                     "metadata": {
                         "source": "default",
-                        "state": "initial",        # ✅ metadata 안에 포함
+                        "state": "event_state",        # ✅ metadata 안에 포함
                         "results": "default"
                     },
                 "url": None
@@ -116,6 +116,8 @@ class EVENT():
             trimmed.append(result)
 
         return trimmed
+    
+
 
 
 

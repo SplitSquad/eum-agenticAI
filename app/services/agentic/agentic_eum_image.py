@@ -96,7 +96,7 @@ class agentic_eum_image():
                 {
                     "role": "user",
                     "content": [
-                        {"type": "text", "text": " Describe the character in the image "},
+                        {"type": "text", "text": " Describe the character in the image , Additional information His name is EUM and he is a boy who loves Korean traditions. And he is the representative icon of our service. "},
                         {"type": "image_url", "image_url": {"url": image_url}}
                     ]
                 }

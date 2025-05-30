@@ -45,28 +45,29 @@ class Postprocessor:
             logger.info(f"[POSTPROCESS] Input English response: {response}")
             
             # Translate to original language
-            if source_lang != 'en':
-                # Get full language name from code
-                language_name = LANGUAGE_CODE_MAP.get(source_lang, source_lang)
-                logger.info(f"[Postprocess] Translating to {language_name} (code: {source_lang})")
-                
-                prompt = f"""
-                Translate the following English text to {language_name}. 
-                Keep the meaning and tone exactly the same.
-                Only return the translated text without any additional explanation.
-                
-                Text to translate:
-                {response}
-                """
-                
-                logger.debug(f"[POSTPROCESS] Translation prompt: {prompt}")
-                
-                translated_response = await self.llm_client.generate(prompt)
-                logger.info(f"[Postprocess] Translation completed: {translated_response}")
-                logger.info(f"[POSTPROCESS] Translated response ({language_name}): {translated_response}")
-            else:
-                logger.info("[POSTPROCESS] No translation needed (source language is English)")
-                translated_response = response
+            # Get full language name from code
+            language_name = LANGUAGE_CODE_MAP.get(source_lang, source_lang)
+            logger.info(f"[Postprocess] Translating to {language_name} (code: {source_lang})")
+            
+            prompt = f"""
+            [Role]
+            Please translate the following English text into {language_name}.
+
+            [Requirements]
+            1. Preserve the exact meaning and tone of the original text.
+            2. If the text contains JSON, do not modify the keys—only translate the values.
+            3. Return only the translated content. Do not add any explanations or extra formatting.
+            4. Ensure the translation sounds natural to a native speaker of {language_name}.
+
+            [Text]
+            {response}
+            """
+            
+            logger.debug(f"[POSTPROCESS] Translation prompt: {prompt}")
+            
+            translated_response = await self.llm_client.generate(prompt)
+            logger.info(f"[Postprocess] Translation completed: {translated_response}")
+            logger.info(f"[POSTPROCESS] Translated response ({language_name}): {translated_response}")
             
             # Check if RAG was used
             used_rag = rag_type != "none"

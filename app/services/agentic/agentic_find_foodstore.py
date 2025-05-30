@@ -9,7 +9,11 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain.prompts import ChatPromptTemplate
 from app.services.common.user_information import User_Api
 import os
+from pydantic import BaseModel
 
+class CategoryOutput(BaseModel):
+    input: str
+    output: str
 
 # ✅ API 기본 설정
 url = os.getenv("MAPS_API_URL","https://dapi.kakao.com/v2/local/search/category.json")
@@ -46,20 +50,14 @@ class foodstore():
         logger.info("[카테고리 추출 하는중 만드는중...]")
 
        
-        llm = get_langchain_llm(is_lightweight=True)
+        llm = get_langchain_llm(is_lightweight=False)
 
-        parser = JsonOutputParser(pydantic_object={
-            "type": "object",
-            "properties": {
-                "input": {"type": "string"},
-                "output": {"type": "string"},
-            }
-        })
+        parser = JsonOutputParser(pydantic_object=CategoryOutput)
        
 
         system_prompt=f"""
         1. Please output the code that matches the category.
-        2. Please choose just one.
+        2. Please choose just one.(must pick , without choosing unconditionally)
         default. Please output it as json 
 
         [Format]
