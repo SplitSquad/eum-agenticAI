@@ -27,8 +27,6 @@ def translate_query(query: str):
         "translated_query": "...",
         "lang_code": "..."
     }
-
-    Note : In our service, there is a character called EUM (Eum).
     """
     
     logger.info("[TRANSLATE] System prompt: {}", system_prompt)

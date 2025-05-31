@@ -1,5 +1,6 @@
 import json
 import requests
+import aiohttp
 from geopy.geocoders import Nominatim
 from loguru import logger
 from app.core.llm_client import get_langchain_llm,get_llm_client
@@ -19,11 +20,15 @@ class CategoryOutput(BaseModel):
 url = os.getenv("MAPS_API_URL","https://dapi.kakao.com/v2/local/search/category.json")
 
 class foodstore():
-    user_api=User_Api()
     
     def __init__(self):
+        self.user_api=User_Api()
         self.user = ""
         self.user_prefer = ""
+        self.url = "https://dapi.kakao.com/v2/local/search/keyword.json"
+        self.headers = {
+            "Authorization": "KakaoAK 5d96c7a6ef9ac4662396eafc9c44f63e"
+        }
 
     async def load_user_data(self, token: str):
         # ✅ user_api는 비동기이므로 await로 호출
@@ -55,7 +60,6 @@ class foodstore():
         "intention": "...",
         "tag": "Find" | "None"
     
-
         [Instructions]
         1. Check if the user is asking about a specific place or type of location (e.g., a restaurant, hospital, subway station).
         2. If the user clearly mentions a specific place or category they are looking for, set `"tag"` to `"Find"`.
@@ -63,14 +67,24 @@ class foodstore():
         4. Always respond in JSON format.
 
         [Examples]
-        "Input": "Find a pig's feet restaurant near me"
+        "Input": "Find a icecream store near me"
         "output": 
-            "intention": <Find out what you are looking for in terms of relief>,
+            "intention": "아이스크림",
+            "tag": "Find"
+
+        "Input": "Find a starbucks near me"
+        "output": 
+            "intention": "스타벅스",
+            "tag": "Find"
+
+        "Input": "Find a Jockbal restaurant near me"
+        "output": 
+            "intention": "족발",
             "tag": "Find"
 
         "Input": "Find nearby amenities"
         "output": 
-            "intention": "None",
+            "intention": "기념품점",
             "tag": "None"
 
         """
@@ -118,9 +132,12 @@ class foodstore():
        
 
         system_prompt=f"""
-        1. Please output the code that matches the category.
-        2. Please choose just one.(must pick , without choosing unconditionally)
-        default. Please output it as json 
+        1. Choose **exactly one** category code that best matches the input.
+        2. You **must** choose one — do not skip or leave it blank.
+        3. You must choose **from the following list only**:
+        MT1, CS2, FD6, CE7, AT4, AD5, OL7, PK6, SW8, SC4, AC5, HP8, PM9, AG2, PO3
+        4. Your response must be **strictly in JSON format**.
+        5. Do **not** include any extra text, comments, or explanations. Return **only** the JSON.
 
         [Format]
         "output" : "<CATEGORY_CODE>"
@@ -241,11 +258,32 @@ class foodstore():
                     "longitude": 127.027610
                 }
             
-    async def kakao_search(self,location):
-        pass
+    async def kakao_search(self, keyword: str, latitude:str,longitude:str,location_category) -> list:
+        params = {
+            "query": keyword,
+            "x": longitude,
+            "y": latitude,
+            "radius": 3000,
+            "size": 15
+        }
+        logger.info(f"[kakao_search_location] : {longitude} , {latitude}")
+        logger.info(f"[kakao_search_keyword] : {keyword}")
+        logger.info(f"[kakao_search_url] : {self.url}")
 
+        async with aiohttp.ClientSession() as session:
+            async with session.get(self.url, headers=self.headers, params=params) as response:
+                if response.status != 200:
+                    raise Exception(f"Kakao API Error: {response.status}")
+                
+                data = await response.json()
+                places = data.get("documents", [])
+                # 음식점만 필터링
+                return [place["place_name"] for place in places if place.get("category_group_code") == location_category]
+
+    
     async def kakao_api_foodstore(self,latitude:str,longitude:str,location_category:str):
         logger.info(f"[주변 {location_category} 데이터 불러오는중...]")
+        logger.info(f"[kakao_api_foodstore] : {location_category}")
 
         headers = {
             "Authorization": "KakaoAK 5d96c7a6ef9ac4662396eafc9c44f63e"  # ← 본인의 REST API 키로 교체
@@ -278,7 +316,7 @@ class foodstore():
 
         return data['documents']
 
-    async def ai_match(self,food_store):
+    async def ai_match(self,food_store,intention):
         logger.info("[ai가 주변식당 찾아주는중...]")
         
         llm = get_langchain_llm(is_lightweight=True)
@@ -323,11 +361,9 @@ class foodstore():
 
         [instructions]
         Please recommend 3~5 places from the list that best fit the user's lifestyle and context, based on:
-        - National background and general taste
-        - Age (you can infer rough age from birthday)
+        - National background, age, gender and general taste
         - Visit purpose (e.g., Study → Cafés, libraries, affordable restaurants, pharmacies)
-        - Gender (optional if relevant)
-        - Proximity, usefulness, and match to user's daily life
+        - If user intention is provided, please take the user's stated intent into consideration when selecting the recommendations.
 
         [format]
         "output": [...] 
@@ -363,6 +399,8 @@ class foodstore():
             return result
             
         description = f"""
+        [user_intention]
+        {intention}
 
         [user_data]
         address : {self.user['address']}

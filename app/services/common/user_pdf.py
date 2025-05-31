@@ -10,7 +10,25 @@ class UserPDF:
         output_path = f"output/{uid}_resume.pdf"
 
         async with async_playwright() as p:
-            browser = await p.chromium.launch()
+            # EKS 환경에 맞는 브라우저 실행 옵션 설정
+            browser = await p.chromium.launch(
+                headless=True,
+                args=[
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-gpu',
+                    '--disable-background-timer-throttling',
+                    '--disable-backgrounding-occluded-windows',
+                    '--disable-renderer-backgrounding',
+                    '--disable-features=TranslateUI',
+                    '--disable-web-security',
+                    '--disable-features=VizDisplayCompositor',
+                    '--disable-extensions',
+                    '--no-first-run',
+                    '--disable-default-apps'
+                ]
+            )
             page = await browser.new_page()
             
             # HTML 문자열 직접 렌더링

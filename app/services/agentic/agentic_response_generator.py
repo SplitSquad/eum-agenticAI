@@ -73,14 +73,29 @@ class AgenticResponseGenerator:
                     location = live_location   
 
                 # 4. 카카오 API 호출    
-                food_store = await self.TEST.kakao_api_foodstore(
-                    float(location.latitude),
-                    float(location.longitude),
-                    category_code["output"]
-                )
+                category = category_code["output"]
+                logger.info(f"[category] : {category}")
+                if category in {"AT4", "CE7", "FD6", "AC5", "SC4"}:
+                    # ⬅︎ 사용자 의도 (족발, 스타벅스 등)를 query로 사용
+                    food_store = await self.TEST.kakao_search(
+                        keyword=query,
+                        latitude=float(location.latitude),
+                        longitude=float(location.longitude),
+                        location_category=category
+                    )
+                elif category in {  "MT1", "CS2", "AD5", "OL7", "PK6", "SW8", "HP8", "PM9", "AG2", "PO3"}:
+                    # ⬅︎ 의도는 필요 없음. 카테고리만으로 충분
+                    location_category=category
+                    logger.info(f"[category] : {location_category}")
+                    food_store = await self.TEST.kakao_api_foodstore(
+                        latitude=float(location.latitude),
+                        longitude=float(location.longitude),
+                        location_category=category  # ✅ 이 방식으로 정확하게 매핑
+                    )
+
                 # 6. AI 매칭 (예정)
-                location_ai = await self.TEST.ai_match(food_store)
-                
+                    location_ai = await self.TEST.ai_match(food_store,check['intention'])
+                    
                 # 7. 응답 반환
                 return {
                     "response": location_ai ,
@@ -247,15 +262,32 @@ class AgenticResponseGenerator:
                         location = await self.TEST.location()
                     else:
                         location = live_location   
+                    
+                    logger.info(f"[location] : {location}")
 
                     # 4. 카카오 API 호출    
-                    food_store = await self.TEST.kakao_api_foodstore(
-                        float(location.latitude),
-                        float(location.longitude),
-                        category_code["output"]
-                    )
+                    category = category_code["output"]
+                    logger.info(f"[category] : {category}")
+                    if category in {"AT4", "CE7", "FD6", "AC5", "SC4"}:
+                        # ⬅︎ 사용자 의도 (족발, 스타벅스 등)를 query로 사용
+                        food_store = await self.TEST.kakao_search(
+                            keyword=check['intention'],
+                            latitude=float(location.latitude),
+                            longitude=float(location.longitude),
+                            location_category=category
+                        )
+                    elif category in {  "MT1", "CS2", "AD5", "OL7", "PK6", "SW8", "HP8", "PM9", "AG2", "PO3"}:
+                        # ⬅︎ 의도는 필요 없음. 카테고리만으로 충분
+                        location_category=category
+                        logger.info(f"[category] : {location_category}")
+                        food_store = await self.TEST.kakao_api_foodstore(
+                            latitude=float(location.latitude),
+                            longitude=float(location.longitude),
+                            location_category=category  # ✅ 이 방식으로 정확하게 매핑
+                        )
+
                     # 6. AI 매칭 (예정)
-                    location_ai = await self.TEST.ai_match(food_store)
+                    location_ai = await self.TEST.ai_match(food_store,check['intention'])
                     
                     # 7. 응답 반환
                     return {
