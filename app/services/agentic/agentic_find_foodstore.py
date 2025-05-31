@@ -32,6 +32,71 @@ class foodstore():
         self.user_prefer = await self.user_api.user_prefer_api(token)
         logger.info(f"[사용자 정보]: {self.user} | {self.user_prefer}")
 
+    async def query_analyze(self,query):
+        
+        logger.info("[사용자 정보 분석중...]")
+
+        llm = get_langchain_llm(is_lightweight=False)  # 고성능 모델 사용
+
+        parser = JsonOutputParser(pydantic_object={
+            "type": "object",
+            "properties": {
+                "input": {"type": "string"},
+                "output": {"type": "string"},
+            }
+        })
+
+        # 프롬프트 문자열 구성
+        system_prompt_template = f"""
+        [Role]
+        You are an AI that analyzes user input and determines the user's search intention related to location.
+
+        [Output Format]
+            "intention": "...",
+            "tag": "Find" | "None"
+        
+
+        [Instructions]
+        1. Check if the user is asking about a specific place or type of location (e.g., a restaurant, hospital, subway station).
+        2. If the user clearly mentions a specific place or category they are looking for, set `"tag"` to `"Find"`.
+        3. If the user is asking vaguely or only mentions "nearby" without a clear place or category, set `"tag"` to `"None"`.
+        4. Always respond in JSON format.
+
+        [Examples]
+        Input: "Find a pig's feet restaurant near me"
+        Output: 
+            "intention": <Find out what you are looking for in terms of relief>,
+            "tag": "Find"
+
+        Input: "Find nearby amenities"
+        Output: 
+            "intention": "None",
+            "tag": "None"
+
+        """
+        
+        print("[CHECK_CALENDAR_system_prompt] ",system_prompt_template)
+
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", system_prompt_template ),
+            ("user", "{input}")
+        ])
+
+        chain = prompt | llm | parser
+
+        def parse_product(description: str) -> dict:
+            result = chain.invoke({"input": description})
+            
+            return json.dumps(result, indent=2, ensure_ascii=False)
+
+        description = ""
+
+        response = parse_product(description)
+        print("[response] :",response)
+
+
+        return response
+
     async def category_query(self,source_lang):
         logger.info("[질문 만드는중...]")
 
