@@ -17,7 +17,8 @@ jobs:
         uses: actions/checkout@v4
       
       - name : Install Playwright Chromium browser
-        run : playwright install chromium
+        run : |
+          npx playwright install chromium
 
       - name: Check directory structure
         run: |
