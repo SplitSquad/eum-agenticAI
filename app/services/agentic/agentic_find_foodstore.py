@@ -34,7 +34,7 @@ class foodstore():
 
     async def query_analyze(self,query):
         
-        logger.info("[사용자 정보 분석중...]")
+        logger.info("[query_analyze...]")
 
         llm = get_langchain_llm(is_lightweight=False)  # 고성능 모델 사용
 
@@ -51,10 +51,10 @@ class foodstore():
         [Role]
         You are an AI that analyzes user input and determines the user's search intention related to location.
 
-        [Output Format]
-            "intention": "...",
-            "tag": "Find" | "None"
-        
+        [Format]
+        "intention": "...",
+        "tag": "Find" | "None"
+    
 
         [Instructions]
         1. Check if the user is asking about a specific place or type of location (e.g., a restaurant, hospital, subway station).
@@ -63,20 +63,18 @@ class foodstore():
         4. Always respond in JSON format.
 
         [Examples]
-        Input: "Find a pig's feet restaurant near me"
-        Output: 
+        "Input": "Find a pig's feet restaurant near me"
+        "output": 
             "intention": <Find out what you are looking for in terms of relief>,
             "tag": "Find"
 
-        Input: "Find nearby amenities"
-        Output: 
+        "Input": "Find nearby amenities"
+        "output": 
             "intention": "None",
             "tag": "None"
 
         """
         
-        print("[CHECK_CALENDAR_system_prompt] ",system_prompt_template)
-
         prompt = ChatPromptTemplate.from_messages([
             ("system", system_prompt_template ),
             ("user", "{input}")
@@ -87,13 +85,12 @@ class foodstore():
         def parse_product(description: str) -> dict:
             result = chain.invoke({"input": description})
             
-            return json.dumps(result, indent=2, ensure_ascii=False)
+            return result
 
-        description = ""
+        description = query
 
         response = parse_product(description)
         print("[response] :",response)
-
 
         return response
 

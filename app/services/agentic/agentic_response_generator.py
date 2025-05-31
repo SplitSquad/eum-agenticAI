@@ -232,6 +232,46 @@ class AgenticResponseGenerator:
             elif agentic_type == AgentType.LOCATION:
                 logger.info("[위치찾기 실행중...]")
 
+                # 0 즉시 라우팅이 필요한지 체크
+                check = await self.TEST.query_analyze(query)
+                
+                logger.info(f"[check] : {check}")
+                if check['tag'] == "Find" : 
+                    # 1. 카테고리추출
+                    category_code = await self.TEST.Category_extraction(query)
+                    # 2. 사용자정보불러오는중
+                    await self.TEST.load_user_data(token)
+
+                    # 3. 사용자 위치 확인
+                    if not live_location:
+                        location = await self.TEST.location()
+                    else:
+                        location = live_location   
+
+                    # 4. 카카오 API 호출    
+                    food_store = await self.TEST.kakao_api_foodstore(
+                        float(location.latitude),
+                        float(location.longitude),
+                        category_code["output"]
+                    )
+                    # 6. AI 매칭 (예정)
+                    location_ai = await self.TEST.ai_match(food_store)
+                    
+                    # 7. 응답 반환
+                    return {
+                        "response": location_ai ,
+                        "metadata": {
+                            "query": query,
+                            "uid": uid,
+                            "location": location,
+                            "results": food_store,
+                            "state": "find_food_state"
+                        },
+                        "state": "find_food_state",
+                        "url": None
+                    }
+
+
                 if state == "initial" :
                 # 1 원하는 카테고리 질문
                     category = await self.TEST.category_query(source_lang)
