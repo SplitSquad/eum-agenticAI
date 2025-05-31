@@ -25,17 +25,32 @@ class EVENT():
         ##########################################################
         service = build("customsearch", "v1", developerKey=self.api_key)
 
+        logger.info(f"[live_location] : {live_location}")
 
         if live_location == "None" : 
             user_information = await self.user_information.user_api(token)
             if user_information.get("address") is None:
                 user_information["address"] = "부산 동구"
-        
-        user_information = self.search_live_location.search(live_location)
+        back_user_information = await self.user_information.user_api(token)
+        back_user_prefer_information = await self.user_information.user_prefer_api(token)
 
-        logger.info(f"[user_information_location] : {user_information} ")
+        back_user_data = f"""
+        {back_user_information}  
+        {back_user_prefer_information}
+        """
+
+        logger.info(f"[back_user_data] : {back_user_data} ")
+
+        user_information = self.search_live_location.search(live_location)
     
-        llm = get_langchain_llm(is_lightweight=False)  # 고성능 모델 사용
+        logger.info(f"[user_information_location] : {user_information} ")
+
+        search_user_data = f""" 
+        [back_user_data] : {back_user_data}  
+        [user_information_location] : {user_information} 
+        """ 
+
+        llm = get_langchain_llm(is_lightweight=True)  
 
         parser = JsonOutputParser(pydantic_object={
             "type": "object",
@@ -46,19 +61,20 @@ class EVENT():
         })
         prompt = ChatPromptTemplate.from_messages([
         ("system",f"""
-        1. This is an AI that searches for events around the user.
-        2. Please check the user's location carefully.
-        3. return json
-        default. please return Korean
-         
+        You are an AI that generates optimized search terms for finding local events.
+
+        1. Analyze the user's personal and location data.
+        2. Generate Korean search terms suitable for finding local events (e.g., festivals, lectures, job fairs) based on:
+        - User's purpose of visit (e.g., Study → education, campus events)
+        - Interests (e.g., employment → job fairs, seminars)
+        - Language (Korean fluent)
+        - Gender and age (optional)
+        - Region (from address or current location: 서울 중구 필동로1길 30, 동국대학교)
+        3. Search terms must be region-specific and relevant to the user’s life stage.
+        4. Output in **JSON format** only. Do not explain.
+
         [format]
-        "output" : "..."
-         
-        [one-shot-example]
-        input : 
-            query : <user_input> + user_location : <user_location> 
-        output :
-            <user_location> 행사
+        "output": "..."         
         """),
             ("user", "{input}")
         ])
@@ -70,7 +86,7 @@ class EVENT():
             logger.info(f"[json.dumps] : {json.dumps(result, indent=2, ensure_ascii=False)}")
             return result
             
-        description = f" query : {query} + user_location : {user_information['address']} "    
+        description = search_user_data    
 
         response = parse_product(description)
         
@@ -89,7 +105,7 @@ class EVENT():
             q=response,
             cx=self.search_engine_id,
             num=5,
-            dateRestrict='w3'  # 최근 3주 이내의 결과로 제한
+            dateRestrict='m1'  # 최근 3주 이내의 결과로 제한
         ).execute()
 
 

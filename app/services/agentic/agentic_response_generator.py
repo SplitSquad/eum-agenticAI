@@ -179,7 +179,7 @@ class AgenticResponseGenerator:
             # 행사 서치
             elif agentic_type == AgentType.EVENT:
                 logger.info(f"[EVENTSEARCH]")
-                response = await self.event_search.google_search(query,source_lang,token)
+                response = await self.event_search.google_search(query,source_lang,token,live_location)
                 logger.info(f"[EVENTSEARCH_statecheck] : {response}")
                 return response
             
