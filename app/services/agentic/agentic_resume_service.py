@@ -50,7 +50,7 @@ class AgenticResume():
         if state == "education":
 
             logger.info("[질문 만드는중...]")            
-            result = await self.llm.generate(f" <Please translate it into {source_lang}>  Please tell me about your academic background. ")
+            result = await self.llm.generate(f"<Please translate it into {source_lang}>  I'll help you write your resume. Can you tell me about your academic background? ")
             logger.info("[사용자에게 질문할 쿼리]", result)
 
             state = "certifications"
@@ -73,7 +73,7 @@ class AgenticResume():
             await self.save_user_data(uid, state, response_query)
 
             logger.info("[질문 만드는중...]") 
-            result = await self.llm.generate(f" <Please translate it into {source_lang}>  Please tell me about the qualifications.")
+            result = await self.llm.generate(f" <Please translate it into {source_lang}>  Can you tell me if you have a qualification?")
             logger.info("[사용자에게 질문할 쿼리]", result)
 
             state = "career"
@@ -95,7 +95,7 @@ class AgenticResume():
 
             
             logger.info("[질문 만드는중...]") 
-            result = await self.llm.generate(f" <Please translate it into {source_lang}> Please tell us about your career history.")
+            result = await self.llm.generate(f" <Please translate it into {source_lang}> If you have any work experience, please let me know ")
             logger.info("[사용자에게 질문할 쿼리]", result)
 
             state = "complete"
@@ -117,7 +117,7 @@ class AgenticResume():
             await self.save_user_data(uid, state, response_query)
 
             logger.info("[질문 만드는중...]") 
-            result = await self.llm.generate(f" <Please translate it into {source_lang}> Resume completed.")
+            result = await self.llm.generate(f"<Please translate it into {source_lang}>  Your resume has been completed.")
             logger.info("[사용자에게 질문할 쿼리]", result)
 
             # html 반환

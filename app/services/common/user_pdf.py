@@ -75,6 +75,7 @@ class UserPDF:
             padding: 8px;
             text-align: center;
             vertical-align: middle;
+            height: 20px;
         }}
         .photo-cell {{
             width: 30mm;
@@ -184,6 +185,16 @@ class UserPDF:
                 <td>{user_data.get('edu_detail2', '')}</td>
                 <td></td>
                 </tr>
+                 <tr>
+                <td>{user_data.get('edu_period3', '')}</td>
+                <td>{user_data.get('edu_detail3', '')}</td>
+                <td></td>
+                </tr>
+                 <tr>
+                <td>{user_data.get('edu_period4', '')}</td>
+                <td>{user_data.get('edu_detail4', '')}</td>
+                <td></td>
+                </tr>
             </tbody>
             </table>
 
@@ -205,14 +216,24 @@ class UserPDF:
                 <td>{user_data.get('career_period2', '')}</td>
                 <td>{user_data.get('career_detail2', '')}</td>
                 <td>{user_data.get('career_note2', '')}</td>
-                </tr>
+                </tr>   
+                <tr>
+                <td>{user_data.get('career_period3', '')}</td>
+                <td>{user_data.get('career_detail3', '')}</td>
+                <td>{user_data.get('career_note3', '')}</td>
+                </tr>       
+                <tr>
+                <td>{user_data.get('career_period4', '')}</td>
+                <td>{user_data.get('career_detail4', '')}</td>
+                <td>{user_data.get('career_note4', '')}</td>
+                </tr>       
             </tbody>
             </table>
 
             <div class="footer">
             <p>위의 기재한 내용이 사실과 다름이 없습니다.</p>
             <div class="date-line">{user_data.get('written_date', '')}</div>
-            <p>(인)</p>
+            <p>{user_data.get('name', '')}(인)</p>
             </div>
         </div>
         </body>
