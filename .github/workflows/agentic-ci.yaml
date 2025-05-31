@@ -28,7 +28,7 @@ jobs:
             echo "eum-agentic 디렉토리가 없습니다!"
             find . -type d -maxdepth 2
           fi
-
+      
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
