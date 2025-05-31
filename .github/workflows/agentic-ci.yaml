@@ -15,6 +15,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      
+      - name : Install Playwright Chromium browser
+        run : playwright install chromium
 
       - name: Check directory structure
         run: |

@@ -14,14 +14,9 @@ RUN apt-get update && apt-get install -y \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
-# Python용 Playwright 설치 + 브라우저 설치
-RUN pip install --no-cache-dir playwright && \
-    python -m playwright install --with-deps
-
 # 의존성 파일 복사 및 설치
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-
 # 애플리케이션 코드 복사
 COPY . .
 # 포트 노출
