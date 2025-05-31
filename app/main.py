@@ -47,14 +47,14 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# # CORS 설정
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["*"],
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
+# CORS 설정
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # API 라우터 등록
 app.include_router(agentic.router, prefix="/api/v1")

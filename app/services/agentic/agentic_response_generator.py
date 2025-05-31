@@ -92,9 +92,9 @@ class AgenticResponseGenerator:
                         longitude=float(location.longitude),
                         location_category=category  # ✅ 이 방식으로 정확하게 매핑
                     )
-
+                
                 # 6. AI 매칭 (예정)
-                    location_ai = await self.TEST.ai_match(food_store,check['intention'])
+                location_ai = await self.TEST.ai_match(food_store,query)
                     
                 # 7. 응답 반환
                 return {
