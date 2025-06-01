@@ -13,6 +13,7 @@ from app.services.agentic.agentic_event import EVENT
 from app.services.agentic.agentic_random_dog import RandomDog
 from app.services.agentic.agentic_cat_information import Cat_Infromation
 from app.services.agentic.agentic_eum_image import agentic_eum_image
+from types import SimpleNamespace
 import json
 
 class AgenticResponseGenerator:
@@ -72,6 +73,10 @@ class AgenticResponseGenerator:
                 else:
                     location = live_location   
 
+                # dict → 객체로 변환
+                if isinstance(location, dict):
+                    location = SimpleNamespace(**location)
+
                 # 4. 카카오 API 호출    
                 category = category_code["output"]
                 logger.info(f"[category] : {category}")
@@ -102,7 +107,7 @@ class AgenticResponseGenerator:
                     "metadata": {
                         "query": query,
                         "uid": uid,
-                        "location": location,
+                        # "location": location,
                         "results": food_store,
                         "state": "find_food_state"
                     },
@@ -265,6 +270,10 @@ class AgenticResponseGenerator:
                     
                     logger.info(f"[location] : {location}")
 
+                    # dict → 객체로 변환
+                    if isinstance(location, dict):
+                        location = SimpleNamespace(**location)
+     
                     # 4. 카카오 API 호출    
                     category = category_code["output"]
                     logger.info(f"[category] : {category}")
@@ -295,7 +304,7 @@ class AgenticResponseGenerator:
                         "metadata": {
                             "query": query,
                             "uid": uid,
-                            "location": location,
+                            # "location": location,
                             "results": food_store,
                             "state": "find_food_state"
                         },
