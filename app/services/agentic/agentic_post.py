@@ -11,6 +11,8 @@ from app.core.llm_post_prompt import Prompt
 from langchain_openai import ChatOpenAI
 from app.core.llm_client import get_langchain_llm
 from app.models.agentic_response import PostCategory
+from app.services.common.user_information import User_Api
+from app.services.common.search_location import search_location
 
 load_dotenv()  # .env 파일 자동 로딩
 
@@ -23,6 +25,9 @@ if not COMMUNITY_API_URL:
 class AgenticPost:
     def __init__(self):
         logger.info("[게시글 에이전트 초기화]")
+        self.user_information_data = ""
+        self.user_information = User_Api()
+        self.search_live_location = search_location()
         
     async def first_query(self, token, query): 
         logger.info("[카테고리 반환 단계]")
@@ -94,7 +99,32 @@ class AgenticPost:
         response = parse_product(query)
         return response
 
-    async def second_query(self, token, query, category, tags):
+    async def second_query(self, token, query, category, tags,live_location):
+
+        #####유저정보
+        # 유저 위치 정보 수집
+        logger.info("[유저 위치 정보 수집...]")
+        logger.info(f"[live_location] : {live_location}")
+        if live_location is None or not (live_location.latitude and live_location.longitude):
+            self.user_information_data = await self.user_information.user_api(token)
+            if self.user_information_data.get("address") is None:
+                self.user_information_data["address"] = "부산 동구" 
+        self.user_information_data = self.search_live_location.search(live_location)
+        logger.info(f"[user_information_location] : {self.user_information_data} ")
+
+        # 유저 정보 수집
+        logger.info("[유저 정보 수집...]")
+        back_user_information = await self.user_information.user_api(token)
+        back_user_prefer_information = await self.user_information.user_prefer_api(token)
+
+        back_user_data = f"""
+        {back_user_information}  
+        {back_user_prefer_information}
+        """
+
+        logger.info(f" [back_user_data] : {back_user_data} ")
+        #####유저정보
+
         logger.info(f"[게시판 생성 단계] 카테고리 : {category}")
         logger.info(f"[게시판 생성 단계] 태그 : {tags}")
         logger.info(f"[게시판 생성 단계] 입력값 : {query}")
@@ -103,8 +133,8 @@ class AgenticPost:
 
         # LangChain에서 템플릿 변수로 오인되지 않도록 중괄호 이스케이프 처리 필요 없음
         json_example = f'''
-        "title": "게시글 제목",
-        "content": "게시글 본문",
+        "title": "Post title",
+        "content": "Post body",
         "category": "{category}",
         "language": "KO",
         "tags": ["{tags}"],
@@ -113,28 +143,33 @@ class AgenticPost:
         '''
 
         system_prompt = f"""
-        당신은 사용자의 입력을 기반으로 게시판에 올릴 게시글을 작성하는 assistant입니다.
-        다음 JSON 형식에 맞춰 게시글을 작성하세요:
+        [ROLE]
+        - You are an assistant who writes posts to be posted on the bulletin board based on user input.
+        - Write your posts in the following JSON format:
 
+        [FORMAT]
         ```json
-            {json_example}
+        {json_example}
+        
 
-            요구사항:
+        [INSTRUCTION]
+        - Below, you will be given the user's background information along with their request (input_query).
+        - Based on this information, write a realistic and natural post in strict JSON format.
+        - Feel free to incorporate the user's age, purpose of visit, interests, travel country or city, and other relevant details.
+        - Most importantly, reflect the user's intent as expressed in the "input_query".
 
-            "title"은 짧고 명확하게 작성하세요.
+        1. The "title" should clearly reflect the user's intent in a short and concise way. (e.g., "Looking for a travel buddy in Seoul")
+        2. The "content" should sound natural and friendly, incorporating the user's purpose, schedule, location, and motivation.
+        3. The "category" must be set to "{category}". Do not change this value.
+        4. The "tags" must be provided in the format ["{tags}"]. Use a JSON array with one or more string values.
+        5. Always set "language" to "KO".
+        6. Always set "postType" and "address" to "자유" (Korean word meaning "Free").
+        7. Do not include the user's real name in the post. Write the content anonymously.
+        8. Write all values such as "title" and "content" in Korean language.
+        9. The response must contain **only** a JSON object. Do not include any extra text, comments, markdown, or explanations.
 
-            "content"는 구체적이며 유익한 정보를 담도록 하세요.
 
-            "category"는 반드시 "{category}"로 설정하세요.
-
-            "tags"는 반드시 ["{tags}"] 형식으로 제공하세요.
-
-            "language"는 항상 "KO"로 지정하세요.
-
-            "postType"과 "address"는 항상 "자유"로 유지하세요.
-
-            JSON 이외의 문장은 포함하지 마세요.
-            """
+         """
 
         # 프롬프트 직접 조합
         full_prompt = ChatPromptTemplate.from_messages([
@@ -170,7 +205,16 @@ class AgenticPost:
             logger.info(f"[게시판 생성 AI가 반환한값] {json.dumps(result, indent=2, ensure_ascii=False)}")
             return result
 
-        response_data = parse_product(query)
+        input_query = f"""
+        [userdata]
+        {back_user_data}
+
+        [input_query]
+        {query}
+        """
+        logger.info(f"[input_query] {input_query}")
+
+        response_data = parse_product(input_query)
         
         logger.info(f"[response_data] : {response_data}")
         logger.info(f"[response_data type] : {type(response_data)}")

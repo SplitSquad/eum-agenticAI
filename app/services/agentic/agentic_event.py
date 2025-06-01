@@ -16,6 +16,7 @@ class EVENT():
         self.search_engine_id = os.getenv("GOOGLE_SEARCH_EVENT_ENGINE_ID")
         self.llm = get_llm_client()
         self.user_information = User_Api()
+        self.user_information_data = ""
         self.search_live_location = search_location()
 
 
@@ -25,12 +26,20 @@ class EVENT():
         ##########################################################
         service = build("customsearch", "v1", developerKey=self.api_key)
 
+        
+        # 유저 위치 정보 수집
+        logger.info("[유저 위치 정보 수집...]")
         logger.info(f"[live_location] : {live_location}")
+        if live_location is None or not (live_location.latitude and live_location.longitude):
+            self.user_information_data = await self.user_information.user_api(token)
+            if self.user_information_data.get("address") is None:
+                self.user_information_data["address"] = "부산 동구" 
+        self.user_information_data = self.search_live_location.search(live_location)
+        logger.info(f"[user_information_location] : {self.user_information_data} ")
 
-        if live_location == "None" : 
-            user_information = await self.user_information.user_api(token)
-            if user_information.get("address") is None:
-                user_information["address"] = "부산 동구"
+        
+        # 유저 정보 수집
+        logger.info("[유저 정보 수집...]")
         back_user_information = await self.user_information.user_api(token)
         back_user_prefer_information = await self.user_information.user_prefer_api(token)
 
@@ -41,14 +50,12 @@ class EVENT():
 
         logger.info(f"[back_user_data] : {back_user_data} ")
 
-        user_information = self.search_live_location.search(live_location)
-    
-        logger.info(f"[user_information_location] : {user_information} ")
 
         search_user_data = f""" 
         [back_user_data] : {back_user_data}  
-        [user_information_location] : {user_information} 
+        [user_information_location] : {self.user_information_data} 
         """ 
+        logger.info(f"[search_user_data] : {search_user_data} ")
 
         llm = get_langchain_llm(is_lightweight=True)  
 
@@ -61,20 +68,29 @@ class EVENT():
         })
         prompt = ChatPromptTemplate.from_messages([
         ("system",f"""
+        [ Role ]
         You are an AI that generates optimized search terms for finding local events.
 
-        1. Analyze the user's personal and location data.
-        2. Generate Korean search terms suitable for finding local events (e.g., festivals, lectures, job fairs) based on:
-        - User's purpose of visit (e.g., Study → education, campus events)
-        - Interests (e.g., employment → job fairs, seminars)
-        - Language (Korean fluent)
-        - Gender and age (optional)
-        - Region (from address or current location: 서울 중구 필동로1길 30, 동국대학교)
-        3. Search terms must be region-specific and relevant to the user’s life stage.
-        4. Output in **JSON format** only. Do not explain.
+        [ instruction ] 
+        1. Analyze the user's structured data including:
+        - Personal info: age, gender, language, nationality
+        - Onboarding preferences: visitPurpose, interests, travelData
+        - Real-time location (or default address): road_address.region_1depth_name, region_2depth_name, region_3depth_name
+       
+        2. Based on the analysis, generate Korean search terms that help the user discover **region-specific events** such as festivals, exhibitions, seminars, or local gatherings.
+        
+        3. The search query must:
+        - Reflect the user's purpose (e.g., Travel → 관광지 축제, 지역 전시회)
+        - Use the user's interests (e.g., finance_tax → 세금 교육, 재무 세미나)
+        - Be region-aware (e.g., 서울 중구 → "서울 중구 행사", "중구 지역 축제")
+        - Be appropriate for user’s life stage (e.g., 20s traveler → 체험형 행사, 트렌디한 장소)
+        
+        4. If user location is not provided, use `default_location` as a fallback.
+        
+        5. Output the final search term in **JSON format** only. Do not explain.
 
-        [format]
-        "output": "..."         
+        [ format ]
+        "output": "..."
         """),
             ("user", "{input}")
         ])

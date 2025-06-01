@@ -7,7 +7,7 @@ class UserCoverLetterInformation:
         self.storage_dir = storage_dir
         os.makedirs(self.storage_dir, exist_ok=True)
 
-    async def store_user_data(self, uid: str, query: str, state: str):
+    async def store_user_data(self, uid: str, query: str, state: str,intend:str):
         file_path = os.path.join(self.storage_dir, f"{uid}.json")
         if os.path.exists(file_path):
             with open(file_path, "r", encoding="utf-8") as f:
@@ -15,6 +15,8 @@ class UserCoverLetterInformation:
         else:
             data = {"uid": uid}
         data[state] = query
+         # 📌 추가: 사용자의 의도(intend)도 저장
+        data["intend"] = intend
         with open(file_path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
         print(f"✅ [자소서] 상태 [{state}] 저장 완료: {file_path}")

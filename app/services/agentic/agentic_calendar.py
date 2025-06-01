@@ -348,7 +348,7 @@ def add_event(make_event , token):
         if response.status_code == 200:
             print("✅ 일정이 성공적으로 추가되었습니다.")
             print("🔗 응답:", response.json())
-            return response.status_code
+            return make_event
         else:
             print(f"❌ 요청 실패: {response.status_code}")
             print("💬 응답 내용:", response.text)
@@ -422,15 +422,34 @@ def delete_event(user_input,token):
     
     # 프롬프트 문자열 구성
     system_prompt_template = f"""
-    0. today's date : {datetime.now()}
-    1. I would like to ask you to delete the schedule.
-    2. It's a schedule: 
-    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    {schedule_list}
-    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    3. This is an example output
+    [ROLE]
+    You are an AI that deletes one event from a user's schedule according to their request.
 
-    "id": <choose id in schedule>
+    [Today's Date]  
+    {datetime.now()}
+
+    [User Request]  
+    The user asked to delete an existing event from their calendar.
+
+    [Schedule List]  
+    Below is the list of events retrieved from the calendar:  
+    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  
+    {schedule_list}  
+    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+    [INSTRUCTION]  
+    1. Identify which event the user wants to delete by matching the appropriate `"id"` from the list.  
+    2. Return only the `"id"` of the selected event to be deleted.
+
+    [Output Format]  
+    Return the result in the following JSON format:
+
+    ```json
+    "id": "<id of the event to delete>"
+    "summary": "<title of the event>",
+    "description": "<description of the event>",
+    "startDateTime": "<start time in ISO 8601 format>",
+    "endDateTime": "<end time in ISO 8601 format>"
 
     ⚠️ Do NOT include any explanation or message. ONLY return a valid JSON object. No natural language.
     """
@@ -479,7 +498,7 @@ def calendar_delete_api(delete_id,token):
         if response.status_code == 200:
             print("✅ 일정이 성공적으로 수정되었습니다.")
             print("🔗 응답:", response.json())
-            return response.status_code
+            return delete_id
         else:
             print(f"❌ 요청 실패: {response.status_code}")
             print("💬 응답 내용:", response.text)
@@ -514,22 +533,37 @@ def edit_event(user_input,token):
 
     # 프롬프트 문자열 구성
     system_prompt_template = f"""
-    0. today's date : {datetime.now()}
-    1. I would like to ask you to change the schedule.
-    2. It's a schedule: 
+    [Role]
+    You are an AI that modifies one event from a schedule list according to user input.
+
+    [Today's Date]  
+    {datetime.now()}
+
+    [User Request]  
+    The user has asked to change an existing event in their schedule.
+
+    [Schedule List]  
+    Below is the list of events retrieved from the calendar:  
     ##############################################################################################################
     {schedule_list}
     ##############################################################################################################
-    3. This is an example output
-    4. description should not be empty
 
-    "id": "<choose id in schedule>",
-    "summary": "<summary in user_input>"
-    "location": "<location in user_input>"
-    "description": "<description in user_input>",
-    "startDateTime": "<Time changed by user_input>",
-    "endDateTime": "<Time changed by user_input>"
+    [INSTRUCTION]  
+    1. Based on the user input, select the appropriate schedule item by its `"id"`.  
+    2. Modify its fields as requested by the user:  
+    - Change `summary`, `location`, `description`, `startDateTime`, or `endDateTime` if specified.
+    - Keep `description` non-empty — never leave it blank.
 
+    3. Return only the updated item in the following JSON format:
+
+    ```json
+    "id": "<id from the selected schedule>",
+    "summary": "<summary from user input>",
+    "location": "<location from user input>",
+    "description": "<description from user input, must not be empty>",
+    "startDateTime": "<ISO 8601 format start time>",
+    "endDateTime": "<ISO 8601 format end time>"
+    
     ⚠️ Do NOT include any explanation or message. ONLY return a valid JSON object. No natural language.
     """
     
@@ -587,7 +621,7 @@ def calendar_edit_api(response,token):
         if response.status_code == 200:
             print("✅ 일정이 성공적으로 수정되었습니다.")
             print("🔗 응답:", response.json())
-            return response.status_code
+            return response_dict
         else:
             print(f"❌ 요청 실패: {response.status_code}")
             print("💬 응답 내용:", response.text)
@@ -621,41 +655,33 @@ def check_event(user_input,token):
     
     # 프롬프트 문자열 구성
     system_prompt_template = f"""
-    0. today's date : {datetime.now()}
-    1. I would like to ask you to check the schedule.
-    2. It's a schedule: {schedule_list}
-    3. This is an example output 
+    You are an AI that summarizes and reformats schedule data retrieved from Google Calendar.
 
-    "output": 
-        summary: ""
-        description: ""
-        "start":
-            "dateTime": "",
-            "timeZone": ""
-        ,
-        "end":
-            "dateTime": "",
-            "timeZone": ""
-        ,
-        summary: ""
-        description: ""
-        "start":
-            "dateTime": "",
-            "timeZone": ""
-        ,
-        "end":
-            "dateTime": "",
-            "timeZone": ""
-        ,
-        summary: ""
-        description: ""
-        "start":
-            "dateTime": "",
-            "timeZone": ""
-        ,
-        "end":
-            "dateTime": "",
-            "timeZone": ""
+    [Today's Date]  
+    {datetime.now()}
+
+    [Schedule List]  
+    Below is the raw schedule data from Google Calendar:  
+    {schedule_list}
+
+    [Your Task]  
+    Extract the relevant schedule items and reformat them into a valid JSON array.
+
+    Each item should have the following structure:
+
+    ```json
+    
+    "summary": "Event title",
+    "description": "Event description (if available)",
+    "start": 
+        "dateTime": "Start time in ISO format",
+        "timeZone": "Time zone"
+    ,
+    "end": 
+        "dateTime": "End time in ISO format",
+        "timeZone": "Time zone"
+    
+    
 
     ⚠️ Do NOT include any explanation or message. ONLY return a valid JSON object. No natural language.
     """
@@ -705,15 +731,16 @@ class AgenticCalendar:
                 "metadata": {
                     "query": "{query}",
                     "agentic_type": "calendar",
-                    "error": ""
+                    "error": "",
                     }
                 }
             return {
-                "response": "일정이 추가되었습니다.",
+                "response": make_event,
                 "metadata": {
                     "query": "{query}",
                     "agentic_type": "calendar",
-                    "error": ""
+                    "error": "",
+                    "state": "calendar_general_add"
                 }
             }
         elif classification == "edit" : 
@@ -725,23 +752,24 @@ class AgenticCalendar:
                     "response": "구글계정 서비스를 이용하세요.",
                     "metadata": {
                         "query": "{query}",
-                        "agentic_type": "calendar",
+                        "agentic_type": "calendar_general_edit",
                         "error": ""
                     }
                 }
             return {
-                "response": "일정이 수정되었습니다.",
+                "response": event_result,
                 "metadata": {
                     "query": "{query}",
                     "agentic_type": "calendar",
-                    "error": ""
+                    "error": "",
+                    "state": "calendar_general_edit"
                 }
             }
         
         elif classification == "delete" : 
             print("일정 삭제")
             make_event = delete_event(query,token)
-            event_result =calendar_delete_api(make_event,token)
+            event_result = calendar_delete_api(make_event,token)
             if event_result == 500 : 
                 return {
                     "response": "구글계정 서비스를 이용하세요.",
@@ -752,10 +780,10 @@ class AgenticCalendar:
                     }
                 }
             return  {
-                "response": "일정이 삭제되었습니다.",
+                "response": event_result ,
                 "metadata": {
                     "query": "{query}",
-                    "agentic_type": "calendar",
+                    "agentic_type": "calendar_delete",
                     "error": ""
                 }
             } 
@@ -779,7 +807,8 @@ class AgenticCalendar:
                 "metadata": {
                     "query": "{query}",
                     "agentic_type": "calendar",
-                    "error": ""
+                    "error": "",
+                    "state":"calendar_check_state"
                 }
             } 
         else : 

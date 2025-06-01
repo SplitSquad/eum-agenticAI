@@ -52,7 +52,7 @@ class AgenticResponseGenerator:
             
             # 자소서 기능 즉시 라우팅
             if state in ["growth", "motivation", "experience", "plan","complete_letter"]:
-                result = await self.cover_letter.first_query(query, uid, token, state, source_lang)
+                result = await self.cover_letter.first_query(query, uid, token, state, source_lang,query)
                 return result
             
             # job_search 즉시 라우팅
@@ -206,19 +206,25 @@ class AgenticResponseGenerator:
             # 날씨 서치
             elif agentic_type == AgentType.WEATHER:
                 logger.info(f"[WEATHERSEARCH]")
-                response = await self.weather_search.weather_google_search(query,token,source_lang)
+                response = await self.weather_search.weather_google_search(query,token,live_location)
                 return response
             
             # 잡서치
             elif agentic_type == AgentType.JOB_SEARCH:
+                tag = await self.job_search.search_tag(query)
+                if tag == "yes":
+                    result = await self.job_search.google_search(query,source_lang)                
+                    return result
+
                 logger.info(f"[JOBSEARCH]")
                 response = await self.job_search.first_query(source_lang)
+
                 return response
                 
             # 게시판 응답 > 수정 완료 
             elif agentic_type == AgentType.POST:
                 logger.info("[1. 사용자 질문 받음]")  
-                Post_Response = await self._generate_post_response(token, original_query, query)
+                Post_Response = await self._generate_post_response(token, original_query, query,live_location)
                 Post_Response = json.loads(Post_Response)
                 return {
                     "response": f""" 
@@ -244,9 +250,20 @@ class AgenticResponseGenerator:
             
             # 자소서 응답
             elif agentic_type == AgentType.COVER_LETTER:
-                # 1. 질문 & 이력서 생성
-                result = await self.cover_letter.first_query(query, uid, token, state, source_lang)
-                return result  # ✅ 응답값 리턴
+                # 0. 태그 생성
+                cover_letter_tag = await self.cover_letter.ask_job_category(query)
+                if cover_letter_tag['tag']== "yes" : 
+                    # 1. 질문 & 이력서 생성
+                    result = await self.cover_letter.first_query(query, uid, token, state, source_lang, cover_letter_tag['want'])
+                    return result  # ✅ 응답값 리턴
+                
+                return {
+                    "response": "원하시는 직업이나 분야가 있을까요? 그에 맞춰 자기소개서를 도와드릴게요.",
+                    "metadata": {"source": "default","state":"growth"},
+                    "state": "growth",
+                    "url": None
+                }
+                
                         
 
             elif agentic_type == AgentType.LOCATION:
@@ -386,7 +403,7 @@ class AgenticResponseGenerator:
             }
 ############################################################################# 게시판 생성 기능  
 
-    async def _generate_post_response(self, token, original_query, query) -> Dict[str,Any]:
+    async def _generate_post_response(self, token, original_query, query,live_location) -> Dict[str,Any]:
         """ 게시판 생성 기능 """
         
         # 1. 카테고리 반환 단계
@@ -400,7 +417,7 @@ class AgenticResponseGenerator:
         
         # 2. 게시판 생성 단계
         logger.info(f"[게시판 생성 단계] : {category} {tags}")
-        post_second_response = await self.post_agent.second_query(token, original_query, category, tags)
+        post_second_response = await self.post_agent.second_query(token, original_query, category, tags,live_location)
         logger.info(f"[post_second_response] : {post_second_response}")
         
         

@@ -9,26 +9,43 @@ from bs4 import BeautifulSoup
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
+from app.services.common.search_location import search_location
 import json
 load_dotenv()  # .env 파일을 읽어서 환경변수로 등록
+
 
 class Weather():
     def __init__(self):
         self.api_key = os.getenv("GOOGLE_SEARCH_WEATHER_API_KEY")
         self.search_engine_id = os.getenv("GOOGLE_SEARCH_WEATHER_ENGINE_ID")
         self.user_information = User_Api()
+        self.user_information_data = ""
+        self.user = ""
+        self.user_prefer = ""
         self.llm = get_llm_client(is_lightweight=True)  # ✅ 추가된 부분
+        self.search_live_location = search_location()
 
-    async def weather_google_search(self, query,token,source_lang):
+    async def weather_google_search(self, query,token,live_location):
         logger.info("[구글 서치중...]")
         service = build("customsearch", "v1", developerKey=self.api_key)
 
-
-        user_information = await self.user_information.user_api(token)
-        if user_information.get("address") is None:
-            logger.info("[기본 값 적용] : 부산 동구")
-            user_information["address"] = "부산 동구"
+        # 사용자 정보불러옴
+        logger.info("[사용자 정보 불러오는중...]")
+        self.user = await self.user_information.user_api(token)
+        self.user_prefer = await self.user_information.user_prefer_api(token)
+        
+        # 유저 위치 정보 수집
+        logger.info("[유저 위치 정보 수집...]")
+        logger.info(f"[live_location] : {live_location}")
+        if live_location is None or not (live_location.latitude and live_location.longitude):
+            self.user_information_data = await self.user_information.user_api(token)
+            if self.user_information_data.get("address") is None:
+                self.user_information_data["address"] = "서울 중구" 
+        self.user_information_data = self.search_live_location.search(live_location)
+        logger.info(f"[user_information_location] : {self.user_information_data} ")
     
+        
+        # self.user_information_data['address']
 
         llm = get_langchain_llm(is_lightweight=False)  # 고성능 모델 사용
 
@@ -70,7 +87,9 @@ class Weather():
             logger.info(f"[json.dumps] : {json.dumps(result, indent=2, ensure_ascii=False)}")
             return result
             
-        description = f"user_input : {query}  + default_location : {user_information['address']} "
+        description = f"user_input : {query}  + default_location : {self.user_information_data['address']} "
+
+        logger.info(f"[description] : {description} ")
 
         response = parse_product(description)
         
@@ -92,9 +111,44 @@ class Weather():
 
         html_data = await self.Crawling(url)
 
+        query=f""" 
+        [user data]  
+        {self.user}
+        {self.user_prefer}
+
+        [html_data]
+        {html_data}
+        """
+
+        logger.info(f"[query] : {query}")
 
         logger.info("[사용자의 언어로 변형중...]")
-        result = await self.llm.generate(f"""{html_data} Explain it like a weather forecaster.""")
+        result = await self.llm.generate(f"""
+        [input]
+        {query}
+
+        [Role]
+        You are a friendly Korean weather announcer AI designed to provide personalized weather briefings in a style akin to a TV forecaster.
+
+        [instruction]
+        1. Analyze the user's profile data:
+            - Age, gender, nationality, visit purpose, interests, stay period, and Korean proficiency level.
+            - Employ a warm, casual tone suitable for travelers or short-term visitors.
+
+        2. Interpret the provided weather forecast in Korean (html_data):
+            - Extract temperature and weather conditions for each day.
+            - Note: Do not use separate location information; it's already included in the weather text.
+
+        3. Based on the forecast:
+            - Naturally introduce the weather over the next 5–6 days, emulating a TV weather host.
+            - Include simple, helpful tips if necessary (e.g., “don’t forget your umbrella,” “wear something cool,” “great weather for sightseeing”).
+            - Adapt tone and word choices based on the user's background (e.g., for a Japanese tourist, use simpler and more friendly expressions).
+
+        4. Delivery:
+            - Avoid listing the weather mechanically. Instead, present it as a short, natural spoken segment.
+            - Do not repeat or explain the input.
+            - Format the output with appropriate line breaks to enhance readability and visual clarity. 
+""")
         logger.info("[ai 아나운서]", result)
         
         return {

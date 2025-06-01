@@ -10,7 +10,7 @@ from langchain_groq import ChatGroq
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from typing import Dict, Optional, List, Any, Tuple
-from app.core.llm_client import get_llm_client
+from app.core.llm_client import get_llm_client,get_langchain_llm
 from loguru import logger
 from pydantic import BaseModel
 from langchain_community.chat_models import ChatOllama
@@ -27,6 +27,11 @@ from docx import Document
 from app.services.common.user_coverletter_information import UserCoverLetterInformation
 from app.services.common.user_coverletter_pdf import UserCoverLetterPDF
 from app.services.common.user_coverletter_s3 import UserCoverLetterS3
+from app.services.common.user_information import User_Api
+
+class CategoryOutput(BaseModel):
+    tag: str
+    want: str
 
 class CoverLetterConversationState(BaseModel):
     """자기소개서 생성 대화 상태 관리 클래스"""
@@ -47,11 +52,79 @@ class AgenticCoverLetter:
         self.user_pdf = UserCoverLetterPDF()
         self.user_s3 = UserCoverLetterS3()
         self.llm = get_llm_client(is_lightweight=False)
+        self.user_information_data = User_Api()
 
-    async def save_user_data(self, uid: str, state: str, query: str):
-        await self.user_information.store_user_data(uid, query, state)
+    async def save_user_data(self, uid: str, state: str, query: str, intend:str):
+        await self.user_information.store_user_data(uid, query, state,intend)
 
-    async def first_query(self, query, uid, token, state, source_lang):
+    async def ask_job_category(self, query: str):
+        logger.info("[서치 태그 만드는중...]")
+
+        llm = get_langchain_llm(is_lightweight=False)
+
+        parser = JsonOutputParser(pydantic_object=CategoryOutput)
+    
+        system_prompt=f"""
+        [ROLE]  
+        You are an AI that analyzes user input and determines whether a specific job role is mentioned, in order to create appropriate tags.
+
+        [INSTRUCTION]  
+        1. Analyze the user's input to understand their intent.  
+        2. If a specific job (e.g., developer, designer, marketer) is explicitly mentioned, return:  
+        - "tag": "yes"  
+        - "want": "< ex_ Developer cover-letter >"  
+        3. If the job is not mentioned or unclear, return:  
+        - "tag": "no"  
+        - "want": "None"  
+        4. If it's ambiguous but likely a job-related request, return your best guess (e.g., "want": "Developer cover-letter").  
+        5. Your output must follow the format below and include no extra text or explanation.
+
+        [FORMAT]  
+        "tag": "yes" | "no",
+        "want": "<string or 'None'>"
+        
+
+        [EXAMPLES]  
+
+        "input": Please write a developer cover-letter.  
+        "output":  
+            "tag": "yes",
+            "want": "Developer cover-letter"
+        
+
+        "input": Please write a personal statement.  
+        "output":  
+            "tag": "no",
+            "want": "None"
+            
+
+        "input": Can you help me prepare something for a design job?  
+        "output":  
+            "tag": "yes",
+            "want": "Designer cover-letter"
+            
+        """
+
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", system_prompt ),
+            ("user", "{input}")
+        ])
+
+        chain = prompt | llm | parser
+
+        def parse_product(description: str) -> dict:
+            result = chain.invoke({"input": description})
+            
+            return result
+
+        description = query
+
+        response = parse_product(description)
+        print("[response] :",response)
+
+        return response
+
+    async def first_query(self, query, uid, token, state, source_lang,intend):
         logger.info("[자소서 first_query 함수 실행중...]")
         logger.info(f"[처음 state 상태] : {state}")
         
@@ -74,12 +147,14 @@ class AgenticCoverLetter:
             logger.info("[사용자에게 받은 응답 저장하는중...]")
             response_query = await self.llm.generate(f"""
                                                        1. Please translate it into Korean  
-                                                       2. expand the content a bit
-                                                       3. Please answer directly without any introduction.
-                                                       4. Please make it into 5 sentences
+                                                       2. Use a polite and respectful tone suitable for a self-introduction letter. 
+                                                       3. expand the content a bit
+                                                       4. Please answer directly without any introduction.
+                                                       5. Please make it into 5 sentences
+                                                       6. Format and content should be appropriate for: {intend}.  
                                                      query : {query}""")
             state = "growth"
-            await self.save_user_data(uid, state, response_query)
+            await self.save_user_data(uid, state, response_query,intend)
             
             state = "experience"
             return {
@@ -93,12 +168,14 @@ class AgenticCoverLetter:
             logger.info("[사용자에게 받은 응답 저장하는중...]")
             response_query = await self.llm.generate(f"""
                                                        1. Please translate it into Korean  
-                                                       2. expand the content a bit
-                                                       3. Please answer directly without any introduction.
-                                                       4. Please make it into 4 sentences
+                                                       2. Use a polite and respectful tone suitable for a self-introduction letter.
+                                                       3. expand the content a bit
+                                                       4. Please answer directly without any introduction.
+                                                       5. Please make it into 4 sentences
+                                                       6. Format and content should be appropriate for: {intend}.
                                                      query : {query}""")
             state = "motivation"
-            await self.save_user_data(uid, state, response_query)
+            await self.save_user_data(uid, state, response_query,intend)
             
             logger.info("[질문 만드는중...]")
             state = "plan"
@@ -112,13 +189,15 @@ class AgenticCoverLetter:
         elif state == "plan":
             logger.info("[사용자에게 받은 응답 저장하는중...]")
             response_query = await self.llm.generate(f"""
-                                                       1. Please translate it into Korean  
-                                                       2. expand the content a bit
-                                                       3. Please answer directly without any introduction.
-                                                       4. Please make it into 5 sentences
+                                                       1. Please translate it into Korean 
+                                                       2. Use a polite and respectful tone suitable for a self-introduction letter. 
+                                                       3. expand the content a bit
+                                                       4. Please answer directly without any introduction.
+                                                       5. Please make it into 5 sentences
+                                                       6. Format and content should be appropriate for: {intend}.
                                                      query : {query}""")
             state = "experience"
-            await self.save_user_data(uid, state, response_query)
+            await self.save_user_data(uid, state, response_query,intend)
             
             logger.info("[질문 만드는중...]")
             state = "complete_letter"
@@ -135,14 +214,19 @@ class AgenticCoverLetter:
             logger.info("[사용자에게 받은 응답 저장하는중...]")
             response_query = await self.llm.generate(f"""
                                                        1. Please translate it into Korean  
-                                                       2. expand the content a bit
-                                                       3. Please answer directly without any introduction.
-                                                       4. Please make it into 5 sentences
+                                                       2. Use a polite and respectful tone suitable for a self-introduction letter.
+                                                       3. expand the content a bit
+                                                       4. Please answer directly without any introduction.
+                                                       5. Please make it into 5 sentences
+                                                       6. Format and content should be appropriate for: {intend}.
                                                      query : {query}""")
             state = "plan"
-            await self.save_user_data(uid, state, response_query)
+            await self.save_user_data(uid, state, response_query,intend)
             
             state = "cover_letter_state"
+            # back_user_data 가져오기
+            user_data = await self.user_information_data.user_api(token)
+            user_name = user_data['name']
             # user_data 가져오기
             user_data = await self.user_information.all(uid)
             # cover_letter 텍스트 조합
@@ -152,7 +236,7 @@ class AgenticCoverLetter:
             cover_letter += f"[3. 역량 및 경험]\n{user_data.get('experience', '')}\n\n"
             cover_letter += f"[4. 입사 후 계획]\n{user_data.get('plan', '')}\n\n"
             # HTML 생성
-            html = self.user_pdf.pdf_html_form(cover_letter)
+            html = self.user_pdf.pdf_html_form(cover_letter,user_name)
             # PDF 변환
             pdf_path = await self.user_pdf.make_pdf(uid, html)
             # S3 업로드

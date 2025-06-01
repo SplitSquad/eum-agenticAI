@@ -98,7 +98,7 @@ class UserCoverLetterPDF:
             clean_sections.append(sec)
         return tuple(clean_sections)
 
-    def pdf_html_form(self, cover_letter: str) -> str:
+    def pdf_html_form(self, cover_letter: str,user_name: str) -> str:
         """자기소개서 HTML 생성 (한 페이지에 여러 칸, 칸이 넘칠 때만 자동 페이지 분리, 불필요한 텍스트 제거 및 자연스러운 문단 정리)"""
         growth, motivation, experience, plan = self.split_cover_letter_sections(cover_letter)
         # 각 항목별로 마크다운 '**' 완전 제거
@@ -145,7 +145,7 @@ class UserCoverLetterPDF:
                 <div class=\"footer\">
                     <p>위의 기재한 내용이 사실과 다름이 없습니다.</p>
                     <div class=\"date-line\">{datetime.now().strftime('%Y년 %m월 %d일')}</div>
-                    <p>(인)</p>
+                    <p>{user_name} (인)</p>
                 </div>
             </div>
         </body>

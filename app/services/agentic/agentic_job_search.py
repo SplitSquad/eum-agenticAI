@@ -2,15 +2,88 @@ from googleapiclient.discovery import build
 from dotenv import load_dotenv
 from loguru import logger
 from app.core.llm_client import get_llm_client
+from langchain_core.output_parsers import JsonOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_openai import ChatOpenAI
+from app.core.llm_client import get_langchain_llm
+from app.services.common.user_information import User_Api
+from app.services.common.search_location import search_location
+from pydantic import BaseModel
+import json
 import os
 
 load_dotenv()  # .env 파일을 읽어서 환경변수로 등록
+class CategoryOutput(BaseModel):
+    input: str
+    output: str
 
 class agentic_job_search():
     def __init__(self):
         self.api_key = os.getenv("GOOGLE_SEARCH_WEATHER_API_KEY")
         self.search_engine_id = os.getenv("GOOGLE_SEARCH_ENGINE_ID")
+        self.user_information=User_Api()
+        self.user=""
+        self.user_prefer=""
+        self.user_information_data=""
+        self.search_live_location = search_location()
         self.llm = get_llm_client()
+
+    async def search_tag(self,query):
+        logger.info("[서치 태그 만드는중...]")
+
+        llm = get_langchain_llm(is_lightweight=False)
+
+        parser = JsonOutputParser(pydantic_object=CategoryOutput)
+    
+        system_prompt=f"""
+
+        [Role]  
+        - You are an AI assistant that analyzes user queries related to job search.  
+        - Your task is to determine whether the user has specified a clear **desired job role**.
+
+        [Instruction]  
+        1. If the user clearly mentions a **specific job title or role**, output `"yes"`.  
+        2. If the user speaks only in general terms (e.g., "looking for a job" without a specific role), output `"no"`.
+        3. You **must** return the result strictly in **valid JSON format** as shown below.
+
+        [Output Format]  
+        "output": "..."
+
+        [Examples]  
+        "input": "I am looking for a developer job."  
+        "output": "yes"
+
+        "input": "I am looking for a job."  
+        "output": "no"
+
+        "input": "I want to work in marketing."  
+        "output": "yes"
+
+        "input": "I need employment."  
+        "output": "no"
+
+        """
+
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", system_prompt ),
+            ("user", "{input}")
+        ])
+
+        chain = prompt | llm | parser
+
+        def parse_product(description: str) -> dict:
+            result = chain.invoke({"input": description})
+            
+            return result
+
+        description = query
+
+        response = parse_product(description)
+        print("[response] :",response)
+
+        return response['output']
+
+        
 
     async def first_query(self,source_lang):
         logger.info("[질문 만드는중...]")
