@@ -19,6 +19,11 @@ class Agentic:
     async def get_response(self, query: str, uid: str, token: Optional[str] = None, state: Optional[str] = None, location: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
         """질의에 대한 응답을 생성합니다."""
         try:
+            # 0. guideline
+            if state == 'guide':
+                pass
+
+
             original_query=query
             logger.info(f"[live_location] {location}")
             logger.info(f"[WORKFLOW] ====== Starting agentic workflow for user {uid} ======")
