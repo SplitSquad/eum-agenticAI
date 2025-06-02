@@ -66,8 +66,10 @@ ENV DISPLAY=:99
 # 애플리케이션 코드 복사
 COPY . .
 
-# 앱 디렉토리 권한 설정
-RUN chown -R pptruser:pptruser /app
+# data 디렉토리 미리 생성 및 권한 설정
+RUN mkdir -p /app/data \
+    && chown -R pptruser:pptruser /app \
+    && chmod -R 755 /app/data
 
 # 포트 노출
 EXPOSE 8000
