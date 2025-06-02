@@ -47,7 +47,7 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# # CORS 설정
+# CORS 설정
 # app.add_middleware(
 #     CORSMiddleware,
 #     allow_origins=["*"],
