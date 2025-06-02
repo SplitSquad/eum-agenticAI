@@ -784,8 +784,10 @@ class AgenticCalendar:
                 "metadata": {
                     "query": "{query}",
                     "agentic_type": "calendar_delete",
-                    "error": ""
-                }
+                    "error": "",
+                    "state":"calendar_delete"
+                },
+                "state":"calendar_delete"
             } 
             
         elif classification == "check" : 
