@@ -30,10 +30,14 @@ class EVENT():
         # 유저 위치 정보 수집
         logger.info("[유저 위치 정보 수집...]")
         logger.info(f"[live_location] : {live_location}")
-        if live_location is None or not (live_location.latitude and live_location.longitude):
+        if live_location is None or not (getattr(live_location, "latitude", None) and getattr(live_location, "longitude", None)):
+            logger.warning("[WARNING] live_location이 유효하지 않아 fallback 주소 사용")
             self.user_information_data = await self.user_information.user_api(token)
-            if self.user_information_data.get("address") is None:
-                self.user_information_data["address"] = "부산 동구" 
+            if not self.user_information_data.get("address"):
+                self.user_information_data["address"] = "부산 동구"
+        else:
+            self.user_information_data = self.search_live_location.search(live_location)
+
         self.user_information_data = self.search_live_location.search(live_location)
         logger.info(f"[user_information_location] : {self.user_information_data} ")
 
@@ -89,8 +93,10 @@ class EVENT():
         
         5. Output the final search term in **JSON format** only. Do not explain.
 
-        [ format ]
-        "output": "..."
+        [ format - JSON ] 
+        "output": "..." 
+                
+         
         """),
             ("user", "{input}")
         ])
@@ -102,14 +108,24 @@ class EVENT():
             logger.info(f"[json.dumps] : {json.dumps(result, indent=2, ensure_ascii=False)}")
             return result
             
+
         description = search_user_data    
 
         response = parse_product(description)
+        logger.info(f"[response] {response}")
         
-        logger.info(f"[lang_chain] : {response['output']}")
-        logger.info(f"[lang_chain_type] : {type(response)}")
+        # ✅ 문자열로 반환된 경우 강제로 딕셔너리로 변환
+        if isinstance(response, str):
+            logger.warning("[WARNING] response가 문자열입니다. 딕셔너리 형태로 변환합니다.")
+            response = {"output": response}
 
-        response = response["output"]
+        # ✅ output 키가 없을 경우 기본값 설정
+        if 'output' not in response:
+            logger.info(f"[예외처리중... 기본값 서울행사]")
+            response['output'] = "서울행사"
+
+        logger.info(response['output'])  # ✅ OK
+        response = response["output"]    # ✅ str
 
         ##########################################################
 

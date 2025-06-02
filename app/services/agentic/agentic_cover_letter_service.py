@@ -135,6 +135,9 @@ class AgenticCoverLetter:
         if state == "growth":
             logger.info("[질문 만드는중...]")
             
+            # user_data 없애기
+            user_data = await self.user_information.delete_user_data(uid)
+            
             state = "motivation"
             return {
                 "response": "성장 과정 및 가치관에 대해 말씀해 주세요.",
@@ -144,8 +147,22 @@ class AgenticCoverLetter:
             }
         
         elif state == "motivation":
+
+            # back_user_data 가져오기
+            user_data = await self.user_information_data.user_api(token)
+            user_name = user_data['name']
+            # user_data 가져오기
+            user_data = await self.user_information.all(uid)
+
             logger.info("[사용자에게 받은 응답 저장하는중...]")
             response_query = await self.llm.generate(f"""
+                                                       [USER_DATA]
+                                                       {user_data}
+                                                       
+                                                       [ROLE]
+                                                       You are an AI that writes about your growth process and values.
+
+                                                       [INSTRUCTION]
                                                        1. Please translate it into Korean  
                                                        2. Use a polite and respectful tone suitable for a self-introduction letter. 
                                                        3. expand the content a bit
@@ -165,8 +182,22 @@ class AgenticCoverLetter:
             }
         
         elif state == "experience":
+
+            # back_user_data 가져오기
+            user_data = await self.user_information_data.user_api(token)
+            user_name = user_data['name']
+            # user_data 가져오기
+            user_data = await self.user_information.all(uid)
+
             logger.info("[사용자에게 받은 응답 저장하는중...]")
             response_query = await self.llm.generate(f"""
+                                                       [USER_DATA]
+                                                       {user_data}
+
+                                                       [ROLE]
+                                                       You are an ai that writes about your motivation and aspirations for applying.
+
+                                                       [INSTRUCTION]
                                                        1. Please translate it into Korean  
                                                        2. Use a polite and respectful tone suitable for a self-introduction letter.
                                                        3. expand the content a bit
@@ -187,8 +218,21 @@ class AgenticCoverLetter:
             }
         
         elif state == "plan":
+            # back_user_data 가져오기
+            user_data = await self.user_information_data.user_api(token)
+            user_name = user_data['name']
+            # user_data 가져오기
+            user_data = await self.user_information.all(uid)
+
             logger.info("[사용자에게 받은 응답 저장하는중...]")
             response_query = await self.llm.generate(f"""
+                                                       [USER_DATA]
+                                                       {user_data}
+
+                                                       [ROLE]
+                                                       You are an ai that writes about your capabilities and experiences.
+
+                                                       [INSTRUCTION]
                                                        1. Please translate it into Korean 
                                                        2. Use a polite and respectful tone suitable for a self-introduction letter. 
                                                        3. expand the content a bit
@@ -211,8 +255,21 @@ class AgenticCoverLetter:
         
         
         elif state == "complete_letter":
+            # back_user_data 가져오기
+            user_data = await self.user_information_data.user_api(token)
+            user_name = user_data['name']
+            # user_data 가져오기
+            user_data = await self.user_information.all(uid)
+
             logger.info("[사용자에게 받은 응답 저장하는중...]")
             response_query = await self.llm.generate(f"""
+                                                       [USER_DATA]
+                                                       {user_data}
+
+                                                       [ROLE]
+                                                       You are an ai that writes about your plans after joining the company.
+
+                                                       [INSTRUCTION
                                                        1. Please translate it into Korean  
                                                        2. Use a polite and respectful tone suitable for a self-introduction letter.
                                                        3. expand the content a bit
@@ -241,6 +298,9 @@ class AgenticCoverLetter:
             pdf_path = await self.user_pdf.make_pdf(uid, html)
             # S3 업로드
             url = await self.user_s3.upload_pdf(pdf_path)
+
+            # user_data 없애기
+            user_data = await self.user_information.delete_user_data(uid)
 
             await self.user_pdf.delete_pdf(uid)
             return {

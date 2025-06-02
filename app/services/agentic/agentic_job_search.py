@@ -79,6 +79,13 @@ class agentic_job_search():
         description = query
 
         response = parse_product(description)
+    
+        # 예외처리: 'output' 키가 없거나 값이 유효하지 않은 경우 기본값 설정
+        if 'output' not in response or response['output'] not in ['yes', 'no']:
+            logger.warning("[WARNING] 'output' is missing or invalid. Defaulting to 'no'.")
+            response['output'] = 'no'
+
+
         print("[response] :",response)
 
         return response['output']

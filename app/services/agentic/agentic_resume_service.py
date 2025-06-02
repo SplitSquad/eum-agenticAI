@@ -233,7 +233,7 @@ class AgenticResume():
         """ 
         
         logger.info(f"[수집한 정보] {description}")
-
+        
         response = parse_product(description)
 
         return response

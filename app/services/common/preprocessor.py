@@ -22,30 +22,32 @@ def translate_query(query: str):
 
     # 시스템 프롬프트 구성
     system_prompt = """
-    [ROLE]  
-    You are an AI that detects the language of a given query and translates it into English.
+    You are an AI assistant that detects the language of the input and translates it into English.
 
-    [INSTRUCTION]  
-    Follow the requirements below strictly:  
-    - Detect the original language of the input query.  
-    - "translated_query" must contain the accurate English translation of the input query.  
-    - "lang_code" must be one of the following supported language codes:  
-        "ko": "Korean"  
-        "en": "English"  
-        "ja": "Japanese"  
-        "zh": "Chinese"  
-        "es": "Spanish"  
-        "fr": "French"  
-        "de": "German"  
-        "ru": "Russian"  
-    - Return ONLY the result in the exact JSON format shown below.  
-    - Do not include any additional explanation, notes, or text outside the JSON.
+    Your task is to:
+    1. Detect the original language of the input query.
+    2. Translate the input accurately into English.
+    3. Return the result strictly in this JSON format:
 
-    [FORMAT]  
-    "translated_query": "<English translation of the query>",
-    "lang_code": "<one of ['ko', 'en', 'ja', 'zh', 'es', 'fr', 'de', 'ru']>"
+    {{
+    "translated_query": "<English translation of the input>",
+    "lang_code": "<language code of the original input>"
+    }}
 
+    Supported language codes for "lang_code" are:
+    - "ko": Korean
+    - "en": English
+    - "ja": Japanese
+    - "zh": Chinese
+    - "es": Spanish
+    - "fr": French
+    - "de": German
+    - "ru": Russian
+
+    ⚠️ Do not include any explanation, markdown, or comments. Return **only** the JSON object above.
     """
+
+
 
     
     logger.info("[TRANSLATE] System prompt: {}", system_prompt)

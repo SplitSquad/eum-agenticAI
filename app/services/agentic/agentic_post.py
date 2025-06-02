@@ -97,6 +97,19 @@ class AgenticPost:
             return result
 
         response = parse_product(query)
+
+        # 예외처리: category 또는 tags가 누락되었거나 비어 있을 경우 기본값 설정
+        valid_category_values = [cat.value.split('-')[0] for cat in PostCategory]
+        valid_tag_values = [cat.value.split('-')[1] for cat in PostCategory]
+
+        if 'category' not in response or response['category'] not in valid_category_values:
+            logger.warning("[WARNING] 'category' is missing or invalid. Defaulting to '여행'.")
+            response['category'] = '여행'
+
+        if 'tags' not in response or response['tags'] not in valid_tag_values:
+            logger.warning("[WARNING] 'tags' is missing or invalid. Defaulting to '관광'.")
+            response['tags'] = '관광'
+            
         return response
 
     async def second_query(self, token, query, category, tags,live_location):

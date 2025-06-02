@@ -104,6 +104,13 @@ class foodstore():
         description = query
 
         response = parse_product(description)
+        # 예외 처리: 누락된 키에 기본값 설정
+        if 'intention' not in response or not response['intention']:
+            response['intention'] = "기념품점"
+        if 'tag' not in response or response['tag'] not in ["Find", "None"]:
+            response['tag'] = "None"
+
+
         print("[response] :",response)
 
         return response
@@ -202,12 +209,18 @@ class foodstore():
             result = chain.invoke({"input": description})
             print(f"[Category] : {json.dumps(result, indent=2, ensure_ascii=False)}")
             return result
-            
-        description = f"""
-
-        """
 
         response = parse_product(query)
+        # 예외처리
+        # 예외 처리: 'output' 키가 없거나 유효하지 않은 값일 경우 기본값 설정
+        valid_codes = {
+            "MT1", "CS2", "FD6", "CE7", "AT4", "AD5",
+            "OL7", "PK6", "SW8", "SC4", "AC5", "HP8",
+            "PM9", "AG2", "PO3"
+        }
+
+        if 'output' not in response or response['output'] not in valid_codes:
+            response['output'] = "MT1"  # 기본값 (예: 대형마트)
     
         return response
     
@@ -336,7 +349,6 @@ class foodstore():
         - Your goal is to select and return at least 3 locations from a provided list, considering the user's personal profile.
 
         [user_info]
-        - address: (ex. 서울특별시 구로구 개봉2동)
         - country_born: (ex. ko)
         - birthday: (ex. 1555-05-05)
         - visit_purpose: (ex. Study)
@@ -403,7 +415,6 @@ class foodstore():
         {intention}
 
         [user_data]
-        address : {self.user['address']}
         country born: {self.user_prefer['nation']}
         birthday : {self.user['birthday']}
         visitpurpose : {self.user_prefer['visitPurpose']}
@@ -417,7 +428,11 @@ class foodstore():
         logger.info(f"[USER PROMPT] : {description}")
 
         response = parse_product(description)
-    
+        # 예외 처리: 'output' 키가 없거나 형식이 잘못된 경우 빈 리스트로 대체
+        if "output" not in response or not isinstance(response["output"], list):
+            logger.warning("[WARNING] 'output' key is missing or not a list. Defaulting to empty list.")
+            response["output"] = []
+            
         print("[Input_analysis] :  ",response["output"])
 
         return response["output"]

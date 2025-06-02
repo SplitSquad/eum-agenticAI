@@ -37,12 +37,17 @@ class Weather():
         # 유저 위치 정보 수집
         logger.info("[유저 위치 정보 수집...]")
         logger.info(f"[live_location] : {live_location}")
-        if live_location is None or not (live_location.latitude and live_location.longitude):
+
+        if live_location is None or not (getattr(live_location, "latitude", None) and getattr(live_location, "longitude", None)):
+            logger.warning("[WARNING] live_location이 유효하지 않아 사용자 정보 기반으로 fallback 처리합니다.")
             self.user_information_data = await self.user_information.user_api(token)
-            if self.user_information_data.get("address") is None:
-                self.user_information_data["address"] = "서울 중구" 
-        self.user_information_data = self.search_live_location.search(live_location)
-        logger.info(f"[user_information_location] : {self.user_information_data} ")
+            if not self.user_information_data.get("address"):
+                self.user_information_data["address"] = "서울 중구"
+        else:
+            self.user_information_data = self.search_live_location.search(live_location)
+
+        logger.info(f"[user_information_location] : {self.user_information_data}")
+
     
         
         # self.user_information_data['address']
@@ -93,14 +98,21 @@ class Weather():
 
         response = parse_product(description)
         
-        logger.info(f"[lang_chain] : {response['output']}")
-        logger.info(f"[lang_chain_type] : {type(response)}")
+        # 추출 및 보정
+        if not response or 'output' not in response or not response['output'].strip():
+            logger.warning("[WARNING] 'output' key is missing or empty. Defaulting to '서울'.")
+            response['output'] = '서울'
 
-        response = response["output"]
+        # ✅ 여기서 문자열로 덮어쓰기
+        region_name = response["output"]
 
-    
+        logger.info(f"[lang_chain] : {region_name}")
+        logger.info(f"[lang_chain_type] : {type(region_name)}")
 
-        url = await self.get_special_weather_url(response)
+
+
+
+        url = await self.get_special_weather_url(region_name)
         logger.info(f"[ai가 검색할 url] : {url}")
 
         response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
