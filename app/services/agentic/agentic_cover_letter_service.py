@@ -156,20 +156,24 @@ class AgenticCoverLetter:
 
             logger.info("[사용자에게 받은 응답 저장하는중...]")
             response_query = await self.llm.generate(f"""
-                                                       [USER_DATA]
-                                                       {user_data}
-                                                       
-                                                       [ROLE]
-                                                       You are an AI that writes about your growth process and values.
+                                                    [USER_DATA]
+                                                    {user_data}
 
-                                                       [INSTRUCTION]
-                                                       1. Please translate it into Korean  
-                                                       2. Use a polite and respectful tone suitable for a self-introduction letter. 
-                                                       3. expand the content a bit
-                                                       4. Please answer directly without any introduction.
-                                                       5. Please make it into 5 sentences
-                                                       6. Format and content should be appropriate for: {intend}.  
-                                                     query : {query}""")
+                                                    [ROLE]
+                                                    You are an AI that writes a paragraph about the user's growth process and core values for a self-introduction letter.
+
+                                                    [INSTRUCTION]
+                                                    1. Write in Korean.
+                                                    2. Use a polite and formal tone suitable for a self-introduction letter.
+                                                    3. Expand the content in a natural and coherent manner.
+                                                    4. Do not include any introductions like "Sure!" or "Here is your answer".
+                                                    5. The response should be exactly 5 well-structured sentences.
+                                                    6. The content must be relevant for the following purpose: {intend}.
+                                                    7. Avoid repetition and keep the style natural and human-like.
+
+                                                    [QUERY]
+                                                    {query}
+                                                    """)
             state = "growth"
             await self.save_user_data(uid, state, response_query,intend)
             
@@ -191,20 +195,23 @@ class AgenticCoverLetter:
 
             logger.info("[사용자에게 받은 응답 저장하는중...]")
             response_query = await self.llm.generate(f"""
-                                                       [USER_DATA]
-                                                       {user_data}
+                                                    [USER_DATA]
+                                                    {user_data}
 
-                                                       [ROLE]
-                                                       You are an ai that writes about your motivation and aspirations for applying.
+                                                    [ROLE]
+                                                    You are an AI that writes a paragraph about the user's motivation and aspirations for applying to a particular opportunity.
 
-                                                       [INSTRUCTION]
-                                                       1. Please translate it into Korean  
-                                                       2. Use a polite and respectful tone suitable for a self-introduction letter.
-                                                       3. expand the content a bit
-                                                       4. Please answer directly without any introduction.
-                                                       5. Please make it into 4 sentences
-                                                       6. Format and content should be appropriate for: {intend}.
-                                                     query : {query}""")
+                                                    [INSTRUCTION]
+                                                    1. Write in Korean.  
+                                                    2. Use a polite and respectful tone appropriate for a self-introduction letter.  
+                                                    3. Expand the content slightly in a natural and coherent manner.  
+                                                    4. Do not include any introductions like "Sure" or "Here is your answer." Start directly with the response.  
+                                                    5. The response must consist of exactly 4 well-structured sentences.  
+                                                    6. Ensure the format and content are appropriate for the following purpose: {intend}.
+
+                                                    [QUERY]
+                                                    {query}
+                                                    """)
             state = "motivation"
             await self.save_user_data(uid, state, response_query,intend)
             
@@ -226,20 +233,24 @@ class AgenticCoverLetter:
 
             logger.info("[사용자에게 받은 응답 저장하는중...]")
             response_query = await self.llm.generate(f"""
-                                                       [USER_DATA]
-                                                       {user_data}
+                                                    [USER_DATA]
+                                                    {user_data}
 
-                                                       [ROLE]
-                                                       You are an ai that writes about your capabilities and experiences.
+                                                    [ROLE]
+                                                    You are an AI that writes a paragraph about the user's capabilities and past experiences for a self-introduction letter.
 
-                                                       [INSTRUCTION]
-                                                       1. Please translate it into Korean 
-                                                       2. Use a polite and respectful tone suitable for a self-introduction letter. 
-                                                       3. expand the content a bit
-                                                       4. Please answer directly without any introduction.
-                                                       5. Please make it into 5 sentences
-                                                       6. Format and content should be appropriate for: {intend}.
-                                                     query : {query}""")
+                                                    [INSTRUCTION]
+                                                    1. Write in Korean.  
+                                                    2. Use a polite and respectful tone appropriate for a self-introduction letter.  
+                                                    3. Expand the content naturally and coherently.  
+                                                    4. Do not include any introductions like "Sure" or "Here is your answer." Start directly with the response.  
+                                                    5. The response must consist of exactly 5 well-structured sentences.  
+                                                    6. Ensure the format and content are suitable for the following purpose: {intend}.
+
+                                                    [QUERY]
+                                                    {query}
+                                                    """
+                                                    )
             state = "experience"
             await self.save_user_data(uid, state, response_query,intend)
             
@@ -263,20 +274,24 @@ class AgenticCoverLetter:
 
             logger.info("[사용자에게 받은 응답 저장하는중...]")
             response_query = await self.llm.generate(f"""
-                                                       [USER_DATA]
-                                                       {user_data}
+                                                    [USER_DATA]
+                                                    {user_data}
 
-                                                       [ROLE]
-                                                       You are an ai that writes about your plans after joining the company.
+                                                    [ROLE]
+                                                    You are an AI that writes a paragraph about the user's goals and plans after joining the company for a self-introduction letter.
 
-                                                       [INSTRUCTION
-                                                       1. Please translate it into Korean  
-                                                       2. Use a polite and respectful tone suitable for a self-introduction letter.
-                                                       3. expand the content a bit
-                                                       4. Please answer directly without any introduction.
-                                                       5. Please make it into 5 sentences
-                                                       6. Format and content should be appropriate for: {intend}.
-                                                     query : {query}""")
+                                                    [INSTRUCTION]
+                                                    1. Write in Korean.  
+                                                    2. Use a polite and respectful tone appropriate for a self-introduction letter.  
+                                                    3. Expand the content naturally and coherently.  
+                                                    4. Do not include any introductions like "Sure" or "Here is your answer." Start directly with the response.  
+                                                    5. The response must consist of exactly 5 well-structured sentences.  
+                                                    6. Ensure the format and content are suitable for the following purpose: {intend}.
+
+                                                    [QUERY]
+                                                    {query}
+                                                    """
+                                                    )
             state = "plan"
             await self.save_user_data(uid, state, response_query,intend)
             

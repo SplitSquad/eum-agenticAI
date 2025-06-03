@@ -77,9 +77,9 @@ class AgenticClassifier:
     
         ## Available agent types:
         - calendar : managing schedule, event, or etc.
-        - resume : making resumé which is related to job search.
-        - job_search : Looking for a job.
-        - cover_letter : Write a self-introduction.
+        - resume : making resumé which is related to job search. (ex_ 이력서 만들어줘)
+        - job_search : Looking for a job. 
+        - cover_letter : Write a self-introduction. , (ex_ 자소서 만들어줘)
         - post :  making post in community board.
         - location : find a location.
         - weather : When asking about the weather
