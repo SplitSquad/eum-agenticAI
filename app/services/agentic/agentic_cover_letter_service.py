@@ -167,7 +167,7 @@ class AgenticCoverLetter:
                                                     2. Use a polite and formal tone suitable for a self-introduction letter.
                                                     3. Expand the content in a natural and coherent manner.
                                                     4. Do not include any introductions like "Sure!" or "Here is your answer".
-                                                    5. The response should be exactly 5 well-structured sentences.
+                                                    5. The response should be exactly 4 well-structured sentences.
                                                     6. The content must be relevant for the following purpose: {intend}.
                                                     7. Avoid repetition and keep the style natural and human-like.
 
@@ -206,7 +206,7 @@ class AgenticCoverLetter:
                                                     2. Use a polite and respectful tone appropriate for a self-introduction letter.  
                                                     3. Expand the content slightly in a natural and coherent manner.  
                                                     4. Do not include any introductions like "Sure" or "Here is your answer." Start directly with the response.  
-                                                    5. The response must consist of exactly 4 well-structured sentences.  
+                                                    5. The response must consist of exactly 3 well-structured sentences.  
                                                     6. Ensure the format and content are appropriate for the following purpose: {intend}.
 
                                                     [QUERY]
@@ -244,7 +244,7 @@ class AgenticCoverLetter:
                                                     2. Use a polite and respectful tone appropriate for a self-introduction letter.  
                                                     3. Expand the content naturally and coherently.  
                                                     4. Do not include any introductions like "Sure" or "Here is your answer." Start directly with the response.  
-                                                    5. The response must consist of exactly 5 well-structured sentences.  
+                                                    5. The response must consist of exactly 4 well-structured sentences.  
                                                     6. Ensure the format and content are suitable for the following purpose: {intend}.
 
                                                     [QUERY]
@@ -285,7 +285,7 @@ class AgenticCoverLetter:
                                                     2. Use a polite and respectful tone appropriate for a self-introduction letter.  
                                                     3. Expand the content naturally and coherently.  
                                                     4. Do not include any introductions like "Sure" or "Here is your answer." Start directly with the response.  
-                                                    5. The response must consist of exactly 5 well-structured sentences.  
+                                                    5. The response must consist of exactly 4 well-structured sentences.  
                                                     6. Ensure the format and content are suitable for the following purpose: {intend}.
 
                                                     [QUERY]

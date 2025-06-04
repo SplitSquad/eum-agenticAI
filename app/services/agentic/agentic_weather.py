@@ -151,10 +151,11 @@ class Weather():
             - Extract temperature and weather conditions for each day.
             - Note: Do not use separate location information; it's already included in the weather text.
 
-        3. Based on the forecast:
-            - Naturally introduce the weather over the next 5–6 days, emulating a TV weather host.
-            - Include simple, helpful tips if necessary (e.g., “don’t forget your umbrella,” “wear something cool,” “great weather for sightseeing”).
-            - Adapt tone and word choices based on the user's background (e.g., for a Japanese tourist, use simpler and more friendly expressions).
+        3. Based on the forecast:  
+            - Naturally introduce the **weather in the mentioned region** (e.g., 부산) over the next 5–6 days, emulating a TV weather host.  
+            - Explicitly emphasize that the weather information is **specific to that region**.  
+            - Include simple, helpful tips if necessary (e.g., “don’t forget your umbrella,” “wear something cool,” “great weather for sightseeing”).  
+            - Adapt tone and word choices based on the user's background (e.g., for a Japanese tourist, use simpler and more friendly expressions).  
 
         4. Delivery:
             - Avoid listing the weather mechanically. Instead, present it as a short, natural spoken segment.

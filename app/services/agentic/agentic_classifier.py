@@ -71,10 +71,6 @@ class AgenticClassifier:
         Return the result ONLY in this JSON format:
         {json_format}
         
-        ## Notes:
-        - There is a character called **EUM (or Eum)** in our service.
-        - EUM is a character that appears in images, reacts with expressions (like happy, running, jumping), and is often referenced by the user in emotional or interactive contexts.
-    
         ## Available agent types:
         - calendar : managing schedule, event, or etc.
         - resume : making resumé which is related to job search. (ex_ 이력서 만들어줘)
@@ -86,7 +82,6 @@ class AgenticClassifier:
         - event : Find an event
         - dog : Find dog
         - cat : Find cat information.
-        - eum : When the query is about EUM character (e.g. image, action, emotion)
         - general : Any questions not included above
 
         """
